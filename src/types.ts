@@ -206,28 +206,25 @@ export const PaymentCategoryItemSchema = z.object({
 export const PaymentCategoryResponseSchema = ApiResponseSchema(z.array(PaymentCategoryItemSchema));
 
 // Warehouse Response
-export const WarehouseItemSchema = z.object({
+export const WarehouseListItemSchema = z.object({
   warehouse_id: z.number(),
-  company_name: z.string().optional(),
-  contact_person_name: z.string().optional(),
+  warehouse_name: z.string(),
   address_line1: z.string(),
-  address_line2: z.string().optional(),
-  address_landmark: z.string().optional(),
+  address_line2: z.string().nullable(),
+  address_landmark: z.string().nullable(),
   address_pincode: z.string(),
-  address_city: z.string().optional(),
-  address_state: z.string().optional(),
-  address_country: z.string().optional(),
-  address_email_id: z.string().optional(),
-  contact_number_primary: z.string(),
+  address_city: z.string(),
+  address_state: z.string(),
+  warehouse_contact_person: z.string(),
+  warehouse_contact_number_primary: z.string(),
+  create_date: z.string().optional(),
 });
 
-export const WarehouseAddResponseSchema = ApiResponseSchema(WarehouseItemSchema);
+export const WarehouseAddResponseSchema = ApiResponseSchema(WarehouseListItemSchema);
 
 export const WarehouseListDataSchema = z.object({
-  warehouses: z.array(WarehouseItemSchema),
-  total_count: z.number(),
-  page_index: z.number(),
-  page_size: z.number(),
+  result_count: z.number(),
+  result_data: z.array(WarehouseListItemSchema),
 });
 
 export const WarehouseListResponseSchema = ApiResponseSchema(WarehouseListDataSchema);
