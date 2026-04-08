@@ -332,3 +332,49 @@ export type ShippingRatesResponse = z.infer<typeof ShippingRatesResponseSchema>;
 export type ShipmentDataResponse = z.infer<typeof ShipmentDataResponseSchema>;
 export type CalculateRateResponse = z.infer<typeof CalculateRateResponseSchema>;
 export type TrackingResponse = z.infer<typeof TrackingResponseSchema>;
+
+// ==================== PRODUCT CATEGORIES ====================
+
+/**
+ * Static list of product categories supported by Bigship API.
+ * These categories are used in the product_category field when creating orders.
+ *
+ * @example
+ * ```ts
+ * import { PRODUCT_CATEGORIES } from '@agamya/bigship-sdk';
+ *
+ * // Get category name by ID
+ * const category = PRODUCT_CATEGORIES.find(c => c.id === 4);
+ * console.log(category.name); // "Electronics"
+ *
+ * // Use in order creation
+ * await client.addSingleOrder({
+ *   ...
+ *   order_detail: {
+ *     ...
+ *     box_details: [{
+ *       ...
+ *       product_details: [{
+ *         product_category: category.name,
+ *         ...
+ *       }]
+ *     }]
+ *   }
+ * });
+ * ```
+ */
+export const PRODUCT_CATEGORIES = [
+  { id: 1, name: 'Accessories' },
+  { id: 2, name: 'Fashion & Clothing' },
+  { id: 3, name: 'Book & Stationary' },
+  { id: 4, name: 'Electronics' },
+  { id: 5, name: 'FMCG' },
+  { id: 6, name: 'Footwear' },
+  { id: 7, name: 'Toys' },
+  { id: 8, name: 'Sports Equipment' },
+  { id: 9, name: 'Others' },
+  { id: 10, name: 'Wellness' },
+  { id: 11, name: 'Medicines' },
+] as const;
+
+export type ProductCategory = typeof PRODUCT_CATEGORIES[number];
