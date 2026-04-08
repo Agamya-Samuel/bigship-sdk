@@ -266,12 +266,8 @@ export const WarehouseListDataSchema = z.object({
 
 export const WarehouseListResponseSchema = ApiResponseSchema(WarehouseListDataSchema);
 
-// Order Response
-export const AddOrderDataSchema = z.object({
-  system_order_id: z.string(),
-});
-
-export const AddOrderResponseSchema = ApiResponseSchema(AddOrderDataSchema);
+// Order Response - data is system_order_id as string directly
+export const AddOrderResponseSchema = ApiResponseSchema(z.string());
 
 export const ManifestResponseSchema = ApiResponseSchema(z.null());
 
