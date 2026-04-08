@@ -16,11 +16,6 @@ export const LoginRequestSchema = z.object({
 });
 
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
-export type LoginResponse = {
-  status: string;
-  message?: string;
-  data: { token: string };
-};
 
 // ==================== ORDER ====================
 export const WarehouseDetailSchema = z.object({
@@ -161,3 +156,179 @@ export class BigshipError extends Error {
     this.name = 'BigshipError';
   }
 }
+
+// ==================== RESPONSE SCHEMAS ====================
+
+// Standard API Response wrapper
+export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    success: z.boolean(),
+    message: z.string(),
+    responseCode: z.number(),
+    data: dataSchema.nullable(),
+  });
+
+// Auth Response
+export const LoginDataSchema = z.object({
+  token: z.string(),
+});
+
+export const LoginResponseSchema = ApiResponseSchema(LoginDataSchema);
+
+// Wallet Response
+export const WalletBalanceResponseSchema = ApiResponseSchema(z.string());
+
+// Courier Response
+export const CourierItemSchema = z.object({
+  shipment_category: z.enum(['b2c', 'b2b']),
+  courier_id: z.number(),
+  courier_name: z.string(),
+  courier_type: z.enum(['Surface', 'Air']).optional(),
+  courier_status: z.boolean().optional(),
+  admin_status: z.boolean().optional(),
+});
+
+export const CourierListResponseSchema = ApiResponseSchema(z.array(CourierItemSchema));
+
+export const TransporterItemSchema = z.object({
+  transporter_id: z.number(),
+  transporter_name: z.string(),
+});
+
+export const TransporterListResponseSchema = ApiResponseSchema(z.array(TransporterItemSchema));
+
+// Payment Category Response
+export const PaymentCategoryItemSchema = z.object({
+  payment_category: z.enum(['COD', 'Prepaid', 'ToPay']),
+  status: z.boolean(),
+});
+
+export const PaymentCategoryResponseSchema = ApiResponseSchema(z.array(PaymentCategoryItemSchema));
+
+// Warehouse Response
+export const WarehouseItemSchema = z.object({
+  warehouse_id: z.number(),
+  company_name: z.string().optional(),
+  contact_person_name: z.string().optional(),
+  address_line1: z.string(),
+  address_line2: z.string().optional(),
+  address_landmark: z.string().optional(),
+  address_pincode: z.string(),
+  address_city: z.string().optional(),
+  address_state: z.string().optional(),
+  address_country: z.string().optional(),
+  address_email_id: z.string().optional(),
+  contact_number_primary: z.string(),
+});
+
+export const WarehouseAddResponseSchema = ApiResponseSchema(WarehouseItemSchema);
+
+export const WarehouseListDataSchema = z.object({
+  warehouses: z.array(WarehouseItemSchema),
+  total_count: z.number(),
+  page_index: z.number(),
+  page_size: z.number(),
+});
+
+export const WarehouseListResponseSchema = ApiResponseSchema(WarehouseListDataSchema);
+
+// Order Response
+export const AddOrderDataSchema = z.object({
+  system_order_id: z.string(),
+});
+
+export const AddOrderResponseSchema = ApiResponseSchema(AddOrderDataSchema);
+export const ManifestResponseSchema = ApiResponseSchema(z.null());
+export const CancelResponseSchema = ApiResponseSchema(z.null());
+
+// Shipping Rates Response
+export const AdditionalChargesSchema = z.object({
+  risk_type_charge: z.number().optional(),
+  lr_cost: z.number().optional(),
+  green_tax: z.number().optional(),
+  handling_charge: z.number().optional(),
+  pickup_charge: z.number().optional(),
+  state_tax: z.number().optional(),
+  to_pay: z.number().optional(),
+  oda: z.number().optional(),
+  warai_charge: z.number().optional(),
+  odc_charge: z.number().optional(),
+  courier_charge: z.number().optional(),
+});
+
+export const ShippingRateItemSchema = z.object({
+  system_order_id: z.number().optional(),
+  courier_id: z.number(),
+  courier_name: z.string(),
+  courier_type: z.string().optional(),
+  zone: z.string().optional(),
+  tat: z.number().optional(),
+  billable_weight: z.number().optional(),
+  risk_type_name: z.string().nullable().optional(),
+  total_shipping_charges: z.number(),
+  freight_charge: z.number().optional(),
+  cod_charge: z.number().optional(),
+  courier_charge: z.number().optional(),
+  other_additional_charges: AdditionalChargesSchema.nullable().optional(),
+});
+
+export const ShippingRatesResponseSchema = ApiResponseSchema(z.array(ShippingRateItemSchema));
+
+// Shipment Data Response
+export const ShipmentDataDataSchema = z.object({
+  courier_id: z.string(),
+  courier_name: z.string(),
+  lr_number: z.string().nullable(),
+  master_awb: z.string(),
+});
+
+export const ShipmentDataResponseSchema = ApiResponseSchema(ShipmentDataDataSchema);
+
+// Calculator Response
+export const CalculatorRateItemSchema = z.object({
+  courier_id: z.number(),
+  courier_name: z.string(),
+  courier_type: z.string(),
+  zone: z.string(),
+  tat: z.number(),
+  billable_weight: z.number(),
+  risk_type_name: z.string().nullable(),
+  total_shipping_charges: z.number(),
+  courier_charge: z.number(),
+  other_additional_charges: AdditionalChargesSchema.nullable(),
+});
+
+export const CalculateRateResponseSchema = ApiResponseSchema(z.array(CalculatorRateItemSchema));
+
+// Tracking Response
+export const TrackingEventSchema = z.object({
+  scan_status: z.string(),
+  scan_datetime: z.string(),
+  scan_location: z.string().optional(),
+  scan_remarks: z.string().optional(),
+});
+
+export const TrackingDataSchema = z.object({
+  tracking_id: z.string(),
+  tracking_type: z.string(),
+  current_status: z.string().optional(),
+  tracking_events: z.array(TrackingEventSchema),
+});
+
+export const TrackingResponseSchema = ApiResponseSchema(TrackingDataSchema);
+
+// ==================== RESPONSE TYPE EXPORTS ====================
+export type LoginResponse = z.infer<typeof LoginResponseSchema>;
+export type WalletBalanceResponse = z.infer<typeof WalletBalanceResponseSchema>;
+export type CourierListResponse = z.infer<typeof CourierListResponseSchema>;
+export type TransporterListResponse = z.infer<typeof TransporterListResponseSchema>;
+export type PaymentCategoryResponse = z.infer<typeof PaymentCategoryResponseSchema>;
+export type WarehouseAddResponse = z.infer<typeof WarehouseAddResponseSchema>;
+export type WarehouseListResponse = z.infer<typeof WarehouseListResponseSchema>;
+export type AddOrderResponse = z.infer<typeof AddOrderResponseSchema>;
+export type ManifestResponse = z.infer<typeof ManifestResponseSchema>;
+export type CancelResponse = z.infer<typeof CancelResponseSchema>;
+export type ShippingRatesResponse = z.infer<typeof ShippingRatesResponseSchema>;
+export type ShipmentDataResponse = z.infer<typeof ShipmentDataResponseSchema>;
+export type CalculateRateResponse = z.infer<typeof CalculateRateResponseSchema>;
+export type TrackingResponse = z.infer<typeof TrackingResponseSchema>;
