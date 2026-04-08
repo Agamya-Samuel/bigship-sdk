@@ -3,19 +3,45 @@ import { z } from 'zod';
 import {
   BigshipConfig,
   LoginRequestSchema,
+  WalletBalanceResponseSchema,
+  CourierListResponseSchema,
+  TransporterListResponseSchema,
+  PaymentCategoryResponseSchema,
+  WarehouseAddRequestSchema,
+  WarehouseAddResponseSchema,
+  WarehouseListResponseSchema,
   AddSingleOrderRequestSchema,
   AddHeavyOrderRequestSchema,
-  RateCalculatorRequestSchema,
+  AddOrderResponseSchema,
   ManifestSingleRequestSchema,
   ManifestHeavyRequestSchema,
+  ManifestResponseSchema,
+  ShippingRatesResponseSchema,
   CancelRequestSchema,
-  WarehouseAddRequestSchema,
+  CancelResponseSchema,
+  ShipmentDataResponseSchema,
+  RateCalculatorRequestSchema,
+  CalculateRateResponseSchema,
+  TrackingResponseSchema,
   BigshipError,
   type LoginRequest,
+  type WalletBalanceResponse,
+  type CourierListResponse,
+  type TransporterListResponse,
+  type PaymentCategoryResponse,
+  type WarehouseAddRequest,
+  type WarehouseAddResponse,
+  type WarehouseListResponse,
   type AddSingleOrderRequest,
   type AddHeavyOrderRequest,
+  type AddOrderResponse,
+  type ManifestResponse,
+  type ShippingRatesResponse,
+  type CancelResponse,
+  type ShipmentDataResponse,
   type RateCalculatorRequest,
-  type WarehouseAddRequest,
+  type CalculateRateResponse,
+  type TrackingResponse,
 } from './types';
 
 export class BigshipClient {
@@ -72,121 +98,126 @@ export class BigshipClient {
 
   // ==================== WALLET ====================
 
-  async getWalletBalance() {
+  async getWalletBalance(): Promise<WalletBalanceResponse> {
     await this.login();
     const res = await this.axios.get('/api/Wallet/balance/get');
-    return res.data;
+    return WalletBalanceResponseSchema.parse(res.data);
   }
 
   // ==================== COURIER ====================
 
-  async getCourierList(shipmentCategory: 'b2b' | 'b2c' = 'b2c') {
+  async getCourierList(shipmentCategory: 'b2b' | 'b2c' = 'b2c'): Promise<CourierListResponse> {
     await this.login();
     const res = await this.axios.get('/api/courier/get/all', { params: { shipment_category: shipmentCategory } });
-    return res.data;
+    return CourierListResponseSchema.parse(res.data);
   }
 
-  async getCourierTransporterList(courierId: number) {
+  async getCourierTransporterList(courierId: number): Promise<TransporterListResponse> {
     await this.login();
     const res = await this.axios.get('/api/courier/get/transport/list', { params: { courier_id: courierId } });
-    return res.data;
+    return TransporterListResponseSchema.parse(res.data);
   }
 
   // ==================== PAYMENT ====================
 
-  async getPaymentCategory(shipmentCategory: 'b2b' | 'b2c' = 'b2c') {
+  async getPaymentCategory(shipmentCategory: 'b2b' | 'b2c' = 'b2c'): Promise<PaymentCategoryResponse> {
     await this.login();
     const res = await this.axios.get('/api/payment/category', { params: { shipment_category: shipmentCategory } });
-    return res.data;
+    return PaymentCategoryResponseSchema.parse(res.data);
   }
 
   // ==================== WAREHOUSE ====================
 
-  async addWarehouse(payload: WarehouseAddRequest) {
+  async addWarehouse(payload: WarehouseAddRequest): Promise<WarehouseAddResponse> {
     await this.login();
     const validated = WarehouseAddRequestSchema.parse(payload);
     const res = await this.axios.post('/api/warehouse/add', validated);
-    return res.data;
+    return WarehouseAddResponseSchema.parse(res.data);
   }
 
-  async getWarehouseList(pageIndex = 1, pageSize = 10) {
+  async getWarehouseList(pageIndex = 1, pageSize = 10): Promise<WarehouseListResponse> {
     await this.login();
     const res = await this.axios.get('/api/warehouse/get/list', {
       params: { page_index: pageIndex, page_size: pageSize },
     });
-    return res.data;
+    return WarehouseListResponseSchema.parse(res.data);
   }
 
   // ==================== ORDER ====================
 
-  async addSingleOrder(payload: AddSingleOrderRequest) {
+  async addSingleOrder(payload: AddSingleOrderRequest): Promise<AddOrderResponse> {
     await this.login();
     const validated = AddSingleOrderRequestSchema.parse(payload);
     const res = await this.axios.post('/api/order/add/single', validated);
-    return res.data;
+    return AddOrderResponseSchema.parse(res.data);
   }
 
-  async addHeavyOrder(payload: AddHeavyOrderRequest) {
+  async addHeavyOrder(payload: AddHeavyOrderRequest): Promise<AddOrderResponse> {
     await this.login();
     const validated = AddHeavyOrderRequestSchema.parse(payload);
     const res = await this.axios.post('/api/order/add/heavy', validated);
-    return res.data;
+    return AddOrderResponseSchema.parse(res.data);
   }
 
-  async manifestSingle(payload: z.infer<typeof ManifestSingleRequestSchema>) {
+  async manifestSingle(payload: z.infer<typeof ManifestSingleRequestSchema>): Promise<ManifestResponse> {
     await this.login();
     const validated = ManifestSingleRequestSchema.parse(payload);
     const res = await this.axios.post('/api/order/manifest/single', validated);
-    return res.data;
+    return ManifestResponseSchema.parse(res.data);
   }
 
-  async manifestHeavy(payload: z.infer<typeof ManifestHeavyRequestSchema>) {
+  async manifestHeavy(payload: z.infer<typeof ManifestHeavyRequestSchema>): Promise<ManifestResponse> {
     await this.login();
     const validated = ManifestHeavyRequestSchema.parse(payload);
     const res = await this.axios.post('/api/order/manifest/heavy', validated);
-    return res.data;
+    return ManifestResponseSchema.parse(res.data);
   }
 
-  async getShippingRates(systemOrderId: string, shipmentCategory: 'B2C' | 'B2B' = 'B2C', riskType = '') {
+  async getShippingRates(systemOrderId: string, shipmentCategory: 'B2C' | 'B2B' = 'B2C', riskType = ''): Promise<ShippingRatesResponse> {
     await this.login();
     const res = await this.axios.get('/api/order/shipping/rates', {
       params: { shipment_category: shipmentCategory, system_order_id: systemOrderId, risk_type: riskType },
     });
-    return res.data;
+    return ShippingRatesResponseSchema.parse(res.data);
   }
 
-  async cancelShipments(awbs: string[]) {
+  async cancelShipments(awbs: string[]): Promise<CancelResponse> {
     await this.login();
     const validated = CancelRequestSchema.parse(awbs);
     const res = await this.axios.put('/api/order/cancel', validated);
-    return res.data;
+    return CancelResponseSchema.parse(res.data);
   }
 
   // ==================== CALCULATOR ====================
 
-  async calculateRate(payload: RateCalculatorRequest) {
+  async calculateRate(payload: RateCalculatorRequest): Promise<CalculateRateResponse> {
     await this.login();
     const validated = RateCalculatorRequestSchema.parse(payload);
     const res = await this.axios.post('/api/calculator', validated);
-    return res.data;
+    return CalculateRateResponseSchema.parse(res.data);
   }
 
   // ==================== SHIPMENT ====================
 
-  async getShipmentData(shipmentDataId: number, systemOrderId: string) {
+  /**
+   * Get shipment data (AWB, Label, or Manifest)
+   * @param shipmentDataId - 1 = AWB, 2 = Download Label, 3 = Download Manifest
+   * @param systemOrderId - The system order ID from addSingleOrder or addHeavyOrder
+   */
+  async getShipmentData(shipmentDataId: number, systemOrderId: string): Promise<ShipmentDataResponse> {
     await this.login();
     const res = await this.axios.post('/api/shipment/data', null, {
       params: { shipment_data_id: shipmentDataId, system_order_id: systemOrderId },
     });
-    return res.data;
+    return ShipmentDataResponseSchema.parse(res.data);
   }
 
-  async trackShipment(trackingId: string, trackingType: 'awb' = 'awb') {
+  async trackShipment(trackingId: string, trackingType: 'awb' | 'lrn' = 'awb'): Promise<TrackingResponse> {
     await this.login();
     const res = await this.axios.get('/api/tracking', {
       params: { tracking_type: trackingType, tracking_id: trackingId },
     });
-    return res.data;
+    return TrackingResponseSchema.parse(res.data);
   }
 }
 
