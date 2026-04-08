@@ -8,6 +8,11 @@ export interface BigshipConfig {
   timeout?: number;
 }
 
+// ==================== VALIDATION HELPERS ====================
+
+const base64DataURI = () =>
+  z.string().regex(/^data:(image\/pdf|image\/jpeg);base64,/);
+
 // ==================== AUTH ====================
 export const LoginRequestSchema = z.object({
   user_name: z.string().email(),
@@ -24,18 +29,18 @@ export const WarehouseDetailSchema = z.object({
 });
 
 export const ConsigneeAddressSchema = z.object({
-  address_line1: z.string(),
-  address_line2: z.string().optional(),
-  address_landmark: z.string().optional(),
-  pincode: z.string(),
+  address_line1: z.string().min(10).max(50).regex(/^[a-zA-Z0-9 .,\-/]+$/),
+  address_line2: z.string().max(50).regex(/^[a-zA-Z0-9 .,\-/]+$/).optional(),
+  address_landmark: z.string().max(50).regex(/^[a-zA-Z0-9 .,\-/]+$/).optional(),
+  pincode: z.string().regex(/^[0-9]{6}$/),
 });
 
 export const ConsigneeDetailSchema = z.object({
-  first_name: z.string(),
-  last_name: z.string(),
-  company_name: z.string().optional(),
-  contact_number_primary: z.string(),
-  contact_number_secondary: z.string().optional(),
+  first_name: z.string().min(3).max(25).regex(/^[a-zA-Z. ]+$/),
+  last_name: z.string().min(3).max(25).regex(/^[a-zA-Z. ]+$/),
+  company_name: z.string().max(50).optional(),
+  contact_number_primary: z.string().min(10).max(12).regex(/^[0-9]+$/),
+  contact_number_secondary: z.string().min(10).max(12).regex(/^[0-9]+$/).optional(),
   email_id: z.string().email().optional(),
   consignee_address: ConsigneeAddressSchema,
 });
@@ -47,10 +52,23 @@ export const ProductDetailSchema = z.object({
   product_quantity: z.number().int().positive(),
   each_product_invoice_amount: z.number().nonnegative(),
   each_product_collectable_amount: z.number().nonnegative(),
-  hsn: z.string().optional(),
+  hsn: z.string().min(12).max(15).regex(/^[a-zA-Z0-9]+$/).optional(),
 });
 
-export const BoxDetailSchema = z.object({
+// B2C Box Detail - exactly 1 box
+export const BoxDetailB2CSchema = z.object({
+  each_box_dead_weight: z.number().positive(),
+  each_box_length: z.number().positive(),
+  each_box_width: z.number().positive(),
+  each_box_height: z.number().positive(),
+  each_box_invoice_amount: z.number().nonnegative(),
+  each_box_collectable_amount: z.number().nonnegative(),
+  box_count: z.literal(1), // B2C must have exactly 1 box
+  product_details: z.array(ProductDetailSchema),
+});
+
+// B2B Box Detail - multiple boxes allowed
+export const BoxDetailB2BSchema = z.object({
   each_box_dead_weight: z.number().positive(),
   each_box_length: z.number().positive(),
   each_box_width: z.number().positive(),
@@ -62,36 +80,33 @@ export const BoxDetailSchema = z.object({
 });
 
 export const DocumentDetailSchema = z.object({
-  invoice_document_file: z.string().optional(),
-  ewaybill_document_file: z.string().optional(),
+  invoice_document_file: base64DataURI().optional(),
+  ewaybill_document_file: base64DataURI().optional(),
 });
 
-export const OrderDetailSchema = z.object({
+// B2C Order Detail
+export const OrderDetailB2CSchema = z.object({
   invoice_date: z.string().datetime(),
   invoice_id: z.string(),
   payment_type: z.enum(['Prepaid', 'COD']),
   total_collectable_amount: z.number().nonnegative(),
-  shipment_invoice_amount: z.number().nonnegative(),
-  box_details: z.array(BoxDetailSchema),
+  shipment_invoice_amount: z.number().positive(),
+  box_details: z.array(BoxDetailB2CSchema),
   ewaybill_number: z.string().optional(),
-  document_detail: z.object({
-    invoice_document_file: z.string().optional(),
-    ewaybill_document_file: z.string().optional(),
-  }).optional(),
+  document_detail: DocumentDetailSchema.optional(),
 });
 
-export const AddSingleOrderRequestSchema = z.object({
-  shipment_category: z.enum(['b2c', 'b2b']),
-  warehouse_detail: WarehouseDetailSchema,
-  consignee_detail: ConsigneeDetailSchema,
-  order_detail: OrderDetailSchema,
+// B2B Order Detail - ewaybill required
+export const OrderDetailB2BSchema = z.object({
+  invoice_date: z.string().datetime(),
+  invoice_id: z.string(),
+  payment_type: z.enum(['Prepaid', 'COD']),
+  total_collectable_amount: z.number().nonnegative(),
+  shipment_invoice_amount: z.number().positive(),
+  box_details: z.array(BoxDetailB2BSchema),
+  ewaybill_number: z.string(),
+  document_detail: DocumentDetailSchema.optional(),
 });
-
-export type AddSingleOrderRequest = z.infer<typeof AddSingleOrderRequestSchema>;
-
-export const AddHeavyOrderRequestSchema = AddSingleOrderRequestSchema;
-
-export type AddHeavyOrderRequest = z.infer<typeof AddHeavyOrderRequestSchema>;
 
 // Rate Calculator
 export const RateCalculatorBoxDetailSchema = z.object({
@@ -129,11 +144,11 @@ export const CancelRequestSchema = z.array(z.string());
 
 // ==================== WAREHOUSE ====================
 export const WarehouseAddRequestSchema = z.object({
-  address_line1: z.string(),
-  address_line2: z.string().optional(),
-  address_landmark: z.string().optional(),
-  address_pincode: z.string(),
-  contact_number_primary: z.string(),
+  address_line1: z.string().min(10).max(50),
+  address_line2: z.string().max(50).optional(),
+  address_landmark: z.string().max(50).optional(),
+  address_pincode: z.string().regex(/^[0-9]{6}$/),
+  contact_number_primary: z.string().min(10).max(12).regex(/^[0-9]+$/),
 });
 
 export type WarehouseAddRequest = z.infer<typeof WarehouseAddRequestSchema>;
@@ -156,6 +171,28 @@ export class BigshipError extends Error {
     this.name = 'BigshipError';
   }
 }
+
+// ==================== REQUEST SCHEMAS ====================
+
+// B2C Single Order
+export const AddSingleOrderRequestSchema = z.object({
+  shipment_category: z.literal('b2c'),
+  warehouse_detail: WarehouseDetailSchema,
+  consignee_detail: ConsigneeDetailSchema,
+  order_detail: OrderDetailB2CSchema,
+});
+
+export type AddSingleOrderRequest = z.infer<typeof AddSingleOrderRequestSchema>;
+
+// B2B Heavy Order
+export const AddHeavyOrderRequestSchema = z.object({
+  shipment_category: z.literal('b2b'),
+  warehouse_detail: WarehouseDetailSchema,
+  consignee_detail: ConsigneeDetailSchema,
+  order_detail: OrderDetailB2BSchema,
+});
+
+export type AddHeavyOrderRequest = z.infer<typeof AddHeavyOrderRequestSchema>;
 
 // ==================== RESPONSE SCHEMAS ====================
 
@@ -235,7 +272,9 @@ export const AddOrderDataSchema = z.object({
 });
 
 export const AddOrderResponseSchema = ApiResponseSchema(AddOrderDataSchema);
+
 export const ManifestResponseSchema = ApiResponseSchema(z.null());
+
 export const CancelResponseSchema = ApiResponseSchema(z.null());
 
 // Shipping Rates Response
