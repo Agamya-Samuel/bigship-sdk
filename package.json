@@ -1,0 +1,42 @@
+{
+  "name": "@agamya/bigship-sdk",
+  "version": "1.0.0",
+  "description": "Official TypeScript SDK for Bigship.in External Outbound API (shipping, orders, rates, tracking, etc.)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Add vitest tests\""
+  },
+  "keywords": [
+    "bigship",
+    "courier",
+    "shipping",
+    "logistics",
+    "india",
+    "b2c",
+    "b2b",
+    "nextjs"
+  ],
+  "author": "Agamya",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^20.14.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agamya/bigship-sdk"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
