@@ -1,6 +1,10 @@
 # @agamya/bigship-sdk
 
-Official TypeScript SDK for the Bigship.in External Outbound API - a production-ready, type-safe NPM package for shipping, orders, rates, tracking, and more.
+TypeScript SDK for the Bigship.in External Outbound API - a production-ready, type-safe NPM package for shipping, orders, rates, tracking, and more.
+
+## Disclaimer
+
+This SDK is an unofficial community project based on the publicly available [Bigship External Outbound API Postman Collection](https://www.postman.com/bigshipapi/bigship-in-domestic-outbound-api/collection/mcfvb23/bigship-external-outbound-api-project). It is not officially affiliated with, endorsed by, or connected to Bigship.in.
 
 ## Features
 
