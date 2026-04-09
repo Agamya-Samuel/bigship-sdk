@@ -4,7 +4,7 @@ TypeScript SDK for the Bigship.in External Outbound API - a production-ready, ty
 
 ## Disclaimer
 
-This SDK is an unofficial community project based on the publicly available [Bigship External Outbound API Postman Collection](https://www.postman.com/bigshipapi/bigship-in-domestic-outbound-api/collection/mcfvb23/bigship-external-outbound-api-project). It is not officially affiliated with, endorsed by, or connected to Bigship.in.
+This SDK is an unofficial community project based on the publicly available [Bigship Domestic Outbound API Documentation](https://web.archive.org/web/20260408120641/https://bigship.in/api-document/Bigship-Domestic-Outbound-API-Documents.pdf). It is not officially affiliated with, endorsed by, or connected to Bigship.in.
 
 ## Features
 
