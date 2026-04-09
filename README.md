@@ -269,4 +269,4 @@ MIT
 
 ## Support
 
-For issues and questions, please visit the [GitHub repository](https://github.com/agamya/bigship-sdk).
+For issues and questions, please visit the [GitHub repository](https://github.com/Agamya-Samuel/bigship-sdk).
