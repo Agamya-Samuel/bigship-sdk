@@ -10,6 +10,7 @@ This SDK is an unofficial community project based on the publicly available [Big
 
 - **Type-Safe**: Built with Zod for runtime validation and automatic TypeScript type inference
 - **Auto-Authentication**: Login once, token cached for all subsequent requests
+- **Rate Limiting**: Automatic retry with exponential backoff for 429 errors (100 req/min limit)
 - **Zero Runtime Dependencies**: Only `axios` for HTTP and `zod` for validation
 - **Next.js / TypeScript First**: Designed for modern server-side applications
 - **Production Ready**: Comprehensive error handling, timeout support, sandbox/live mode
@@ -146,9 +147,30 @@ const rates = await client.calculateRate({
 
 ### Track Shipment
 
+Track by AWB (Air Waybill) or LRN (Lorry Receipt Number):
+
 ```typescript
+// Track by AWB (default)
 const tracking = await client.trackShipment('13090318586270', 'awb');
+
+// Track by LRN
+const tracking = await client.trackShipment('LR-6554921441', 'lrn');
 console.log(tracking);
+```
+
+### Get Shipment Data
+
+Get AWB, download label, or download manifest:
+
+```typescript
+// Get AWB details
+const awb = await client.getShipmentData(1, 'SYSTEM_ORDER_ID');
+
+// Download label PDF
+const label = await client.getShipmentData(2, 'SYSTEM_ORDER_ID');
+
+// Download manifest PDF
+const manifest = await client.getShipmentData(3, 'SYSTEM_ORDER_ID');
 ```
 
 ### Cancel Shipments
@@ -215,6 +237,16 @@ try {
   }
 }
 ```
+
+### Rate Limiting
+
+The Bigship API has a rate limit of **100 requests per minute**. The SDK automatically handles rate limit errors (HTTP 429) with:
+
+- **Automatic retries** up to 3 times
+- **Exponential backoff**: 2s, 4s, 8s delays between retries
+- **Clear error message** when limit is exceeded: `"Rate limit exceeded (100 requests/minute). Please retry after 60 seconds."`
+
+If you need to make many requests in bulk, consider adding delays between requests or implementing a queue system.
 
 ## TypeScript Support
 
