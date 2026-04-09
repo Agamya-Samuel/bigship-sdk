@@ -61,15 +61,43 @@ export class BigshipClient {
       headers: { 'Content-Type': 'application/json', 'User-Agent': '@agamya/bigship-sdk/1.0.0' },
     });
 
+    // Rate limiting retry logic for 429 errors (100 requests/minute limit)
     this.axios.interceptors.response.use(
       (res) => res,
-      (err: AxiosError) => {
+      async (err: AxiosError) => {
+        const status = err.response?.status;
+
+        // Handle 429 Too Many Requests with retry
+        if (status === 429) {
+          const config = err.config;
+          if (!config) return Promise.reject(err);
+
+          // Retry up to 3 times with exponential backoff
+          const retryCount = (config as any).__retryCount || 0;
+          if (retryCount >= 3) {
+            throw new BigshipError(
+              'Rate limit exceeded (100 requests/minute). Please retry after 60 seconds.',
+              429,
+              'RATE_LIMIT_EXCEEDED',
+              (err.response?.data as any) || undefined
+            );
+          }
+
+          // Exponential backoff: 2s, 4s, 8s
+          const delay = Math.pow(2, retryCount) * 1000;
+          await new Promise((resolve) => setTimeout(resolve, delay));
+
+          (config as any).__retryCount = retryCount + 1;
+          return this.axios(config);
+        }
+
+        // Handle other errors
         const data = err.response?.data as any;
         throw new BigshipError(
           data?.message || err.message || 'Bigship API error',
-          err.response?.status,
+          status,
           data?.code,
-          data
+          data || undefined
         );
       }
     );
