@@ -6,6 +6,8 @@ TypeScript SDK for the Bigship.in External Outbound API - a production-ready, ty
 
 This SDK is an unofficial community project based on the publicly available [Bigship Domestic Outbound API Documentation](https://web.archive.org/web/20260408120641/https://bigship.in/api-document/Bigship-Domestic-Outbound-API-Documents.pdf). It is not officially affiliated with, endorsed by, or connected to Bigship.in.
 
+**Legal Contact:** If you have any legal concerns or would like this project to be removed, please contact [legal@agamya.dev](mailto:legal@agamya.dev) (reply within 24 hrs).
+
 ## Features
 
 - **Type-Safe**: Built with Zod for runtime validation and automatic TypeScript type inference
