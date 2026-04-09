@@ -93,7 +93,7 @@ export const OrderDetailB2CSchema = z.object({
   shipment_invoice_amount: z.number().positive(),
   box_details: z.array(BoxDetailB2CSchema),
   ewaybill_number: z.string().optional(),
-  document_detail: DocumentDetailSchema.optional(),
+  document_detail: DocumentDetailSchema,
 });
 
 // B2B Order Detail - ewaybill required
@@ -105,7 +105,7 @@ export const OrderDetailB2BSchema = z.object({
   shipment_invoice_amount: z.number().positive(),
   box_details: z.array(BoxDetailB2BSchema),
   ewaybill_number: z.string(),
-  document_detail: DocumentDetailSchema.optional(),
+  document_detail: DocumentDetailSchema,
 });
 
 // Rate Calculator
