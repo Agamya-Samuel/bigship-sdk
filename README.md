@@ -428,6 +428,192 @@ Document files must be provided as base64 Data URIs:
 
 Use `BigshipUtils.fileToBase64DataURI()` or `BigshipClient.fileToBase64DataURI()` to convert files.
 
+## Advanced Configuration
+
+The SDK supports advanced configuration options for customizing behavior:
+
+### Event Hooks
+
+Hook into SDK lifecycle events for logging, monitoring, or custom behavior:
+
+```typescript
+import { BigshipClient } from '@agamya/bigship-sdk';
+
+const client = new BigshipClient({
+  baseURL: process.env.BIGSHIP_BASE_URL!,
+  userName: process.env.BIGSHIP_USERNAME!,
+  password: process.env.BIGSHIP_PASSWORD!,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY!,
+
+  // Enable detailed logging for debugging
+  enableDetailedLogging: true,
+
+  // Customize retry behavior
+  maxRetries: 5,
+  retryDelay: 2000, // milliseconds
+  retryOnStatusCodes: [408, 429, 500, 502, 503, 504],
+
+  // Event hooks for monitoring
+  onBeforeRequest: (config) => {
+    console.log(`[SDK] Making ${config.method?.toUpperCase()} request to ${config.url}`);
+    return config;
+  },
+
+  onResponse: (response, context) => {
+    console.log(`[SDK] ${context.endpoint} completed in ${Date.now() - context.startTime}ms`);
+  },
+
+  onError: (error, context) => {
+    console.error(`[SDK] ${context.endpoint} failed:`, error.message);
+  },
+
+  onRetry: (attempt, error, context) => {
+    console.warn(`[SDK] Retry attempt ${attempt} for ${context.endpoint}`);
+  },
+});
+```
+
+### Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `baseURL` | `string` | *required* | API base URL |
+| `userName` | `string` | *required* | Email/username for authentication |
+| `password` | `string` | *required* | Password for authentication |
+| `accessKey` | `string` | *required* | API access key |
+| `timeout` | `number` | `15000` | Request timeout in milliseconds |
+| `throwOnUnsuccessfulResponse` | `boolean` | `true` | Throw error when API returns success: false |
+| `enableDetailedLogging` | `boolean` | `false` | Log all requests/responses to console |
+| `maxRetries` | `number` | `3` | Maximum number of retry attempts |
+| `retryDelay` | `number` | `1000` | Base retry delay in milliseconds |
+| `retryOnStatusCodes` | `number[]` | `[408, 429, 500, 502, 503, 504]` | HTTP status codes that trigger retry |
+| `onBeforeRequest` | `function` | `undefined` | Hook called before each request |
+| `onResponse` | `function` | `undefined` | Hook called after successful response |
+| `onError` | `function` | `undefined` | Hook called when request fails |
+| `onRetry` | `function` | `undefined` | Hook called before retry attempt |
+
+## Specialized Error Types
+
+The SDK provides specialized error classes for precise error handling:
+
+### Error Class Hierarchy
+
+```typescript
+import {
+  BigshipError,
+  BigshipApiError,
+  BigshipDuplicateInvoiceError,
+  BigshipValidationError,
+  BigshipAuthError,
+  BigshipNetworkError,
+  isBigshipDuplicateInvoiceError,
+  isBigshipValidationError,
+  isBigshipAuthError,
+  isBigshipNetworkError,
+  isBigshipApiError,
+} from '@agamya/bigship-sdk';
+```
+
+### Specialized Error Examples
+
+```typescript
+try {
+  await client.addSingleOrder(orderData);
+} catch (error) {
+  // Check for duplicate invoice error
+  if (isBigshipDuplicateInvoiceError(error)) {
+    console.log('Duplicate invoice ID:', error.invoiceId);
+    console.log('Please use a different invoice number');
+  }
+
+  // Check for validation errors
+  else if (isBigshipValidationError(error)) {
+    console.error('Validation errors:', error.validationErrors);
+    // { invoice_id: ['Invalid format'], pincode: ['Invalid pincode'] }
+  }
+
+  // Check for authentication errors
+  else if (isBigshipAuthError(error)) {
+    console.error('Authentication failed - check your credentials');
+  }
+
+  // Check for network errors
+  else if (isBigshipNetworkError(error)) {
+    console.error('Network error - check your connection');
+  }
+
+  // Check for API errors with additional context
+  else if (isBigshipApiError(error)) {
+    console.log('Request ID:', error.requestId);
+    console.log('Endpoint:', error.endpoint);
+    console.log('Response body:', error.responseBody);
+  }
+
+  // Base BigshipError
+  else if (error instanceof BigshipError) {
+    console.error('Status:', error.statusCode);
+    console.error('Message:', error.message);
+  }
+}
+```
+
+### Error Class Properties
+
+| Class | Additional Properties | HTTP Status |
+|-------|----------------------|-------------|
+| `BigshipApiError` | `requestId`, `endpoint`, `responseBody` | Any |
+| `BigshipDuplicateInvoiceError` | `invoiceId` | 409 |
+| `BigshipValidationError` | `validationErrors` | 400 |
+| `BigshipAuthError` | *(none)* | 401, 403 |
+| `BigshipNetworkError` | *(none)* | 0 (network failure) |
+
+### Response Type Guards
+
+Use type guards to narrow response types:
+
+```typescript
+import { isSuccessResponse, isFailedResponse } from '@agamya/bigship-sdk';
+
+const response = await client.addSingleOrder(orderData);
+
+if (isSuccessResponse(response)) {
+  // TypeScript knows response.data is a string (non-null)
+  console.log('Order ID:', response.data);
+}
+
+if (isFailedResponse(response)) {
+  // TypeScript knows response.data is null
+  console.log('Error:', response.message);
+}
+```
+
+## Sub-path Exports
+
+The SDK supports sub-path imports for better tree-shaking:
+
+```typescript
+// Import only error types
+import {
+  BigshipApiError,
+  BigshipDuplicateInvoiceError,
+  isBigshipDuplicateInvoiceError,
+} from '@agamya/bigship-sdk/errors';
+
+// Import core types
+import type {
+  AddSingleOrderRequest,
+  BigshipConfig,
+} from '@agamya/bigship-sdk/core';
+
+// Import infrastructure components
+import { EventDispatcher, Logger } from '@agamya/bigship-sdk/core';
+```
+
+**Available sub-paths:**
+- `@agamya/bigship-sdk` - Main entry point (all exports)
+- `@agamya/bigship-sdk/core` - Core client and types
+- `@agamya/bigship-sdk/errors` - Error classes and type guards
+
 ## TypeScript Support
 
 All methods are fully typed. Import types for type-safe payloads:
