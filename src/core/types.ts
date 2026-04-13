@@ -1,11 +1,38 @@
 import { z } from 'zod';
 
+import type { InternalAxiosRequestConfig } from 'axios';
+
 export interface BigshipConfig {
   baseURL: string;
   userName: string;
   password: string;
   accessKey: string;
   timeout?: number;
+
+  // New options (all optional, with sensible defaults)
+  throwOnUnsuccessfulResponse?: boolean;  // Default: true
+  enableDetailedLogging?: boolean;         // Default: false
+  maxRetries?: number;                     // Default: 3
+  retryDelay?: number;                     // Default: 1000 (ms)
+  retryOnStatusCodes?: number[];           // Default: [408, 429, 500, 502, 503, 504]
+
+  // Event hooks
+  onResponse?: (response: ApiResponse<unknown>, context: RequestContext) => void;
+  onError?: (error: BigshipError, context: RequestContext) => void;
+  onRetry?: (attempt: number, error: BigshipError, context: RequestContext) => void;
+  onBeforeRequest?: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>;
+}
+
+/**
+ * Request context for event hooks
+ * Provides information about the current request for logging and debugging
+ */
+export interface RequestContext {
+  endpoint: string;
+  method: string;
+  requestId?: string;
+  attempt?: number;
+  startTime: number;
 }
 
 // ==================== VALIDATION HELPERS ====================
@@ -79,10 +106,46 @@ export const BoxDetailB2BSchema = z.object({
   product_details: z.array(ProductDetailSchema),
 });
 
-export const DocumentDetailSchema = z.object({
-  invoice_document_file: base64DataURI().optional(),
+// B2C Document Detail - invoice required, ewaybill optional
+export const DocumentDetailB2CSchema = z.object({
+  invoice_document_file: base64DataURI(),
   ewaybill_document_file: base64DataURI().optional(),
 });
+
+// B2B Document Detail - both invoice and ewaybill required
+export const DocumentDetailB2BSchema = z.object({
+  invoice_document_file: base64DataURI(),
+  ewaybill_document_file: base64DataURI(),
+});
+
+/**
+ * Document files for B2C orders
+ * @property {string} invoice_document_file - REQUIRED. Base64 Data URI of invoice PDF/JPG
+ * @property {string} [ewaybill_document_file] - Optional. Base64 Data URI of ewaybill PDF/JPG
+ *
+ * @example
+ * ```ts
+ * document_detail: {
+ *   invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...'
+ * }
+ * ```
+ */
+export type DocumentDetailB2C = z.infer<typeof DocumentDetailB2CSchema>;
+
+/**
+ * Document files for B2B orders
+ * @property {string} invoice_document_file - REQUIRED. Base64 Data URI of invoice PDF/JPG
+ * @property {string} ewaybill_document_file - REQUIRED. Base64 Data URI of ewaybill PDF/JPG
+ *
+ * @example
+ * ```ts
+ * document_detail: {
+ *   invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
+ *   ewaybill_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...'
+ * }
+ * ```
+ */
+export type DocumentDetailB2B = z.infer<typeof DocumentDetailB2BSchema>;
 
 // B2C Order Detail
 export const OrderDetailB2CSchema = z.object({
@@ -93,7 +156,7 @@ export const OrderDetailB2CSchema = z.object({
   shipment_invoice_amount: z.number().positive(),
   box_details: z.array(BoxDetailB2CSchema),
   ewaybill_number: z.string().optional(),
-  document_detail: DocumentDetailSchema,
+  document_detail: DocumentDetailB2CSchema,
 });
 
 // B2B Order Detail - ewaybill required
@@ -105,7 +168,7 @@ export const OrderDetailB2BSchema = z.object({
   shipment_invoice_amount: z.number().positive(),
   box_details: z.array(BoxDetailB2BSchema),
   ewaybill_number: z.string(),
-  document_detail: DocumentDetailSchema,
+  document_detail: DocumentDetailB2BSchema,
 });
 
 // Rate Calculator
@@ -157,18 +220,68 @@ export type WarehouseAddRequest = z.infer<typeof WarehouseAddRequestSchema>;
 export interface BigshipErrorData {
   status?: string;
   message?: string;
+  errors?: Record<string, string[]>; // Validation errors
+  trace_id?: string; // Request tracking
   [key: string]: any;
 }
 
+/**
+ * Custom error class for Bigship API errors
+ * Provides structured access to error details and helper methods for error type checking
+ *
+ * @example
+ * ```ts
+ * try {
+ *   await client.addSingleOrder(orderData);
+ * } catch (error) {
+ *   if (error instanceof BigshipError) {
+ *     if (error.isValidationError()) {
+ *       console.error('Validation failed:', error.validationErrors);
+ *     }
+ *     if (error.isRateLimitError()) {
+ *       console.error('Rate limited, retry after 60s');
+ *     }
+ *     console.error('Status:', error.statusCode);
+ *     console.error('Trace ID:', error.traceId);
+ *   }
+ * }
+ * ```
+ */
 export class BigshipError extends Error {
+  readonly statusCode: number;
+  readonly code?: string;
+  readonly apiResponse?: BigshipErrorData;
+  readonly validationErrors?: Record<string, string[]>;
+  readonly traceId?: string;
+
   constructor(
     message: string,
-    public status?: number,
-    public code?: string,
-    public response?: BigshipErrorData
+    statusCode?: number,
+    code?: string,
+    apiResponse?: BigshipErrorData
   ) {
     super(message);
     this.name = 'BigshipError';
+    this.statusCode = statusCode ?? 0;
+    this.code = code;
+    this.apiResponse = apiResponse;
+    this.validationErrors = apiResponse?.errors;
+    this.traceId = apiResponse?.trace_id;
+  }
+
+  /** Helper to check if this is a validation error */
+  isValidationError(): boolean {
+    return !!this.validationErrors && Object.keys(this.validationErrors).length > 0;
+  }
+
+  /** Helper to check if this is a rate limit error */
+  isRateLimitError(): boolean {
+    return this.statusCode === 429 || this.code === 'RATE_LIMIT_EXCEEDED';
+  }
+
+  /** Helper to check if this is an authentication error */
+  isAuthError(): boolean {
+    return this.statusCode === 401 || this.statusCode === 403;
   }
 }
 
@@ -267,6 +380,32 @@ export const WarehouseListDataSchema = z.object({
 export const WarehouseListResponseSchema = ApiResponseSchema(WarehouseListDataSchema);
 
 // Order Response - data is system_order_id as string directly
+/**
+ * Response from addSingleOrder or addHeavyOrder
+ * @property {boolean} success - true if order was created successfully
+ * @property {string} message - Success or error message
+ * @property {number} responseCode - HTTP status code
+ * @property {string | null} data - The system_order_id as a string, or null on error
+ *
+ * @example
+ * ```ts
+ * // Success response
+ * {
+ *   success: true,
+ *   message: "Order added successfully.",
+ *   responseCode: 200,
+ *   data: "1005202970"  // This is the system_order_id
+ * }
+ *
+ * // Error response
+ * {
+ *   success: false,
+ *   message: "Invalid pincode",
+ *   responseCode: 400,
+ *   data: null
+ * }
+ * ```
+ */
 export const AddOrderResponseSchema = ApiResponseSchema(z.string());
 
 export const ManifestResponseSchema = ApiResponseSchema(z.null());
@@ -274,6 +413,20 @@ export const ManifestResponseSchema = ApiResponseSchema(z.null());
 export const CancelResponseSchema = ApiResponseSchema(z.null());
 
 // Shipping Rates Response
+/**
+ * Additional charges breakdown for shipping rates
+ * @property {number} [risk_type_charge] - Risk type surcharge
+ * @property {number} [lr_cost] - LR (Lorry Receipt) cost
+ * @property {number} [green_tax] - Environmental/green tax
+ * @property {number} [handling_charge] - Handling charges
+ * @property {number} [pickup_charge] - Pickup charges
+ * @property {number} [state_tax] - State-level taxes
+ * @property {number} [to_pay] - To-pay charges
+ * @property {number} [oda] - ODA - Out of Delivery Area charges
+ * @property {number} [warai_charge] - Warai charge
+ * @property {number} [odc_charge] - ODC - Out of Delivery City charges
+ * @property {number} [courier_charge] - Base courier charge
+ */
 export const AdditionalChargesSchema = z.object({
   risk_type_charge: z.number().optional(),
   lr_cost: z.number().optional(),
@@ -288,6 +441,41 @@ export const AdditionalChargesSchema = z.object({
   courier_charge: z.number().optional(),
 });
 
+/**
+ * Shipping rate quote from a courier
+ * @property {number} [system_order_id] - Internal system order ID
+ * @property {number} courier_id - Internal courier identifier
+ * @property {string} courier_name - Name of the courier service
+ * @property {string} [courier_type] - Transport type: "Surface" or "Air"
+ * @property {string} [zone] - Delivery zone: "North", "South", "East", "West", etc.
+ * @property {number} [tat] - Turnaround time in days
+ * @property {number} [billable_weight] - Billable weight for shipping calculation
+ * @property {string} [risk_type_name] - Risk type name (nullable)
+ * @property {number} total_shipping_charges - FINAL total cost including all charges (INR)
+ * @property {number} [freight_charge] - Base freight cost
+ * @property {number} [cod_charge] - Cash on Delivery fee
+ * @property {number} [courier_charge] - Base courier charge before additional fees
+ * @property {AdditionalCharges} [other_additional_charges] - Breakdown of additional fees
+ *
+ * @example
+ * ```ts
+ * // Response from getShippingRates
+ * {
+ *   courier_id: 123,
+ *   courier_name: "Delhivery",
+ *   courier_type: "Surface",
+ *   zone: "North",
+ *   tat: 3,
+ *   total_shipping_charges: 150.50,
+ *   freight_charge: 100,
+ *   cod_charge: 25,
+ *   other_additional_charges: {
+ *     oda: 15,
+ *     handling_charge: 10.50
+ *   }
+ * }
+ * ```
+ */
 export const ShippingRateItemSchema = z.object({
   system_order_id: z.number().optional(),
   courier_id: z.number(),
@@ -410,3 +598,52 @@ export const PRODUCT_CATEGORIES = [
 ] as const;
 
 export type ProductCategory = typeof PRODUCT_CATEGORIES[number];
+
+// ==================== API RESPONSE TYPES ====================
+
+/**
+ * Base API response wrapper
+ * All Bigship API responses follow this structure
+ */
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  message: string;
+  responseCode: number;
+  data: T;
+}
+
+// ==================== TYPE GUARDS ====================
+
+// ==================== TYPE GUARDS ====================
+
+/**
+ * Type guard to check if an API response is successful
+ * Narrows the type to ensure data is non-null
+ *
+ * @example
+ * ```ts
+ * const response = await client.addSingleOrder(orderData);
+ * if (isSuccessResponse(response)) {
+ *   console.log(response.data); // Order ID (string)
+ * }
+ * ```
+ */
+export function isSuccessResponse<T>(response: ApiResponse<T>): response is ApiResponse<T> & { success: true; data: T } {
+  return response.success === true;
+}
+
+/**
+ * Type guard to check if an API response failed
+ * Narrows the type to ensure data is null
+ *
+ * @example
+ * ```ts
+ * const response = await client.addSingleOrder(orderData);
+ * if (isFailedResponse(response)) {
+ *   console.log('Error:', response.message);
+ * }
+ * ```
+ */
+export function isFailedResponse<T>(response: ApiResponse<T>): response is ApiResponse<T> & { success: false; data: null } {
+  return response.success === false;
+}
