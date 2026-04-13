@@ -1,6 +1,6 @@
 import type { AxiosRequestConfig } from 'axios';
-import type { ApiResponse } from './types';
-import type { BigshipError } from './types';
+import type { ApiResponse } from '../core/types';
+import type { BigshipError } from '../core/types';
 
 /**
  * Logger for SDK request/response/error events

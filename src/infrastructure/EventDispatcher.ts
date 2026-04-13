@@ -1,6 +1,6 @@
 import type { InternalAxiosRequestConfig } from 'axios';
-import type { BigshipConfig, ApiResponse, RequestContext } from './types';
-import type { BigshipError } from './types';
+import type { BigshipConfig, ApiResponse, RequestContext } from '../core/types';
+import type { BigshipError } from '../core/types';
 
 /**
  * Event dispatcher for SDK lifecycle hooks

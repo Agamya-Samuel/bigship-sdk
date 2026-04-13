@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BigshipError, type BigshipErrorData } from './types';
+import { BigshipError, type BigshipErrorData } from '../core/types';
 
 /**
  * Extended error context options for API errors

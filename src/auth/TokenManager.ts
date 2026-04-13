@@ -1,9 +1,9 @@
 import type { AxiosInstance } from 'axios';
-import type { BigshipConfig } from './types';
-import type { LoginRequest } from './types';
-import { LoginRequestSchema } from './types';
-import { BigshipAuthError } from './errors';
-import { EventDispatcher } from './event-dispatcher';
+import type { BigshipConfig } from '../core/types';
+import type { LoginRequest } from '../core/types';
+import { LoginRequestSchema } from '../core/types';
+import { BigshipAuthError } from '../errors';
+import { EventDispatcher } from '../infrastructure/EventDispatcher';
 
 /**
  * Token management with automatic refresh

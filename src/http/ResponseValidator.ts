@@ -2,13 +2,13 @@ import { z } from 'zod';
 import {
   ApiResponseSchema,
   type RequestContext,
-} from './types';
+} from '../core/types';
 import {
   BigshipApiError,
   BigshipDuplicateInvoiceError,
   BigshipValidationError,
   type BigshipApiErrorOptions,
-} from './errors';
+} from '../errors';
 
 /**
  * Response validation utilities

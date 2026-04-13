@@ -1,7 +1,7 @@
-import type { BigshipConfig, RequestContext } from './types';
-import type { BigshipError } from './types';
-import { BigshipNetworkError } from './errors';
-import { EventDispatcher } from './event-dispatcher';
+import type { BigshipConfig, RequestContext } from '../core/types';
+import type { BigshipError } from '../core/types';
+import { BigshipNetworkError } from '../errors';
+import { EventDispatcher } from '../infrastructure/EventDispatcher';
 
 /**
  * Retry manager with configurable retry logic

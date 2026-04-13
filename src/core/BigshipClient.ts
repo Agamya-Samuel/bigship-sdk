@@ -44,17 +44,17 @@ import {
   type TrackingResponse,
   type RequestContext,
 } from './types';
-import { ResponseValidator } from './validators';
-import { EventDispatcher } from './event-dispatcher';
-import { TokenManager } from './token-manager';
-import { RetryManager } from './retry-manager';
-import { Logger } from './logger';
+import { ResponseValidator } from '../http/ResponseValidator';
+import { EventDispatcher } from '../infrastructure/EventDispatcher';
+import { TokenManager } from '../auth/TokenManager';
+import { RetryManager } from '../http/RetryManager';
+import { Logger } from '../infrastructure/Logger';
 import {
   BigshipApiError,
   BigshipDuplicateInvoiceError,
   BigshipAuthError,
   BigshipNetworkError,
-} from './errors';
+} from '../errors';
 
 export class BigshipClient {
   private axios: AxiosInstance;
@@ -548,7 +548,7 @@ export class BigshipClient {
    * ```
    */
   static async fileToBase64DataURI(file: File): Promise<string> {
-    const { BigshipUtils } = await import('./utils');
+    const { BigshipUtils } = await import('../utils');
     return BigshipUtils.fileToBase64DataURI(file);
   }
 
