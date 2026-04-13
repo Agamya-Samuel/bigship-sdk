@@ -393,7 +393,7 @@ try {
 | `isValidationError()` | `boolean` | Check if error contains validation errors |
 | `isRateLimitError()` | `boolean` | Check if error is due to rate limiting (429) |
 | `isAuthError()` | `boolean` | Check if error is authentication-related (401/403) |
-```
+
 
 ### Rate Limiting
 
