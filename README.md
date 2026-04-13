@@ -193,6 +193,126 @@ await client.addWarehouse({
 });
 ```
 
+## Utility Functions
+
+The SDK includes helper functions for common tasks:
+
+### File to Base64 Conversion
+
+Convert browser File objects to base64 Data URIs:
+
+```typescript
+import { BigshipClient, BigshipUtils } from '@agamya/bigship-sdk';
+
+// Using BigshipUtils
+const file = fileInput.files[0];
+const base64 = await BigshipUtils.fileToBase64DataURI(file);
+
+// OR using static method on BigshipClient
+const base64 = await BigshipClient.fileToBase64DataURI(file);
+
+// Use in order creation
+await client.addSingleOrder({
+  shipment_category: 'b2c',
+  warehouse_detail: {
+    pickup_location_id: 123456,
+    return_location_id: 123456,
+  },
+  consignee_detail: {
+    first_name: 'John',
+    last_name: 'Doe',
+    contact_number_primary: '9876543210',
+    consignee_address: {
+      address_line1: '123 Main St',
+      pincode: '110001',
+    },
+  },
+  order_detail: {
+    invoice_date: new Date().toISOString(),
+    invoice_id: 'INV-001',
+    payment_type: 'Prepaid',
+    total_collectable_amount: 0,
+    shipment_invoice_amount: 1000,
+    box_details: [
+      {
+        each_box_dead_weight: 1,
+        each_box_length: 10,
+        each_box_width: 10,
+        each_box_height: 10,
+        each_box_invoice_amount: 1000,
+        each_box_collectable_amount: 0,
+        box_count: 1,
+        product_details: [
+          {
+            product_category: 'Electronics',
+            product_name: 'Laptop',
+            product_quantity: 1,
+            each_product_invoice_amount: 1000,
+            each_product_collectable_amount: 0,
+          },
+        ],
+      },
+    ],
+    document_detail: {
+      invoice_document_file: base64, // Use the converted base64 string
+    },
+  },
+});
+```
+
+### Validate Base64 Data URI
+
+Check if a string is a valid base64 Data URI:
+
+```typescript
+import { BigshipUtils } from '@agamya/bigship-sdk';
+
+// OR using BigshipClient
+const isValid = BigshipClient.isValidBase64DataURI('data:application/pdf;base64,JVBERi0x...');
+console.log(isValid); // true
+
+const invalid = BigshipClient.isValidBase64DataURI('not-a-data-uri');
+console.log(invalid); // false
+```
+
+### Calculate Collectable Amount
+
+Automatically set the correct `total_collectable_amount` based on payment type:
+
+```typescript
+import { BigshipUtils } from '@agamya/bigship-sdk';
+
+const paymentType: 'COD' | 'Prepaid' = 'COD';
+const orderValue = 1000;
+
+const totalCollectable = BigshipUtils.calculateCollectableAmount(
+  paymentType,
+  orderValue
+);
+console.log(totalCollectable); // 1000 (for COD)
+
+// For Prepaid
+const prepaidAmount = BigshipUtils.calculateCollectableAmount('Prepaid', 1000);
+console.log(prepaidAmount); // 0 (for Prepaid)
+```
+
+### Validate Order Details
+
+Validate required fields before sending an order:
+
+```typescript
+import { BigshipUtils } from '@agamya/bigship-sdk';
+
+try {
+  BigshipUtils.validateOrderDetail(orderData.order_detail, 'b2c');
+  // Proceed with order creation
+  await client.addSingleOrder(orderData);
+} catch (error) {
+  console.error('Validation failed:', error.message);
+  // "invoice_document_file is required in document_detail for B2C orders"
+}
+```
+
 ## Next.js API Route Example
 
 ```typescript
@@ -223,7 +343,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 ## Error Handling
 
-The SDK throws `BigshipError` for API errors:
+The SDK provides structured error handling with helper methods:
 
 ```typescript
 import { BigshipClient, BigshipError } from '@agamya/bigship-sdk';
@@ -232,12 +352,47 @@ try {
   await client.addSingleOrder(orderData);
 } catch (error) {
   if (error instanceof BigshipError) {
-    console.error('Status:', error.status);
-    console.error('Code:', error.code);
+    // Check error type using helper methods
+    if (error.isValidationError()) {
+      console.error('Validation failed:', error.validationErrors);
+    }
+
+    if (error.isRateLimitError()) {
+      console.error('Rate limited, retry after 60s');
+    }
+
+    if (error.isAuthError()) {
+      console.error('Authentication failed');
+    }
+
+    // Access error details
+    console.error('Status Code:', error.statusCode);
+    console.error('Error Code:', error.code);
     console.error('Message:', error.message);
-    console.error('Response:', error.response);
+    console.error('Trace ID:', error.traceId);
+    console.error('Full API Response:', error.apiResponse);
   }
 }
+```
+
+### Error Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `statusCode` | `number` | HTTP status code |
+| `code` | `string \| undefined` | API error code |
+| `message` | `string` | Error message |
+| `apiResponse` | `BigshipErrorData \| undefined` | Full API response data |
+| `validationErrors` | `Record<string, string[]> \| undefined` | Validation error details |
+| `traceId` | `string \| undefined` | Request tracking ID |
+
+### Error Helper Methods
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `isValidationError()` | `boolean` | Check if error contains validation errors |
+| `isRateLimitError()` | `boolean` | Check if error is due to rate limiting (429) |
+| `isAuthError()` | `boolean` | Check if error is authentication-related (401/403) |
 ```
 
 ### Rate Limiting
@@ -249,6 +404,29 @@ The Bigship API has a rate limit of **100 requests per minute**. The SDK automat
 - **Clear error message** when limit is exceeded: `"Rate limit exceeded (100 requests/minute). Please retry after 60 seconds."`
 
 If you need to make many requests in bulk, consider adding delays between requests or implementing a queue system.
+
+## Important: Required Fields
+
+### B2C Orders
+- `document_detail.invoice_document_file` is **REQUIRED** (must be a valid base64 Data URI)
+- `document_detail.ewaybill_document_file` is **optional**
+
+### B2B Orders
+- `document_detail.invoice_document_file` is **REQUIRED** (must be a valid base64 Data URI)
+- `document_detail.ewaybill_document_file` is **REQUIRED** (must be a valid base64 Data URI)
+- `ewaybill_number` is **REQUIRED** in `order_detail`
+
+### Payment Type Rules
+- For `Prepaid` orders: `total_collectable_amount` must be `0`
+- For `COD` orders: `total_collectable_amount` should equal the order value
+
+### Base64 Data URI Format
+
+Document files must be provided as base64 Data URIs:
+- PDF: `data:application/pdf;base64,JVBERi0xLjQKJ...`
+- JPEG: `data:image/jpeg;base64,/9j/4AAQSkZJRg...`
+
+Use `BigshipUtils.fileToBase64DataURI()` or `BigshipClient.fileToBase64DataURI()` to convert files.
 
 ## TypeScript Support
 
