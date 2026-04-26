@@ -20,6 +20,8 @@ import {
   CancelRequestSchema,
   CancelResponseSchema,
   ShipmentDataResponseSchema,
+  ShipmentAWBResponseSchema,
+  ShipmentFileResponseSchema,
   RateCalculatorRequestSchema,
   CalculateRateResponseSchema,
   TrackingResponseSchema,
@@ -39,6 +41,8 @@ import {
   type ShippingRatesResponse,
   type CancelResponse,
   type ShipmentDataResponse,
+  type ShipmentAWBResponse,
+  type ShipmentFileResponse,
   type RateCalculatorRequest,
   type CalculateRateResponse,
   type TrackingResponse,
@@ -823,10 +827,31 @@ export class BigshipClient {
 
   /**
    * Get shipment data (AWB, Label, or Manifest)
-   * @param shipmentDataId - 1 = AWB, 2 = Download Label, 3 = Download Manifest
+   *
+   * @param shipmentDataId - 1 = AWB (structured data), 2 = Download Label (base64/URL), 3 = Download Manifest (base64/URL)
    * @param systemOrderId - The system order ID from addSingleOrder or addHeavyOrder
+   *
+   * @returns For AWB (id=1): ShipmentAWBResponse with courier details
+   * @returns For Label (id=2) or Manifest (id=3): ShipmentFileResponse with base64 string or null
+   *
+   * @example
+   * ```ts
+   * // Get AWB details
+   * const awb = await client.getShipmentData(1, 'ORDER123');
+   * if (awb.data) {
+   *   console.log(awb.data.master_awb); // "1234567890"
+   * }
+   *
+   * // Get Label PDF (base64 or null if not ready)
+   * const label = await client.getShipmentData(2, 'ORDER123');
+   * if (typeof label.data === 'string') {
+   *   console.log(label.data); // "data:application/pdf;base64,..." or URL
+   * } else {
+   *   console.log('Label not ready yet');
+   * }
+   * ```
    */
-  async getShipmentData(shipmentDataId: number, systemOrderId: string): Promise<ShipmentDataResponse> {
+  async getShipmentData(shipmentDataId: number, systemOrderId: string): Promise<ShipmentAWBResponse | ShipmentFileResponse> {
     const context: RequestContext = {
       endpoint: '/api/shipment/data',
       method: 'POST',
@@ -840,7 +865,24 @@ export class BigshipClient {
         params: { shipment_data_id: shipmentDataId, system_order_id: systemOrderId },
       });
 
-      const validatedResponse = ShipmentDataResponseSchema.parse(res.data);
+      // Use different schema based on shipmentDataId
+      const isAWB = shipmentDataId === 1;
+
+      let validatedResponse;
+      try {
+        validatedResponse = isAWB
+          ? ShipmentAWBResponseSchema.parse(res.data)
+          : ShipmentFileResponseSchema.parse(res.data);
+      } catch (parseError) {
+        // Log the actual API response for debugging
+        if (this.config.enableDetailedLogging) {
+          console.error('[BigshipClient] Schema validation failed for shipment_data_id:', shipmentDataId);
+          console.error('[BigshipClient] Actual API response:', JSON.stringify(res.data, null, 2));
+          console.error('[BigshipClient] Parse error:', parseError);
+        }
+        throw parseError;
+      }
+
       if (!validatedResponse.success) {
         throw new BigshipApiError(
           validatedResponse.message || 'API request failed',
@@ -848,7 +890,9 @@ export class BigshipClient {
           { code: 'API_ERROR', requestId: context.requestId, endpoint: context.endpoint, responseBody: validatedResponse }
         );
       }
-      if (validatedResponse.data === null) {
+
+      // Only check for null data on AWB requests (null is valid for labels/manifests that aren't ready yet)
+      if (isAWB && validatedResponse.data === null) {
         throw new BigshipApiError(
           `API returned success=true but data is null for endpoint: ${context.endpoint}`,
           500,
@@ -856,12 +900,13 @@ export class BigshipClient {
         );
       }
 
-      const response: ShipmentDataResponse = {
+      // Build response with explicit type assertion based on the schema used
+      const response = {
         success: true,
         message: 'Shipment data retrieved successfully',
         responseCode: 200,
         data: validatedResponse.data
-      };
+      } as ShipmentAWBResponse | ShipmentFileResponse;
 
       this.eventDispatcher.dispatchResponse(response, context);
       this.logger.logResponse(response);

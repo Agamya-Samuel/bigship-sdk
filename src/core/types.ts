@@ -38,7 +38,7 @@ export interface RequestContext {
 // ==================== VALIDATION HELPERS ====================
 
 const base64DataURI = () =>
-  z.string().regex(/^data:(image\/pdf|image\/jpeg);base64,/);
+  z.string().regex(/^data:(application\/pdf|image\/jpeg);base64,/);
 
 // ==================== AUTH ====================
 export const LoginRequestSchema = z.object({
@@ -495,14 +495,28 @@ export const ShippingRateItemSchema = z.object({
 export const ShippingRatesResponseSchema = ApiResponseSchema(z.array(ShippingRateItemSchema));
 
 // Shipment Data Response
-export const ShipmentDataDataSchema = z.object({
+
+// AWB Response - structured data with courier info
+export const ShipmentAWBDataSchema = z.object({
   courier_id: z.string(),
   courier_name: z.string(),
   lr_number: z.string().nullable(),
   master_awb: z.string(),
 });
 
-export const ShipmentDataResponseSchema = ApiResponseSchema(ShipmentDataDataSchema);
+// Label/Manifest Response - base64 string, URL, or null
+export const ShipmentFileDataSchema = z.union([
+  z.string(), // base64 data URI or URL
+  z.null(),   // not available yet
+]);
+
+// Response schemas for different shipment data types
+export const ShipmentAWBResponseSchema = ApiResponseSchema(ShipmentAWBDataSchema);
+export const ShipmentFileResponseSchema = ApiResponseSchema(ShipmentFileDataSchema);
+
+// Existing schema (for backward compatibility, aliased to AWB schema)
+export const ShipmentDataDataSchema = ShipmentAWBDataSchema;
+export const ShipmentDataResponseSchema = ShipmentAWBResponseSchema;
 
 // Calculator Response
 export const CalculatorRateItemSchema = z.object({
@@ -550,8 +564,16 @@ export type ManifestResponse = z.infer<typeof ManifestResponseSchema>;
 export type CancelResponse = z.infer<typeof CancelResponseSchema>;
 export type ShippingRatesResponse = z.infer<typeof ShippingRatesResponseSchema>;
 export type ShipmentDataResponse = z.infer<typeof ShipmentDataResponseSchema>;
+export type ShipmentAWBResponse = z.infer<typeof ShipmentAWBResponseSchema>;
+export type ShipmentFileResponse = z.infer<typeof ShipmentFileResponseSchema>;
 export type CalculateRateResponse = z.infer<typeof CalculateRateResponseSchema>;
 export type TrackingResponse = z.infer<typeof TrackingResponseSchema>;
+
+/**
+ * Union type for all possible shipment data responses
+ * Use this when the shipment data type is unknown at compile time
+ */
+export type ShipmentDataAnyResponse = ShipmentAWBResponse | ShipmentFileResponse;
 
 // ==================== PRODUCT CATEGORIES ====================
 
