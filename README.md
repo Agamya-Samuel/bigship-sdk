@@ -26,73 +26,22 @@ TypeScript SDK for the Bigship.in External Outbound API — shipping, orders, ra
 npm install @agamya/bigship-sdk
 ```
 
-## Architecture
+## Documentation
 
-```
-BigshipClient
-  ├── executeApiCall<T>  (token → request → validate → dispatch → return)
-  │     ├── TokenManager   (auto-login, token caching)
-  │     ├── RetryManager   (exponential backoff with full jitter)
-  │     ├── EventDispatcher (onBeforeRequest, onResponse, onError, onRetry hooks)
-  │     └── Logger         (pluggable: console, Winston, pino)
-  └── Axios HTTP Client → Bigship API
-```
+| Document | Description |
+|----------|-------------|
+| [**Complete Guide**](./docs/guide.md) | Architecture, step-by-step B2C/B2B walkthroughs, error handling, configuration, utilities, migration |
+| [**Examples**](./examples/) | 10 runnable code examples covering every SDK feature |
+| [**CHANGELOG**](./CHANGELOG.md) | Breaking changes, new features, migration checklist |
 
-## Quick Start
+### Quick Links
 
-```typescript
-import { BigshipClient, isSuccessResponse, isFailedResponse } from '@agamya/bigship-sdk';
-
-const client = new BigshipClient({
-  baseURL: 'https://api.bigship.in',
-  userName: process.env.BIGSHIP_USERNAME!,
-  password: process.env.BIGSHIP_PASSWORD!,
-  accessKey: process.env.BIGSHIP_ACCESS_KEY!,
-});
-
-// Check wallet balance
-const balance = await client.getWalletBalance();
-if (isSuccessResponse(balance)) {
-  console.log('Balance:', balance.data);
-}
-
-// Create a B2C order
-const order = await client.addSingleOrder({
-  shipment_category: 'b2c',
-  warehouse_detail: { pickup_location_id: 123456, return_location_id: 123456 },
-  consignee_detail: {
-    first_name: 'Rahul',
-    last_name: 'Sharma',
-    contact_number_primary: '9876543210',
-    consignee_address: { address_line1: '42 MG Road Koramangala', pincode: '560034' },
-  },
-  order_detail: {
-    invoice_date: new Date().toISOString(),
-    invoice_id: `INV-${Date.now()}`,
-    payment_type: 'Prepaid',
-    total_collectable_amount: 0,
-    shipment_invoice_amount: 2500,
-    box_details: [{
-      each_box_dead_weight: 0.5, each_box_length: 20, each_box_width: 15, each_box_height: 10,
-      each_box_invoice_amount: 2500, each_box_collectable_amount: 0, box_count: 1,
-      product_details: [{ product_category: 'Electronics', product_name: 'Earbuds', product_quantity: 1, each_product_invoice_amount: 2500, each_product_collectable_amount: 0 }],
-    }],
-    document_detail: { invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...' },
-  },
-});
-
-if (isFailedResponse(order)) {
-  console.error('Failed:', order.message);
-} else {
-  console.log('Order ID:', order.data);
-
-  // Manifest + get AWB in one call
-  const { awb, courierName } = await client.manifestAndGetAWB(order.data, 5);
-  console.log(`AWB: ${awb}, Courier: ${courierName}`);
-}
-```
-
-For complete step-by-step guides, see [`examples/02-b2c-complete-flow.ts`](./examples/02-b2c-complete-flow.ts) (B2C) and [`examples/03-b2b-complete-flow.ts`](./examples/03-b2b-complete-flow.ts) (B2B).
+- **Quick Start** → [docs/guide.md#quick-start](./docs/guide.md)
+- **B2C Flow** → [examples/02-b2c-complete-flow.ts](./examples/02-b2c-complete-flow.ts)
+- **B2B Flow** → [examples/03-b2b-complete-flow.ts](./examples/03-b2b-complete-flow.ts)
+- **Error Handling** → [examples/06-error-handling.ts](./examples/06-error-handling.ts)
+- **Next.js Integration** → [examples/08-nextjs-integration.ts](./examples/08-nextjs-integration.ts)
+- **Migration from v1** → [CHANGELOG.md](./CHANGELOG.md)
 
 ## API Reference
 
@@ -117,126 +66,20 @@ For complete step-by-step guides, see [`examples/02-b2c-complete-flow.ts`](./exa
 | `getShipmentDetails(orderId)` | Get AWB + label + manifest | *Helper* |
 | `createAndFinalizeShipment(config)` | Create → Manifest → Get all | *Helper* |
 
-## Convenience Methods
-
-```typescript
-// Manifest + get AWB in one call
-const { awb, courierName } = await client.manifestAndGetAWB(orderId, 5);
-
-// Get all shipment details at once
-const details = await client.getShipmentDetails(orderId);
-
-// All-in-one: create → manifest → get AWB + label + manifest
-const result = await client.createAndFinalizeShipment({ order: payload, courierId: 5 });
-
-// Fluent workflow builder
-const result = await client.workflow().create(order).withCourier(5).manifest().finalize();
-```
-
-## ShipmentDataType Enum
-
-```typescript
-import { ShipmentDataType } from '@agamya/bigship-sdk';
-
-client.getShipmentData(ShipmentDataType.AWB, orderId);      // 1 — AWB number
-client.getShipmentData(ShipmentDataType.LABEL, orderId);     // 2 — Shipping label
-client.getShipmentData(ShipmentDataType.MANIFEST, orderId);  // 3 — Manifest document
-```
-
-## Error Handling
-
-```typescript
-import {
-  isBigshipDuplicateInvoiceError, isBigshipValidationError,
-  isBigshipAuthError, isBigshipNetworkError, isBigshipApiError,
-} from '@agamya/bigship-sdk';
-
-try {
-  await client.addSingleOrder(orderData);
-} catch (error) {
-  if (isBigshipDuplicateInvoiceError(error)) console.error('Duplicate invoice:', error.invoiceId);
-  else if (isBigshipValidationError(error)) console.error('Validation errors:', error.validationErrors);
-  else if (isBigshipAuthError(error)) console.error('Authentication failed');
-  else if (isBigshipNetworkError(error)) console.error('Network error');
-  else if (isBigshipApiError(error)) console.error('API error:', error.message, error.requestId);
-}
-```
-
-See [`examples/06-error-handling.ts`](./examples/06-error-handling.ts) for all error classes and type guards.
-
-## Configuration
-
-```typescript
-const client = new BigshipClient({
-  // Required
-  baseURL: 'https://api.bigship.in',
-  userName: 'your-email@example.com',
-  password: 'your-password',
-  accessKey: 'your-access-key',
-
-  // Optional
-  timeout: 15000,                              // Request timeout (ms)
-  maxRetries: 3,                               // Max retry attempts
-  retryDelay: 1000,                            // Base retry delay (ms)
-  maxRetryDelay: 30000,                        // Max retry delay cap (ms)
-  retryOnStatusCodes: [408, 429, 500, 502, 503, 504],
-  tokenTtlMs: 55 * 60 * 1000,                  // Token cache TTL (ms)
-  enableDetailedLogging: false,                // Log requests/responses
-
-  // Event hooks (see examples/07-hooks-and-monitoring.ts)
-  onBeforeRequest: (config) => config,         // Modifies request (re-throws on error)
-  onResponse: (response, ctx) => {},           // Fire-and-forget
-  onError: (error, ctx) => {},                 // Fire-and-forget
-  onRetry: (attempt, error, ctx) => {},        // Fire-and-forget
-
-  // Custom logger (see examples/07)
-  loggerAdapter: { debug: () => {}, info: () => {}, warn: () => {}, error: () => {} },
-});
-
-// Per-request options
-await client.addSingleOrder(order, { timeout: 60000 });
-
-const controller = new AbortController();
-await client.getWalletBalance({ signal: controller.signal });
-```
-
-## Sub-path Exports
-
-```typescript
-import { BigshipClient } from '@agamya/bigship-sdk';
-import { BigshipApiError } from '@agamya/bigship-sdk/errors';
-import type { AddSingleOrderRequest } from '@agamya/bigship-sdk/core';
-import { BigshipUtils, SDK_VERSION } from '@agamya/bigship-sdk/utils';
-```
-
 ## Examples
-
-See [`examples/`](./examples) directory for comprehensive code examples:
 
 | File | Description |
 |------|-------------|
-| `01-setup-and-config.ts` | Client initialization, all config options |
-| `02-b2c-complete-flow.ts` | Full B2C lifecycle (10 steps) |
-| `03-b2b-complete-flow.ts` | B2B heavy order flow |
-| `04-rate-calculation.ts` | Rate comparison across couriers |
-| `05-warehouse-management.ts` | Warehouse CRUD |
-| `06-error-handling.ts` | All error types and type guards |
-| `07-hooks-and-monitoring.ts` | Event hooks, metrics, custom logger |
-| `08-nextjs-integration.ts` | Next.js App Router integration |
-| `09-browser-file-upload.ts` | Browser file upload + base64 conversion |
-| `10-all-workflows.ts` | Compare all 4 workflow approaches |
-
-## Migration from v1
-
-See [CHANGELOG.md](./CHANGELOG.md) for full details.
-
-| v1 Pattern | v2 Replacement |
-|------------|----------------|
-| `client.getShipmentData(1, orderId)` | `client.getShipmentData(ShipmentDataType.AWB, orderId)` |
-| `manifestSingle` + `getShipmentData` | `client.manifestAndGetAWB(orderId, courierId)` |
-| `addSingleOrder` + `manifest` + 3x `getShipmentData` | `client.createAndFinalizeShipment({order, courierId})` |
-| `response.data.toUpperCase()` | `if (isSuccessResponse(response)) response.data.toUpperCase()` |
-| `{ data: T }` | `{ data: T \| null }` — use `isSuccessResponse` guard |
+| `01-setup-and-config.ts` | Client initialization, all config options, AbortController, custom logger |
+| `02-b2c-complete-flow.ts` | Full B2C lifecycle (10 steps with inline comments) |
+| `03-b2b-complete-flow.ts` | B2B heavy order: ewaybill, multi-box, LRN tracking |
+| `04-rate-calculation.ts` | Prepaid, COD, B2B rate comparison |
+| `05-warehouse-management.ts` | Warehouse CRUD with pagination |
+| `06-error-handling.ts` | All 5 error classes, type guards, helper methods |
+| `07-hooks-and-monitoring.ts` | Event hooks, metrics collection, custom LoggerAdapter |
+| `08-nextjs-integration.ts` | Next.js App Router (Server Actions + Route Handlers) |
+| `09-browser-file-upload.ts` | Browser file upload with base64 conversion |
+| `10-all-workflows.ts` | Side-by-side: manual vs helpers vs workflow builder |
 
 ## License
 
@@ -245,7 +88,3 @@ MIT
 ## Support
 
 [GitHub Issues](https://github.com/Agamya-Samuel/bigship-sdk/issues)
-
-## Full Guide
-
-For the complete step-by-step walkthrough (B2C lifecycle, B2B lifecycle, error handling details, configuration reference, utility functions, migration guide), see [docs/guide.md](./docs/guide.md).

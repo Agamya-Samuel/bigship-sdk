@@ -1,6 +1,52 @@
 # @agamya/bigship-sdk — Complete Guide
 
-This document contains the full documentation that was previously in the README. For a concise overview, see [README.md](../README.md).
+This document contains the full documentation for the SDK. For a concise overview, see [README.md](../README.md).
+
+---
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                     BigshipClient                        │
+│                                                          │
+│  Public API Methods (18 methods)                         │
+│  ┌─────────────────────────────────────────────────────┐ │
+│  │ getWalletBalance, getCourierList, addSingleOrder,   │ │
+│  │ manifestSingle, getShipmentData, trackShipment,     │ │
+│  │ manifestAndGetAWB, createAndFinalizeShipment, ...   │ │
+│  └──────────────────────┬──────────────────────────────┘ │
+│                         │                                │
+│  ┌──────────────────────▼──────────────────────────────┐ │
+│  │              executeApiCall<T>                      │ │
+│  │  token → request → validate → dispatch → return     │ │
+│  └──────────┬──────────┬──────────┬──────────┬─────────┘ │
+│             │          │          │          │           │
+│  ┌──────────▼──┐ ┌─────▼──────┐ ┌▼────────┐ ┌▼────────┐  │
+│  │TokenManager │ │RetryManager│ │EventDisp│ │ Logger  │  │
+│  │(auto-login) │ │(backoff)   │ │(hooks)  │ │(plugg.) │  │
+│  └─────────────┘ └────────────┘ └─────────┘ └─────────┘  │
+│                         │                                │
+│  ┌──────────────────────▼──────────────────────────────┐ │
+│  │                  Axios HTTP Client                  │ │
+│  └──────────────────────┬──────────────────────────────┘ │
+└─────────────────────────┼────────────────────────────────┘
+                          │
+                          ▼
+                   Bigship API
+```
+
+**Component responsibilities:**
+
+| Component | Role |
+|-----------|------|
+| **BigshipClient** | Public API. 18 methods for all Bigship endpoints + 3 convenience helpers + workflow builder |
+| **executeApiCall\<T\>** | Shared ceremony: authenticate → make request → validate response → dispatch hooks → return |
+| **TokenManager** | Auto-login on first request, caches token for `tokenTtlMs` (default 55 min), deduplicates concurrent refreshes |
+| **RetryManager** | Exponential backoff with full jitter, configurable `maxRetries`, `retryDelay`, `maxRetryDelay`, `retryOnStatusCodes` |
+| **EventDispatcher** | Fires `onBeforeRequest` (re-throws), `onResponse`/`onError`/`onRetry` (fire-and-forget) |
+| **Logger** | Pluggable via `LoggerAdapter` interface. Default: console with header/key/string sanitization |
+| **Axios HTTP Client** | HTTP transport with auth header injection via interceptor |
 
 ---
 
