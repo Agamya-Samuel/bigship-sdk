@@ -1,15 +1,14 @@
-import { z } from 'zod';
-import { BigshipError, type BigshipErrorData } from '../core/types';
+import { BigshipError, type BigshipErrorData } from './BigshipError';
 
-/**
- * Extended error context options for API errors
- */
+export { BigshipError, type BigshipErrorData } from './BigshipError';
+
 export interface BigshipApiErrorOptions {
   code?: string;
   apiResponse?: BigshipErrorData;
   requestId?: string;
   endpoint?: string;
   responseBody?: unknown;
+  cause?: Error;
 }
 
 /**
@@ -42,7 +41,8 @@ export class BigshipApiError extends BigshipError {
       message,
       statusCode,
       options.code,
-      options.apiResponse
+      options.apiResponse,
+      { cause: options.cause }
     );
     this.name = 'BigshipApiError';
     this.requestId = options.requestId;
@@ -77,6 +77,7 @@ export class BigshipDuplicateInvoiceError extends BigshipApiError {
       `Duplicate invoice ID: ${invoiceId}. An order with this invoice already exists.`,
       409,
       {
+        ...options,
         code: 'DUPLICATE_INVOICE',
         apiResponse: {
           status: 'error',
@@ -85,7 +86,6 @@ export class BigshipDuplicateInvoiceError extends BigshipApiError {
             invoice_id: [`Invoice ID ${invoiceId} already exists`]
           }
         },
-        ...options
       }
     );
     this.name = 'BigshipDuplicateInvoiceError';
@@ -117,13 +117,13 @@ export class BigshipValidationError extends BigshipApiError {
     options: Omit<BigshipApiErrorOptions, 'code' | 'apiResponse'> = {}
   ) {
     super(message, 400, {
+      ...options,
       code: 'VALIDATION_ERROR',
       apiResponse: {
         status: 'error',
         message,
         errors: validationErrors
       },
-      ...options
     });
     this.name = 'BigshipValidationError';
     this.validationErrors = validationErrors;
@@ -147,11 +147,15 @@ export class BigshipValidationError extends BigshipApiError {
 export class BigshipAuthError extends BigshipApiError {
   constructor(
     message: string = 'Authentication failed',
-    options: Omit<BigshipApiErrorOptions, 'code'> = {}
+    options: Omit<BigshipApiErrorOptions, 'code' | 'apiResponse'> = {}
   ) {
     super(message, 401, {
+      ...options,
       code: 'AUTH_ERROR',
-      ...options
+      apiResponse: {
+        status: 'error',
+        message,
+      },
     });
     this.name = 'BigshipAuthError';
   }
@@ -159,98 +163,39 @@ export class BigshipAuthError extends BigshipApiError {
 
 /**
  * Error thrown when network request fails
- *
- * @example
- * ```ts
- * try {
- *   await client.addSingleOrder(orderData);
- * } catch (error) {
- *   if (error instanceof BigshipNetworkError) {
- *     console.error('Network error - check your connection');
- *   }
- * }
- * ```
+ * Uses statusCode -1 since this is not an HTTP error.
+ * Check `error instanceof BigshipNetworkError` rather than comparing statusCode.
  */
 export class BigshipNetworkError extends BigshipApiError {
   constructor(
     message: string,
     options: Omit<BigshipApiErrorOptions, 'code'> = {}
   ) {
-    super(message, 0, {
+    super(message, -1, {
+      ...options,
       code: 'NETWORK_ERROR',
-      ...options
+      apiResponse: options.apiResponse ?? { status: 'error', message },
     });
     this.name = 'BigshipNetworkError';
   }
 }
 
-/**
- * Type guard to check if an error is a BigshipDuplicateInvoiceError
- *
- * @example
- * ```ts
- * if (isBigshipDuplicateInvoiceError(error)) {
- *   console.log('Duplicate invoice:', error.invoiceId);
- * }
- * ```
- */
 export function isBigshipDuplicateInvoiceError(error: unknown): error is BigshipDuplicateInvoiceError {
   return error instanceof BigshipDuplicateInvoiceError;
 }
 
-/**
- * Type guard to check if an error is a BigshipValidationError
- *
- * @example
- * ```ts
- * if (isBigshipValidationError(error)) {
- *   console.log('Validation errors:', error.validationErrors);
- * }
- * ```
- */
 export function isBigshipValidationError(error: unknown): error is BigshipValidationError {
   return error instanceof BigshipValidationError;
 }
 
-/**
- * Type guard to check if an error is a BigshipAuthError
- *
- * @example
- * ```ts
- * if (isBigshipAuthError(error)) {
- *   console.log('Authentication failed');
- * }
- * ```
- */
 export function isBigshipAuthError(error: unknown): error is BigshipAuthError {
   return error instanceof BigshipAuthError;
 }
 
-/**
- * Type guard to check if an error is a BigshipNetworkError
- *
- * @example
- * ```ts
- * if (isBigshipNetworkError(error)) {
- *   console.log('Network error occurred');
- * }
- * ```
- */
 export function isBigshipNetworkError(error: unknown): error is BigshipNetworkError {
   return error instanceof BigshipNetworkError;
 }
 
-/**
- * Type guard to check if an error is a BigshipApiError
- *
- * @example
- * ```ts
- * if (isBigshipApiError(error)) {
- *   console.log('Request ID:', error.requestId);
- *   console.log('Endpoint:', error.endpoint);
- * }
- * ```
- */
 export function isBigshipApiError(error: unknown): error is BigshipApiError {
   return error instanceof BigshipApiError;
 }
