@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.1.0](https://github.com/agamya-samuel/bigship-sdk/compare/v2.0.0...v2.1.0) (2026-08-07)
+
+### Documentation
+
+- Added 10 comprehensive code examples covering every SDK feature
+- `01-setup-and-config.ts` — client initialization, all config options, AbortController, custom logger
+- `02-b2c-complete-flow.ts` — full B2C lifecycle (10 steps with inline comments)
+- `03-b2b-complete-flow.ts` — B2B heavy order flow with ewaybill, multi-box, LRN tracking
+- `04-rate-calculation.ts` — rate comparison across couriers (Prepaid, COD, B2B)
+- `05-warehouse-management.ts` — warehouse CRUD with pagination
+- `06-error-handling.ts` — all 5 error classes, type guards, helper methods
+- `07-hooks-and-monitoring.ts` — event hooks, metrics collection, custom LoggerAdapter
+- `08-nextjs-integration.ts` — Next.js App Router (Server Actions + Route Handlers)
+- `09-browser-file-upload.ts` — browser file upload with base64 conversion
+- `10-all-workflows.ts` — side-by-side comparison of all 4 workflow approaches
+- Rewrote README with step-by-step B2C and B2B shipment guides
+- Added architecture diagram, API reference table, error hierarchy, config docs
+
 ## [2.0.0](https://github.com/agamya-samuel/bigship-sdk/compare/v1.0.1...v2.0.0) (2026-08-07)
 
 ### ⚠ BREAKING CHANGES
