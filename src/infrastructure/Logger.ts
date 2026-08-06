@@ -1,42 +1,51 @@
 import type { AxiosRequestConfig } from 'axios';
-import type { ApiResponse } from '../core/types';
-import type { BigshipError } from '../core/types';
+import type { ApiResponse, BigshipError } from '../core/types';
+import { BigshipApiError } from '../errors';
 
 /**
- * Logger for SDK request/response/error events
- * Provides detailed logging when enabled
+ * Logger interface for pluggable logging.
+ * Implement this interface to integrate with Winston, pino, etc.
+ */
+export interface LoggerAdapter {
+  debug?(message: string, data?: unknown): void;
+  info?(message: string, data?: unknown): void;
+  warn?(message: string, data?: unknown): void;
+  error?(message: string, data?: unknown): void;
+}
+
+/**
+ * Default console logger with sanitization.
  *
  * @example
  * ```ts
- * const logger = new Logger(true); // Enable logging
- * logger.logRequest(config);
- * logger.logResponse(response);
- * logger.logError(error);
+ * // Default console logging
+ * const logger = new Logger(true);
+ *
+ * // Custom logger (e.g., Winston)
+ * const logger = new Logger(true, {
+ *   debug: (msg, data) => winston.debug(msg, data),
+ *   info: (msg, data) => winston.info(msg, data),
+ *   warn: (msg, data) => winston.warn(msg, data),
+ *   error: (msg, data) => winston.error(msg, data),
+ * });
  * ```
  */
 class Logger {
-  constructor(private enabled: boolean) {}
+  private adapter: Required<LoggerAdapter>;
 
-  /**
-   * Log an API request
-   * Sanitizes sensitive information before logging
-   *
-   * @param config - The axios request config
-   *
-   * @example
-   * ```ts
-   * logger.logRequest({
-   *   method: 'POST',
-   *   url: '/api/order/add/single',
-   *   headers: { 'Authorization': 'Bearer ***' },
-   *   data: { password: '***' }
-   * });
-   * ```
-   */
+  constructor(private enabled: boolean, customAdapter?: LoggerAdapter) {
+    this.adapter = {
+      debug: customAdapter?.debug ?? ((msg, data) => console.log(msg, data)),
+      info: customAdapter?.info ?? ((msg, data) => console.log(msg, data)),
+      warn: customAdapter?.warn ?? ((msg, data) => console.warn(msg, data)),
+      error: customAdapter?.error ?? ((msg, data) => console.error(msg, data)),
+    };
+  }
+
   logRequest(config: AxiosRequestConfig): void {
     if (!this.enabled) return;
 
-    console.log('[Bigship SDK Request]', {
+    this.adapter.debug('[Bigship SDK Request]', {
       method: config.method?.toUpperCase(),
       url: config.url,
       headers: this.sanitizeHeaders(config.headers),
@@ -44,25 +53,10 @@ class Logger {
     });
   }
 
-  /**
-   * Log an API response
-   *
-   * @param response - The API response
-   *
-   * @example
-   * ```ts
-   * logger.logResponse({
-   *   success: true,
-   *   message: 'Order added successfully',
-   *   responseCode: 200,
-   *   data: '12345'
-   * });
-   * ```
-   */
   logResponse(response: ApiResponse<unknown>): void {
     if (!this.enabled) return;
 
-    console.log('[Bigship SDK Response]', {
+    this.adapter.debug('[Bigship SDK Response]', {
       success: response.success,
       message: response.message,
       responseCode: response.responseCode,
@@ -70,34 +64,28 @@ class Logger {
     });
   }
 
-  /**
-   * Log an error
-   *
-   * @param error - The error to log
-   *
-   * @example
-   * ```ts
-   * logger.logError(bigshipError);
-   * // Outputs: [Bigship SDK Error] { name: 'BigshipApiError', message: '...', statusCode: 400 }
-   * ```
-   */
   logError(error: BigshipError): void {
     if (!this.enabled) return;
 
-    console.error('[Bigship SDK Error]', {
+    const extra = error instanceof BigshipApiError
+      ? { requestId: error.requestId, endpoint: error.endpoint }
+      : {};
+
+    this.adapter.error('[Bigship SDK Error]', {
       name: error.name,
       message: error.message,
       statusCode: error.statusCode,
       code: error.code,
-      requestId: (error as any).requestId,
-      endpoint: (error as any).endpoint
+      ...extra
     });
   }
 
-  /**
-   * Sanitize headers by removing sensitive information
-   */
-  private sanitizeHeaders(headers: any): any {
+  warn(message: string, data?: unknown): void {
+    if (!this.enabled) return;
+    this.adapter.warn(message, data);
+  }
+
+  private sanitizeHeaders(headers: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
     if (!headers) return headers;
     const sanitized = { ...headers };
     if (sanitized.Authorization) {
@@ -109,18 +97,35 @@ class Logger {
     return sanitized;
   }
 
-  /**
-   * Sanitize request data by removing sensitive fields
-   */
-  private sanitizeData(data: any): any {
+  private sanitizeData(data: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
     if (!data) return data;
 
-    const sanitized = { ...data };
-    if (sanitized.password) sanitized.password = '***';
-    if (sanitized.access_key) sanitized.access_key = '***';
-    if (sanitized.accessKey) sanitized.accessKey = '***';
+    const sensitiveKeys = new Set(['password', 'access_key', 'accessKey', 'token', 'secret']);
+    const maxStringLength = 200;
 
-    return sanitized;
+    const sanitize = (obj: unknown, depth: number): unknown => {
+      if (depth > 5) return '[depth limit]';
+      if (typeof obj === 'string') {
+        return obj.length > maxStringLength ? `${obj.slice(0, maxStringLength)}...[truncated ${obj.length} chars]` : obj;
+      }
+      if (Array.isArray(obj)) {
+        return obj.map(item => sanitize(item, depth + 1));
+      }
+      if (obj && typeof obj === 'object') {
+        const result: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+          if (sensitiveKeys.has(key)) {
+            result[key] = '***';
+          } else {
+            result[key] = sanitize(value, depth + 1);
+          }
+        }
+        return result;
+      }
+      return obj;
+    };
+
+    return sanitize(data, 0) as Record<string, unknown>;
   }
 }
 
