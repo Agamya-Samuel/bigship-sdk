@@ -26,6 +26,18 @@ TypeScript SDK for the Bigship.in External Outbound API — shipping, orders, ra
 npm install @agamya/bigship-sdk
 ```
 
+## Architecture
+
+```
+BigshipClient
+  ├── executeApiCall<T>  (token → request → validate → dispatch → return)
+  │     ├── TokenManager   (auto-login, token caching)
+  │     ├── RetryManager   (exponential backoff with full jitter)
+  │     ├── EventDispatcher (onBeforeRequest, onResponse, onError, onRetry hooks)
+  │     └── Logger         (pluggable: console, Winston, pino)
+  └── Axios HTTP Client → Bigship API
+```
+
 ## Quick Start
 
 ```typescript
@@ -233,3 +245,7 @@ MIT
 ## Support
 
 [GitHub Issues](https://github.com/Agamya-Samuel/bigship-sdk/issues)
+
+## Full Guide
+
+For the complete step-by-step walkthrough (B2C lifecycle, B2B lifecycle, error handling details, configuration reference, utility functions, migration guide), see [docs/guide.md](./docs/guide.md).
