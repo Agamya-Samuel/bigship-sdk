@@ -1,6 +1,6 @@
 {
   "name": "@agamya/bigship-sdk",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "TypeScript SDK for Bigship.in External Outbound API (shipping, orders, rates, tracking, etc.)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,6 +16,22 @@
     "./errors": {
       "types": "./dist/errors/index.d.ts",
       "default": "./dist/errors/index.js"
+    },
+    "./http": {
+      "types": "./dist/http/index.d.ts",
+      "default": "./dist/http/index.js"
+    },
+    "./infrastructure": {
+      "types": "./dist/infrastructure/index.d.ts",
+      "default": "./dist/infrastructure/index.js"
+    },
+    "./auth": {
+      "types": "./dist/auth/index.d.ts",
+      "default": "./dist/auth/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
     }
   },
   "files": [
@@ -23,8 +39,12 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "npm run build",
-    "test": "echo \"Add vitest tests\""
+    "sync-version": "node scripts/sync-version.js",
+    "prepublishOnly": "npm run sync-version && npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run --config vitest.config.integration.ts"
   },
   "keywords": [
     "bigship",
@@ -38,13 +58,20 @@
   ],
   "author": "Agamya Samuel",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "axios": "^1.7.7",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "dotenv": "^17.4.2",
+    "msw": "^2.15.0",
     "typescript": "^5.5.0",
-    "@types/node": "^20.14.0"
+    "vitest": "^4.1.10"
   },
   "repository": {
     "type": "git",
