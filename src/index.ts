@@ -1,16 +1,26 @@
-// Core exports
-export { BigshipClient } from './core/BigshipClient';
+// Core
+export { BigshipClient, type RequestOptions } from './core/BigshipClient';
 export * from './core/types';
 
-// Error exports
+// Errors
 export * from './errors';
 
-// Infrastructure exports (for advanced users)
+// Workflow
+export { ShipmentWorkflow } from './workflow/ShipmentWorkflow';
+
+// Infrastructure (for advanced users)
 export { EventDispatcher } from './infrastructure/EventDispatcher';
-export { TokenManager } from './auth/TokenManager';
-export { RetryManager } from './http/RetryManager';
+export { Logger, type LoggerAdapter } from './infrastructure/Logger';
+
+// HTTP
 export { ResponseValidator, formatZodErrors } from './http/ResponseValidator';
-export { Logger } from './infrastructure/Logger';
+export { RetryManager } from './http/RetryManager';
+
+// Auth
+export { TokenManager } from './auth/TokenManager';
 
 // Utils
 export * from './utils';
+
+// Version
+export { SDK_VERSION } from './version';
