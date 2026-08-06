@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.1](https://github.com/agamya-samuel/bigship-sdk/compare/v2.1.0...v2.1.1) (2026-08-07)
+
+### Bug Fixes
+
+- **ci**: remove unsupported `cache: false` from release workflow (`actions/setup-node@v7` does not accept it)
+- **ci**: make release notes extraction and GitHub Release creation conditional on tag push (fixes `workflow_dispatch` failures)
+
+### Documentation
+
+- Trimmed README from 586 to ~230 lines — removed duplicated step-by-step guides (now in `examples/` only)
+- Quick Start now shows a complete order + manifestAndGetAWB example inline
+
 ## [2.1.0](https://github.com/agamya-samuel/bigship-sdk/compare/v2.0.0...v2.1.0) (2026-08-07)
 
 ### Documentation
