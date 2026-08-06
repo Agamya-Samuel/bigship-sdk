@@ -39,15 +39,15 @@ export class ResponseValidator {
   static validate<T>(
     response: unknown,
     schema: z.ZodType<T>,
-    context: RequestContext
+    context: RequestContext,
+    options?: { allowNullData?: boolean }
   ): T {
-    // Validate response structure with Zod
     const apiResponse = ApiResponseSchema(schema).safeParse(response);
 
     if (!apiResponse.success) {
       throw new BigshipValidationError(
         'Invalid API response structure',
-        ResponseValidator.formatZodErrors(apiResponse.error.errors),
+        ResponseValidator.formatZodErrors(apiResponse.error.issues),
         {
           requestId: context.requestId,
           endpoint: context.endpoint,
@@ -58,11 +58,12 @@ export class ResponseValidator {
 
     const validated = apiResponse.data;
 
-    // Check API-level success flag
     if (validated.success === false) {
-      // Detect duplicate invoice errors
-      if (ResponseValidator.isDuplicateInvoiceError(validated)) {
-        const invoiceId = ResponseValidator.extractInvoiceId(validated);
+      const rawResponse = (response && typeof response === 'object' && !Array.isArray(response)
+        ? response
+        : {}) as Record<string, unknown>;
+      if (ResponseValidator.isDuplicateInvoiceError(rawResponse)) {
+        const invoiceId = ResponseValidator.extractInvoiceId(rawResponse);
         throw new BigshipDuplicateInvoiceError(invoiceId, {
           requestId: context.requestId,
           endpoint: context.endpoint,
@@ -70,7 +71,6 @@ export class ResponseValidator {
         });
       }
 
-      // General API error
       throw new BigshipApiError(
         validated.message || 'API request failed',
         validated.responseCode,
@@ -81,14 +81,13 @@ export class ResponseValidator {
           responseBody: validated,
           apiResponse: {
             message: validated.message,
-            errors: (validated as any).errors
+            errors: rawResponse?.errors as Record<string, string[]> | undefined
           }
         }
       );
     }
 
-    // Ensure data is not null when success is true
-    if (validated.data === null || validated.data === undefined) {
+    if (!options?.allowNullData && (validated.data === null || validated.data === undefined)) {
       throw new BigshipApiError(
         `API returned success=true but data is null for endpoint: ${context.endpoint}`,
         500,
@@ -101,33 +100,32 @@ export class ResponseValidator {
       );
     }
 
-    return validated.data;
+    return validated.data as T;
   }
 
   /**
    * Check if the response indicates a duplicate invoice error
    */
-  private static isDuplicateInvoiceError(response: any): boolean {
-    return (
-      response.message?.toLowerCase().includes('duplicate') ||
-      response.message?.toLowerCase().includes('already exists') ||
-      response.errors?.invoice_id?.some((msg: string) =>
+  private static isDuplicateInvoiceError(response: Record<string, unknown>): boolean {
+    const errors = response.errors as Record<string, string[]> | undefined;
+    const message = response.message as string | undefined;
+    return !!(
+      errors?.invoice_id?.some((msg: string) =>
         msg.toLowerCase().includes('already exists')
-      )
+      ) ||
+      (message?.toLowerCase().includes('duplicate') && errors?.invoice_id)
     );
   }
 
-  /**
-   * Extract invoice ID from error response
-   */
-  private static extractInvoiceId(response: any): string {
-    return response.errors?.invoice_id?.[0] || 'unknown';
+  private static extractInvoiceId(response: Record<string, unknown>): string {
+    const errors = response.errors as Record<string, string[]> | undefined;
+    return errors?.invoice_id?.[0] || 'unknown';
   }
 
   /**
    * Format Zod errors into a readable format
    */
-  public static formatZodErrors(zodErrors: z.ZodError['errors']): Record<string, string[]> {
+  public static formatZodErrors(zodErrors: z.ZodIssue[]): Record<string, string[]> {
     const formatted: Record<string, string[]> = {};
 
     for (const error of zodErrors) {
@@ -147,10 +145,10 @@ export class ResponseValidator {
  *
  * @example
  * ```ts
- * const errors = formatZodErrors(zodError.errors);
+ * const errors = formatZodErrors(zodError.issues);
  * // { 'order_detail.invoice_id': ['Invalid format'] }
  * ```
  */
-export function formatZodErrors(zodErrors: z.ZodError['errors']): Record<string, string[]> {
+export function formatZodErrors(zodErrors: z.ZodIssue[]): Record<string, string[]> {
   return ResponseValidator.formatZodErrors(zodErrors);
 }
