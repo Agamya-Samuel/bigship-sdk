@@ -1,8 +1,8 @@
 import type { AxiosInstance } from 'axios';
 import type { BigshipConfig } from '../core/types';
 import type { LoginRequest } from '../core/types';
-import { LoginRequestSchema } from '../core/types';
-import { BigshipAuthError } from '../errors';
+import { LoginRequestSchema, LoginResponseSchema } from '../core/types';
+import { BigshipAuthError, BigshipValidationError } from '../errors';
 import { EventDispatcher } from '../infrastructure/EventDispatcher';
 
 /**
@@ -77,7 +77,7 @@ export class TokenManager {
    * Check if the cached token is still valid
    */
   private isTokenValid(): boolean {
-    if (!this.tokenExpiry) return true;
+    if (!this.token || !this.tokenExpiry) return false;
     return Date.now() < this.tokenExpiry;
   }
 
@@ -96,11 +96,16 @@ export class TokenManager {
       const validated = LoginRequestSchema.parse(payload);
       const res = await this.axios.post('/api/login/user', validated);
 
-      const token = (res.data as any).data.token;
+      const parsed = LoginResponseSchema.parse(res.data);
+      if (!parsed.data) {
+        throw new BigshipAuthError('Login response missing token data');
+      }
+
+      const token = parsed.data.token;
       this.token = token;
-      // Set expiry to 55 minutes (tokens typically last 60 minutes)
-      // This gives us a 5-minute buffer to refresh before actual expiry
-      this.tokenExpiry = Date.now() + (55 * 60 * 1000);
+      // Use configurable TTL (default 55 min, assuming 60-min server tokens with 5-min buffer)
+      const ttlMs = this.config.tokenTtlMs ?? (55 * 60 * 1000);
+      this.tokenExpiry = Date.now() + ttlMs;
 
       // Set Bearer for all future requests
       this.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -108,7 +113,22 @@ export class TokenManager {
       return token;
     } catch (error) {
       this.clearToken();
-      throw new BigshipAuthError('Failed to refresh authentication token');
+      if (error instanceof BigshipAuthError) throw error;
+      if (isZodLikeError(error)) {
+        throw new BigshipValidationError('Login response validation failed', {
+          login_response_schema: error.issues.map(i => i.message),
+        }, { cause: error });
+      }
+      const cause = error instanceof Error ? error : undefined;
+      throw new BigshipAuthError('Failed to refresh authentication token', { cause });
     }
   }
+}
+
+interface ZodLikeError extends Error {
+  issues: Array<{ message: string }>;
+}
+
+function isZodLikeError(error: unknown): error is ZodLikeError {
+  return error instanceof Error && 'issues' in error && Array.isArray((error as ZodLikeError).issues);
 }
