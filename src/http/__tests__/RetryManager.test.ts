@@ -147,6 +147,7 @@ describe('RetryManager', () => {
       userName: 'test',
       password: 'test',
       accessKey: 'test',
+      retryDelay: 1,
     };
     const rm = new RetryManager(config, dispatcher);
     const fn = vi.fn().mockRejectedValue(new BigshipNetworkError('fail'));
