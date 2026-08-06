@@ -121,8 +121,79 @@ BIGSHIP_ACCESS_KEY=your-access-key
 | `getShippingRates(orderId, category, riskType)` | Get shipping rates | GET `/api/order/shipping/rates` |
 | `calculateRate(payload)` | Calculate shipping rate | POST `/api/calculator` |
 | `cancelShipments(awbs[])` | Cancel shipments | PUT `/api/order/cancel` |
-| `getShipmentData(id, orderId)` | Get shipment details | POST `/api/shipment/data` |
+| `getShipmentData(id, orderId)` | Get shipment data (AWB/Label/Manifest) | POST `/api/shipment/data` |
 | `trackShipment(trackingId, type)` | Track shipment | GET `/api/tracking` |
+| `manifestAndGetAWB(orderId, courierId)` | Manifest + fetch AWB in one call | *Helper* |
+| `getShipmentDetails(orderId)` | Get AWB, Label, Manifest at once | *Helper* |
+| `createAndFinalizeShipment(config)` | Create → Manifest → Get all details | *Helper* |
+| `workflow()` | Get fluent workflow builder | *Helper* |
+
+## ShipmentDataType Enum
+
+Use the `ShipmentDataType` enum instead of magic numbers with `getShipmentData`:
+
+```typescript
+import { ShipmentDataType } from '@agamya/bigship-sdk';
+
+// Instead of: client.getShipmentData(1, orderId)
+const awb = await client.getShipmentData(ShipmentDataType.AWB, orderId);
+const label = await client.getShipmentData(ShipmentDataType.LABEL, orderId);
+const manifest = await client.getShipmentData(ShipmentDataType.MANIFEST, orderId);
+```
+
+## Helper Methods
+
+### Manifest and Get AWB
+
+```typescript
+import { BigshipClient } from '@agamya/bigship-sdk';
+
+const client = new BigshipClient({ /* config */ });
+
+// Old way: two separate calls
+await client.manifestSingle({ system_order_id: orderId, courier_id: 5 });
+const awbResponse = await client.getShipmentData(1, orderId);
+const awb = awbResponse.data?.master_awb;
+
+// New way: one call
+const { awb, courierName } = await client.manifestAndGetAWB(orderId, 5);
+console.log(`AWB: ${awb}, Courier: ${courierName}`);
+```
+
+### Get All Shipment Details
+
+```typescript
+const details = await client.getShipmentDetails(orderId);
+console.log(details.awb);         // "1234567890"
+console.log(details.courierName); // "Delhivery"
+console.log(details.labelData);   // "data:application/pdf;base64,..." or ""
+console.log(details.manifestData); // "data:application/pdf;base64,..." or ""
+```
+
+### Create and Finalize Shipment (All-in-One)
+
+```typescript
+const result = await client.createAndFinalizeShipment({
+  order: orderDetails,
+  courierId: 5,
+});
+console.log(result.orderId);      // "1005202970"
+console.log(result.awb);          // "1234567890"
+console.log(result.courierName);  // "Delhivery"
+```
+
+### Workflow Builder (Fluent API)
+
+```typescript
+const result = await client.workflow()
+  .create(orderDetails)
+  .withCourier(5)
+  .manifest()
+  .finalize();
+
+console.log(result.awb);         // "1234567890"
+console.log(result.courierName); // "Delhivery"
+```
 
 ## Usage Examples
 
