@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import type { InternalAxiosRequestConfig } from 'axios';
+import type { BigshipError } from '../errors/BigshipError';
 
 export interface BigshipConfig {
   baseURL: string;
@@ -10,16 +11,17 @@ export interface BigshipConfig {
   timeout?: number;
 
   // New options (all optional, with sensible defaults)
-  throwOnUnsuccessfulResponse?: boolean;  // Default: true
   enableDetailedLogging?: boolean;         // Default: false
   maxRetries?: number;                     // Default: 3
   retryDelay?: number;                     // Default: 1000 (ms)
+  maxRetryDelay?: number;                  // Default: 30000 (ms) - upper bound for exponential backoff
   retryOnStatusCodes?: number[];           // Default: [408, 429, 500, 502, 503, 504]
+  tokenTtlMs?: number;                     // Default: 3300000 (55 min). Set if API token TTL differs from 60 min.
 
   // Event hooks
-  onResponse?: (response: ApiResponse<unknown>, context: RequestContext) => void;
-  onError?: (error: BigshipError, context: RequestContext) => void;
-  onRetry?: (attempt: number, error: BigshipError, context: RequestContext) => void;
+  onResponse?: (response: ApiResponse<unknown>, context: RequestContext) => void | Promise<void>;
+  onError?: (error: BigshipError, context: RequestContext) => void | Promise<void>;
+  onRetry?: (attempt: number, error: BigshipError, context: RequestContext) => void | Promise<void>;
   onBeforeRequest?: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>;
 }
 
@@ -33,16 +35,17 @@ export interface RequestContext {
   requestId?: string;
   attempt?: number;
   startTime: number;
+  duration?: number;
 }
 
 // ==================== VALIDATION HELPERS ====================
 
 const base64DataURI = () =>
-  z.string().regex(/^data:(application\/pdf|image\/jpeg);base64,/);
+  z.string().regex(/^data:(application\/pdf|image\/(jpeg|jpg));base64,[A-Za-z0-9+/\-_]+=*$/i);
 
 // ==================== AUTH ====================
 export const LoginRequestSchema = z.object({
-  user_name: z.string().email(),
+  user_name: z.string().min(1),
   password: z.string(),
   access_key: z.string(),
 });
@@ -56,16 +59,16 @@ export const WarehouseDetailSchema = z.object({
 });
 
 export const ConsigneeAddressSchema = z.object({
-  address_line1: z.string().min(10).max(50).regex(/^[a-zA-Z0-9 .,\-/]+$/),
-  address_line2: z.string().max(50).regex(/^[a-zA-Z0-9 .,\-/]+$/).optional(),
-  address_landmark: z.string().max(50).regex(/^[a-zA-Z0-9 .,\-/]+$/).optional(),
+  address_line1: z.string().min(10).max(100).regex(/^[a-zA-Z0-9 .,#':\/()-]+$/),
+  address_line2: z.string().min(1).max(100).regex(/^[a-zA-Z0-9 .,#':\/()-]+$/).optional(),
+  address_landmark: z.string().min(1).max(100).regex(/^[a-zA-Z0-9 .,#':\/()-]+$/).optional(),
   pincode: z.string().regex(/^[0-9]{6}$/),
 });
 
 export const ConsigneeDetailSchema = z.object({
-  first_name: z.string().min(3).max(25).regex(/^[a-zA-Z. ]+$/),
-  last_name: z.string().min(3).max(25).regex(/^[a-zA-Z. ]+$/),
-  company_name: z.string().max(50).optional(),
+  first_name: z.string().min(1).max(25).regex(/^[a-zA-Z. ]+$/),
+  last_name: z.string().min(1).max(25).regex(/^[a-zA-Z. ]+$/),
+  company_name: z.string().min(1).max(50).optional(),
   contact_number_primary: z.string().min(10).max(12).regex(/^[0-9]+$/),
   contact_number_secondary: z.string().min(10).max(12).regex(/^[0-9]+$/).optional(),
   email_id: z.string().email().optional(),
@@ -73,13 +76,13 @@ export const ConsigneeDetailSchema = z.object({
 });
 
 export const ProductDetailSchema = z.object({
-  product_category: z.string(),
-  product_sub_category: z.string().optional(),
-  product_name: z.string(),
+  product_category: z.string().min(1),
+  product_sub_category: z.string().min(1).optional(),
+  product_name: z.string().min(1),
   product_quantity: z.number().int().positive(),
   each_product_invoice_amount: z.number().nonnegative(),
   each_product_collectable_amount: z.number().nonnegative(),
-  hsn: z.string().min(12).max(15).regex(/^[a-zA-Z0-9]+$/).optional(),
+  hsn: z.string().min(6).max(15).regex(/^[a-zA-Z0-9]+$/).optional(),
 });
 
 // B2C Box Detail - exactly 1 box
@@ -91,7 +94,7 @@ export const BoxDetailB2CSchema = z.object({
   each_box_invoice_amount: z.number().nonnegative(),
   each_box_collectable_amount: z.number().nonnegative(),
   box_count: z.literal(1), // B2C must have exactly 1 box
-  product_details: z.array(ProductDetailSchema),
+  product_details: z.array(ProductDetailSchema).min(1),
 });
 
 // B2B Box Detail - multiple boxes allowed
@@ -103,7 +106,7 @@ export const BoxDetailB2BSchema = z.object({
   each_box_invoice_amount: z.number().nonnegative(),
   each_box_collectable_amount: z.number().nonnegative(),
   box_count: z.number().int().positive(),
-  product_details: z.array(ProductDetailSchema),
+  product_details: z.array(ProductDetailSchema).min(1),
 });
 
 // B2C Document Detail - invoice required, ewaybill optional
@@ -155,7 +158,7 @@ export const OrderDetailB2CSchema = z.object({
   total_collectable_amount: z.number().nonnegative(),
   shipment_invoice_amount: z.number().positive(),
   box_details: z.array(BoxDetailB2CSchema),
-  ewaybill_number: z.string().optional(),
+  ewaybill_number: z.string().min(1).optional(),
   document_detail: DocumentDetailB2CSchema,
 });
 
@@ -183,10 +186,10 @@ export const RateCalculatorBoxDetailSchema = z.object({
 export const RateCalculatorRequestSchema = z.object({
   shipment_category: z.enum(['B2C', 'B2B']),
   payment_type: z.enum(['COD', 'Prepaid']),
-  pickup_pincode: z.string(),
-  destination_pincode: z.string(),
+  pickup_pincode: z.string().regex(/^[0-9]{6}$/),
+  destination_pincode: z.string().regex(/^[0-9]{6}$/),
   shipment_invoice_amount: z.number().nonnegative(),
-  risk_type: z.string().optional(),
+  risk_type: z.string().min(1).optional(),
   box_details: z.array(RateCalculatorBoxDetailSchema),
 });
 
@@ -199,7 +202,7 @@ export const ManifestSingleRequestSchema = z.object({
 });
 
 export const ManifestHeavyRequestSchema = ManifestSingleRequestSchema.extend({
-  risk_type: z.string().optional(),
+  risk_type: z.string().min(1).optional(),
 });
 
 // Cancel
@@ -208,8 +211,8 @@ export const CancelRequestSchema = z.array(z.string());
 // ==================== WAREHOUSE ====================
 export const WarehouseAddRequestSchema = z.object({
   address_line1: z.string().min(10).max(50),
-  address_line2: z.string().max(50).optional(),
-  address_landmark: z.string().max(50).optional(),
+  address_line2: z.string().min(1).max(50).optional(),
+  address_landmark: z.string().min(1).max(50).optional(),
   address_pincode: z.string().regex(/^[0-9]{6}$/),
   contact_number_primary: z.string().min(10).max(12).regex(/^[0-9]+$/),
 });
@@ -217,73 +220,9 @@ export const WarehouseAddRequestSchema = z.object({
 export type WarehouseAddRequest = z.infer<typeof WarehouseAddRequestSchema>;
 
 // ==================== ERROR ====================
-export interface BigshipErrorData {
-  status?: string;
-  message?: string;
-  errors?: Record<string, string[]>; // Validation errors
-  trace_id?: string; // Request tracking
-  [key: string]: any;
-}
-
-/**
- * Custom error class for Bigship API errors
- * Provides structured access to error details and helper methods for error type checking
- *
- * @example
- * ```ts
- * try {
- *   await client.addSingleOrder(orderData);
- * } catch (error) {
- *   if (error instanceof BigshipError) {
- *     if (error.isValidationError()) {
- *       console.error('Validation failed:', error.validationErrors);
- *     }
- *     if (error.isRateLimitError()) {
- *       console.error('Rate limited, retry after 60s');
- *     }
- *     console.error('Status:', error.statusCode);
- *     console.error('Trace ID:', error.traceId);
- *   }
- * }
- * ```
- */
-export class BigshipError extends Error {
-  readonly statusCode: number;
-  readonly code?: string;
-  readonly apiResponse?: BigshipErrorData;
-  readonly validationErrors?: Record<string, string[]>;
-  readonly traceId?: string;
-
-  constructor(
-    message: string,
-    statusCode?: number,
-    code?: string,
-    apiResponse?: BigshipErrorData
-  ) {
-    super(message);
-    this.name = 'BigshipError';
-    this.statusCode = statusCode ?? 0;
-    this.code = code;
-    this.apiResponse = apiResponse;
-    this.validationErrors = apiResponse?.errors;
-    this.traceId = apiResponse?.trace_id;
-  }
-
-  /** Helper to check if this is a validation error */
-  isValidationError(): boolean {
-    return !!this.validationErrors && Object.keys(this.validationErrors).length > 0;
-  }
-
-  /** Helper to check if this is a rate limit error */
-  isRateLimitError(): boolean {
-    return this.statusCode === 429 || this.code === 'RATE_LIMIT_EXCEEDED';
-  }
-
-  /** Helper to check if this is an authentication error */
-  isAuthError(): boolean {
-    return this.statusCode === 401 || this.statusCode === 403;
-  }
-}
+// BigshipError is defined in ../errors/BigshipError.ts and re-exported here for backward compatibility.
+// Prefer importing from '@agamya/bigship-sdk/errors' in new code.
+export { BigshipError, type BigshipErrorData } from '../errors/BigshipError';
 
 // ==================== REQUEST SCHEMAS ====================
 
@@ -608,7 +547,7 @@ export type ShipmentDataAnyResponse = ShipmentAWBResponse | ShipmentFileResponse
 export const PRODUCT_CATEGORIES = [
   { id: 1, name: 'Accessories' },
   { id: 2, name: 'Fashion & Clothing' },
-  { id: 3, name: 'Book & Stationary' },
+  { id: 3, name: 'Book & Stationery' },
   { id: 4, name: 'Electronics' },
   { id: 5, name: 'FMCG' },
   { id: 6, name: 'Footwear' },
@@ -631,10 +570,8 @@ export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   responseCode: number;
-  data: T;
+  data: T | null;
 }
-
-// ==================== TYPE GUARDS ====================
 
 // ==================== TYPE GUARDS ====================
 
@@ -651,12 +588,16 @@ export interface ApiResponse<T = unknown> {
  * ```
  */
 export function isSuccessResponse<T>(response: ApiResponse<T>): response is ApiResponse<T> & { success: true; data: T } {
-  return response.success === true;
+  return response.success === true && response.data !== null && response.data !== undefined;
 }
 
 /**
  * Type guard to check if an API response failed
- * Narrows the type to ensure data is null
+ * Narrows the type to ensure data is null.
+ *
+ * **Breaking change from v1.0.0:** Previously also matched `data: undefined`.
+ * Now only matches `data: null` to align with the Zod schema and ApiResponse interface.
+ * If your code relied on `undefined` matching, add an explicit `data === undefined` check.
  *
  * @example
  * ```ts
@@ -667,5 +608,18 @@ export function isSuccessResponse<T>(response: ApiResponse<T>): response is ApiR
  * ```
  */
 export function isFailedResponse<T>(response: ApiResponse<T>): response is ApiResponse<T> & { success: false; data: null } {
-  return response.success === false;
+  return response.success === false && response.data === null;
+}
+
+/**
+ * Shipment data type identifiers
+ * @see Bigship API documentation
+ */
+export enum ShipmentDataType {
+  /** Air Waybill - Contains AWB number and courier details */
+  AWB = 1,
+  /** Shipping label - Contains label download URL/data */
+  LABEL = 2,
+  /** Manifest document - Contains manifest download URL/data */
+  MANIFEST = 3,
 }
