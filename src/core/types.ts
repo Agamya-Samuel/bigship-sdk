@@ -280,8 +280,9 @@ export const CourierItemSchema = z.object({
 export const CourierListResponseSchema = ApiResponseSchema(z.array(CourierItemSchema));
 
 export const TransporterItemSchema = z.object({
-  transporter_id: z.number(),
-  transporter_name: z.string(),
+  courier_id: z.number(),
+  courier_name: z.string(),
+  transport_id: z.string(),
 });
 
 export const TransporterListResponseSchema = ApiResponseSchema(z.array(TransporterItemSchema));
@@ -349,7 +350,13 @@ export const AddOrderResponseSchema = ApiResponseSchema(z.string());
 
 export const ManifestResponseSchema = ApiResponseSchema(z.null());
 
-export const CancelResponseSchema = ApiResponseSchema(z.null());
+export const CancelResponseSchema = ApiResponseSchema(
+  z.array(z.object({
+    courier_id: z.number(),
+    master_awb: z.string(),
+    cancel_response: z.string(),
+  })).nullable()
+);
 
 // Shipping Rates Response
 /**
@@ -443,10 +450,16 @@ export const ShipmentAWBDataSchema = z.object({
   master_awb: z.string(),
 });
 
-// Label/Manifest Response - base64 string, URL, or null
+// Label/Manifest Response - base64 string, URL, or object from API
 export const ShipmentFileDataSchema = z.union([
-  z.string(), // base64 data URI or URL
-  z.null(),   // not available yet
+  z.string(),
+  z.object({
+    res_FileName: z.string().optional(),
+    res_FileContent: z.string(),
+    res_MediaType: z.string().optional(),
+    res_PrintFor: z.string().optional(),
+  }),
+  z.null(),
 ]);
 
 // Response schemas for different shipment data types
@@ -482,10 +495,16 @@ export const TrackingEventSchema = z.object({
 });
 
 export const TrackingDataSchema = z.object({
-  tracking_id: z.string(),
-  tracking_type: z.string(),
-  current_status: z.string().optional(),
-  tracking_events: z.array(TrackingEventSchema),
+  order_detail: z.object({
+    courier_name: z.string().optional(),
+    tracking_type: z.string(),
+    tracking_id: z.string(),
+    invoice_id: z.string().optional(),
+    order_manifest_datetime: z.string().optional(),
+    current_tracking_datetime: z.string().optional(),
+    current_tracking_status: z.string().optional(),
+  }),
+  scan_histories: z.array(TrackingEventSchema),
 });
 
 export const TrackingResponseSchema = ApiResponseSchema(TrackingDataSchema);

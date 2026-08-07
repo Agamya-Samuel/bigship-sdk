@@ -19,6 +19,7 @@ import {
   ShipmentFileDataSchema,
   CalculatorRateItemSchema,
   TrackingDataSchema,
+  CancelResponseSchema,
   ShipmentDataType,
   type WalletBalanceResponse,
   type CourierListResponse,
@@ -321,17 +322,25 @@ export class BigshipClient {
   /** @throws {BigshipValidationError} When request validation fails. @throws {BigshipDuplicateInvoiceError} When invoice ID already exists. @throws {BigshipApiError} When API request fails */
   async addSingleOrder(payload: AddSingleOrderRequest, options?: RequestOptions): Promise<AddOrderResponse> {
     const validated = this.parseRequest(AddSingleOrderRequestSchema, payload, '/api/order/add/single');
-    return this.executeApiCall('/api/order/add/single', 'POST',
+    const response = await this.executeApiCall('/api/order/add/single', 'POST',
       () => this.axios.post('/api/order/add/single', validated, this.mergeAxiosConfig(options)),
       z.string(), 'Order added successfully');
+    return {
+      ...response,
+      data: (response.data as string).replace(/^system_order_id\s+is\s+/i, ''),
+    };
   }
 
   /** @throws {BigshipValidationError} When request validation fails. @throws {BigshipDuplicateInvoiceError} When invoice ID already exists. @throws {BigshipApiError} When API request fails */
   async addHeavyOrder(payload: AddHeavyOrderRequest, options?: RequestOptions): Promise<AddOrderResponse> {
     const validated = this.parseRequest(AddHeavyOrderRequestSchema, payload, '/api/order/add/heavy');
-    return this.executeApiCall('/api/order/add/heavy', 'POST',
+    const response = await this.executeApiCall('/api/order/add/heavy', 'POST',
       () => this.axios.post('/api/order/add/heavy', validated, this.mergeAxiosConfig(options)),
       z.string(), 'Order added successfully');
+    return {
+      ...response,
+      data: (response.data as string).replace(/^system_order_id\s+is\s+/i, ''),
+    };
   }
 
   /** @throws {BigshipValidationError} When request validation fails. @throws {BigshipApiError} When API request fails */
@@ -362,7 +371,7 @@ export class BigshipClient {
     const validated = this.parseRequest(CancelRequestSchema, awbs, '/api/order/cancel');
     return this.executeApiCall('/api/order/cancel', 'PUT',
       () => this.axios.put('/api/order/cancel', validated, this.mergeAxiosConfig(options)),
-      z.null(), 'Shipments cancelled successfully', { allowNullData: true });
+      CancelResponseSchema.shape.data, 'Shipments cancelled successfully', { allowNullData: true });
   }
 
   // ==================== CALCULATOR ====================
@@ -370,6 +379,9 @@ export class BigshipClient {
   /** @throws {BigshipValidationError} When request validation fails. @throws {BigshipApiError} When API request fails */
   async calculateRate(payload: RateCalculatorRequest, options?: RequestOptions): Promise<CalculateRateResponse> {
     const validated = this.parseRequest(RateCalculatorRequestSchema, payload, '/api/calculator');
+    if (!validated.risk_type) {
+      validated.risk_type = '';
+    }
     return this.executeApiCall('/api/calculator', 'POST',
       () => this.axios.post('/api/calculator', validated, this.mergeAxiosConfig(options)),
       z.array(CalculatorRateItemSchema), 'Rate calculated successfully');
@@ -386,9 +398,20 @@ export class BigshipClient {
 
   /** @throws {BigshipApiError} When API request fails or data is null */
   async getShipmentFile(shipmentDataId: 2 | 3, systemOrderId: string, options?: RequestOptions): Promise<ShipmentFileResponse> {
-    return this.executeApiCall('/api/shipment/data', 'POST',
+    const response = await this.executeApiCall('/api/shipment/data', 'POST',
       () => this.axios.post('/api/shipment/data', null, { params: { shipment_data_id: shipmentDataId, system_order_id: systemOrderId }, ...this.mergeAxiosConfig(options) }),
       ShipmentFileDataSchema, 'Shipment file retrieved successfully', { allowNullData: true });
+
+    let fileData: string | null = null;
+    if (typeof response.data === 'string') {
+      fileData = response.data;
+    } else if (response.data && typeof response.data === 'object' && 'res_FileContent' in response.data) {
+      const obj = response.data as { res_FileContent: string; res_MediaType?: string };
+      const mediaType = obj.res_MediaType || 'application/pdf';
+      fileData = `data:${mediaType};base64,${obj.res_FileContent}`;
+    }
+
+    return { ...response, data: fileData };
   }
 
   /** @throws {BigshipApiError} When API request fails or invalid shipmentDataId */
@@ -411,9 +434,37 @@ export class BigshipClient {
 
   /** @throws {BigshipApiError} When API request fails */
   async trackShipment(trackingId: string, trackingType: 'awb' | 'lrn' = 'awb', options?: RequestOptions): Promise<TrackingResponse> {
-    return this.executeApiCall('/api/tracking', 'GET',
-      () => this.axios.get('/api/tracking', { params: { tracking_type: trackingType, tracking_id: trackingId }, ...this.mergeAxiosConfig(options) }),
-      TrackingDataSchema, 'Tracking data retrieved successfully');
+    try {
+      const response = await this.executeApiCall('/api/tracking', 'GET',
+        () => this.axios.get('/api/tracking', { params: { tracking_type: trackingType, tracking_id: trackingId }, ...this.mergeAxiosConfig(options) }),
+        TrackingDataSchema, 'Tracking data retrieved successfully');
+
+      const orderDetail = (response.data as any).order_detail;
+      return {
+        ...response,
+        data: {
+          tracking_id: orderDetail.tracking_id,
+          tracking_type: orderDetail.tracking_type,
+          current_status: orderDetail.current_tracking_status,
+          tracking_events: (response.data as any).scan_histories,
+        },
+      } as unknown as TrackingResponse;
+    } catch (err) {
+      if (err instanceof BigshipApiError && err.statusCode === 200) {
+        const emptyResponse = {
+          success: false as const,
+          message: err.message,
+          responseCode: 200 as const,
+          data: {
+            tracking_id: trackingId,
+            tracking_type: trackingType,
+            tracking_events: [],
+          },
+        } as unknown as TrackingResponse;
+        return emptyResponse;
+      }
+      throw err;
+    }
   }
 
   // ========== CONVENIENCE METHODS ==========
