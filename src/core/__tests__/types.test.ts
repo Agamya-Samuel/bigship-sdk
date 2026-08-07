@@ -70,6 +70,10 @@ describe('ConsigneeAddressSchema', () => {
     expect(ConsigneeAddressSchema.safeParse({ ...validAddress, address_line2: '' }).success).toBe(false);
   });
 
+  it('rejects address_line1 longer than 50 characters', () => {
+    expect(ConsigneeAddressSchema.safeParse({ ...validAddress, address_line1: 'a'.repeat(51) }).success).toBe(false);
+  });
+
   it('accepts absent optional address_line2', () => {
     expect(ConsigneeAddressSchema.safeParse(validAddress).success).toBe(true);
   });
@@ -215,8 +219,8 @@ describe('WarehouseAddRequestSchema', () => {
     expect(WarehouseAddRequestSchema.safeParse(validWarehouse).success).toBe(true);
   });
 
-  it('rejects empty address_line2 when provided', () => {
-    expect(WarehouseAddRequestSchema.safeParse({ ...validWarehouse, address_line2: '' }).success).toBe(false);
+  it('accepts empty address_line2 when provided (optional)', () => {
+    expect(WarehouseAddRequestSchema.safeParse({ ...validWarehouse, address_line2: '' }).success).toBe(true);
   });
 
   it('rejects invalid pincode', () => {

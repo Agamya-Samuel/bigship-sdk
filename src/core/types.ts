@@ -59,9 +59,9 @@ export const WarehouseDetailSchema = z.object({
 });
 
 export const ConsigneeAddressSchema = z.object({
-  address_line1: z.string().min(10).max(100).regex(/^[a-zA-Z0-9 .,#':\/()-]+$/),
-  address_line2: z.string().min(1).max(100).regex(/^[a-zA-Z0-9 .,#':\/()-]+$/).optional(),
-  address_landmark: z.string().min(1).max(100).regex(/^[a-zA-Z0-9 .,#':\/()-]+$/).optional(),
+  address_line1: z.string().min(10).max(50).regex(/^[a-zA-Z0-9 .,#':\/()-]+$/),
+  address_line2: z.string().min(1).max(50).regex(/^[a-zA-Z0-9 .,#':\/()-]+$/).optional(),
+  address_landmark: z.string().min(1).max(50).regex(/^[a-zA-Z0-9 .,#':\/()-]+$/).optional(),
   pincode: z.string().regex(/^[0-9]{6}$/),
 });
 
@@ -69,8 +69,8 @@ export const ConsigneeDetailSchema = z.object({
   first_name: z.string().min(1).max(25).regex(/^[a-zA-Z. ]+$/),
   last_name: z.string().min(1).max(25).regex(/^[a-zA-Z. ]+$/),
   company_name: z.string().min(1).max(50).optional(),
-  contact_number_primary: z.string().min(10).max(12).regex(/^[0-9]+$/),
-  contact_number_secondary: z.string().min(10).max(12).regex(/^[0-9]+$/).optional(),
+  contact_number_primary: z.string().regex(/^[0-9]{10}$/),
+  contact_number_secondary: z.string().regex(/^[0-9]{10}$/).optional(),
   email_id: z.string().email().optional(),
   consignee_address: ConsigneeAddressSchema,
 });
@@ -80,8 +80,8 @@ export const ProductDetailSchema = z.object({
   product_sub_category: z.string().min(1).optional(),
   product_name: z.string().min(1),
   product_quantity: z.number().int().positive(),
-  each_product_invoice_amount: z.number().nonnegative(),
-  each_product_collectable_amount: z.number().nonnegative(),
+  each_product_invoice_amount: z.number().nonnegative().optional(),
+  each_product_collectable_amount: z.number().nonnegative().optional(),
   hsn: z.string().min(6).max(15).regex(/^[a-zA-Z0-9]+$/).optional(),
 });
 
@@ -103,22 +103,22 @@ export const BoxDetailB2BSchema = z.object({
   each_box_length: z.number().positive(),
   each_box_width: z.number().positive(),
   each_box_height: z.number().positive(),
-  each_box_invoice_amount: z.number().nonnegative(),
-  each_box_collectable_amount: z.number().nonnegative(),
+  each_box_invoice_amount: z.number().nonnegative().optional(),
+  each_box_collectable_amount: z.number().nonnegative().optional(),
   box_count: z.number().int().positive(),
   product_details: z.array(ProductDetailSchema).min(1),
 });
 
-// B2C Document Detail - invoice required, ewaybill optional
+// B2C Document Detail - invoice optional, ewaybill optional
 export const DocumentDetailB2CSchema = z.object({
-  invoice_document_file: base64DataURI(),
+  invoice_document_file: base64DataURI().optional(),
   ewaybill_document_file: base64DataURI().optional(),
 });
 
-// B2B Document Detail - both invoice and ewaybill required
+// B2B Document Detail - invoice required, ewaybill optional
 export const DocumentDetailB2BSchema = z.object({
   invoice_document_file: base64DataURI(),
-  ewaybill_document_file: base64DataURI(),
+  ewaybill_document_file: base64DataURI().optional(),
 });
 
 /**
@@ -155,22 +155,22 @@ export const OrderDetailB2CSchema = z.object({
   invoice_date: z.string().datetime(),
   invoice_id: z.string(),
   payment_type: z.enum(['Prepaid', 'COD']),
-  total_collectable_amount: z.number().nonnegative(),
+  total_collectable_amount: z.number().nonnegative().optional(),
   shipment_invoice_amount: z.number().positive(),
   box_details: z.array(BoxDetailB2CSchema),
   ewaybill_number: z.string().min(1).optional(),
   document_detail: DocumentDetailB2CSchema,
 });
 
-// B2B Order Detail - ewaybill required
+// B2B Order Detail - ewaybill optional
 export const OrderDetailB2BSchema = z.object({
   invoice_date: z.string().datetime(),
   invoice_id: z.string(),
-  payment_type: z.enum(['Prepaid', 'COD']),
-  total_collectable_amount: z.number().nonnegative(),
+  payment_type: z.enum(['Prepaid', 'COD', 'ToPay']),
+  total_collectable_amount: z.number().nonnegative().optional(),
   shipment_invoice_amount: z.number().positive(),
   box_details: z.array(BoxDetailB2BSchema),
-  ewaybill_number: z.string(),
+  ewaybill_number: z.string().optional(),
   document_detail: DocumentDetailB2BSchema,
 });
 
@@ -184,8 +184,8 @@ export const RateCalculatorBoxDetailSchema = z.object({
 });
 
 export const RateCalculatorRequestSchema = z.object({
-  shipment_category: z.enum(['B2C', 'B2B']),
-  payment_type: z.enum(['COD', 'Prepaid']),
+  shipment_category: z.enum(['B2C', 'B2B', 'b2c', 'b2b']),
+  payment_type: z.enum(['COD', 'Prepaid', 'ToPay']),
   pickup_pincode: z.string().regex(/^[0-9]{6}$/),
   destination_pincode: z.string().regex(/^[0-9]{6}$/),
   shipment_invoice_amount: z.number().nonnegative(),
@@ -211,10 +211,10 @@ export const CancelRequestSchema = z.array(z.string());
 // ==================== WAREHOUSE ====================
 export const WarehouseAddRequestSchema = z.object({
   address_line1: z.string().min(10).max(50),
-  address_line2: z.string().min(1).max(50).optional(),
-  address_landmark: z.string().min(1).max(50).optional(),
+  address_line2: z.string().max(50).optional(),
+  address_landmark: z.string().max(50).optional(),
   address_pincode: z.string().regex(/^[0-9]{6}$/),
-  contact_number_primary: z.string().min(10).max(12).regex(/^[0-9]+$/),
+  contact_number_primary: z.string().regex(/^[0-9]{10}$/),
 });
 
 export type WarehouseAddRequest = z.infer<typeof WarehouseAddRequestSchema>;
@@ -305,6 +305,8 @@ export const WarehouseListItemSchema = z.object({
   address_pincode: z.string(),
   address_city: z.string(),
   address_state: z.string(),
+  address_country: z.string().optional(),
+  address_email_id: z.string().optional(),
   warehouse_contact_person: z.string(),
   warehouse_contact_number_primary: z.string(),
   create_date: z.string().optional(),
@@ -565,13 +567,13 @@ export type ShipmentDataAnyResponse = ShipmentAWBResponse | ShipmentFileResponse
  */
 export const PRODUCT_CATEGORIES = [
   { id: 1, name: 'Accessories' },
-  { id: 2, name: 'Fashion & Clothing' },
-  { id: 3, name: 'Book & Stationery' },
+  { id: 2, name: 'FashionClothing' },
+  { id: 3, name: 'BookStationary' },
   { id: 4, name: 'Electronics' },
   { id: 5, name: 'FMCG' },
   { id: 6, name: 'Footwear' },
   { id: 7, name: 'Toys' },
-  { id: 8, name: 'Sports Equipment' },
+  { id: 8, name: 'SportsEquipment' },
   { id: 9, name: 'Others' },
   { id: 10, name: 'Wellness' },
   { id: 11, name: 'Medicines' },
