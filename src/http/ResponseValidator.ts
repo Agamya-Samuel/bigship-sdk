@@ -109,17 +109,23 @@ export class ResponseValidator {
   private static isDuplicateInvoiceError(response: Record<string, unknown>): boolean {
     const errors = response.errors as Record<string, string[]> | undefined;
     const message = response.message as string | undefined;
+    const hasInvoiceIdErrors = !!errors?.invoice_id;
     return !!(
       errors?.invoice_id?.some((msg: string) =>
         msg.toLowerCase().includes('already exists')
       ) ||
-      (message?.toLowerCase().includes('duplicate') && errors?.invoice_id)
+      (message?.toLowerCase().includes('duplicate') && hasInvoiceIdErrors) ||
+      message?.toLowerCase().includes('already exists')
     );
   }
 
   private static extractInvoiceId(response: Record<string, unknown>): string {
     const errors = response.errors as Record<string, string[]> | undefined;
-    return errors?.invoice_id?.[0] || 'unknown';
+    if (errors?.invoice_id?.[0]) return errors.invoice_id[0];
+    const message = response.message as string | undefined;
+    const match = message?.match(/invoice\s+id[:\s]+([^\s]+)/i);
+    if (match) return match[1];
+    return 'unknown';
   }
 
   /**

@@ -283,10 +283,12 @@ describe('BigshipClient', () => {
   describe('trackShipment', () => {
     it('returns tracking data', async () => {
       const trackingData = {
-        tracking_id: 'AWB123',
-        tracking_type: 'awb',
-        current_status: 'Delivered',
-        tracking_events: [
+        order_detail: {
+          tracking_id: 'AWB123',
+          tracking_type: 'awb',
+          current_tracking_status: 'Delivered',
+        },
+        scan_histories: [
           { scan_status: 'Delivered', scan_datetime: '2024-01-02T10:00:00Z' },
         ],
       };
@@ -314,10 +316,14 @@ describe('BigshipClient', () => {
     });
 
     it('dispatches to getShipmentFile for id=2', async () => {
-      mockPostForApi(apiSuccess(null));
+      mockPostForApi(apiSuccess({
+        res_FileContent: 'JVBERi0xLjQK',
+        res_MediaType: 'application/pdf',
+        res_PrintFor: 'label',
+      }));
       const client = new BigshipClient(getConfig());
       const result = await client.getShipmentFile(2, 'ORDER-123');
-      expect(result.data).toBeNull();
+      expect(result.data).toBe('data:application/pdf;base64,JVBERi0xLjQK');
     });
   });
 
@@ -672,16 +678,20 @@ describe('BigshipClient', () => {
 
   describe('getShipmentData overloads', () => {
     it('dispatches to getShipmentFile for id=3 (manifest)', async () => {
-      const manifestData = 'data:application/pdf;base64,MANIFEST';
+      const manifestObj = {
+        res_FileContent: 'MANIFEST',
+        res_MediaType: 'application/pdf',
+        res_PrintFor: 'manifest',
+      };
       mockAxios.post.mockReset();
       mockAxios.post.mockImplementation((url: string) => {
         if (url === '/api/login/user') return Promise.resolve(LOGIN_RESPONSE);
-        if (url === '/api/shipment/data') return Promise.resolve(apiSuccess(manifestData));
+        if (url === '/api/shipment/data') return Promise.resolve(apiSuccess(manifestObj));
         return Promise.resolve(apiSuccess(null));
       });
       const client = new BigshipClient(getConfig());
       const result = await client.getShipmentData(3, 'ORDER-123');
-      expect(result.data).toBe(manifestData);
+      expect(result.data).toBe('data:application/pdf;base64,MANIFEST');
     });
   });
 
