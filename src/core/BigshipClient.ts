@@ -302,6 +302,18 @@ export class BigshipClient {
 
   /** @throws {BigshipApiError} When API request fails */
   async getWarehouseList(pageIndex = 1, pageSize = 10, options?: RequestOptions): Promise<WarehouseListResponse> {
+    if (pageSize > 200) {
+      throw new BigshipApiError('Maximum 200 Records can be fetched at a time', 400, {
+        code: 'INVALID_ARGUMENT',
+        endpoint: '/api/warehouse/get/list',
+      });
+    }
+    if (pageIndex < 1 || pageSize < 1) {
+      throw new BigshipApiError('PageIndex and Page Size should be greater than Zero.', 400, {
+        code: 'INVALID_ARGUMENT',
+        endpoint: '/api/warehouse/get/list',
+      });
+    }
     return this.executeApiCall('/api/warehouse/get/list', 'GET',
       () => this.axios.get('/api/warehouse/get/list', { params: { page_index: pageIndex, page_size: pageSize }, ...this.mergeAxiosConfig(options) }),
       WarehouseListDataSchema, 'Warehouse list retrieved successfully');
@@ -360,9 +372,10 @@ export class BigshipClient {
   }
 
   /** @throws {BigshipApiError} When API request fails */
-  async getShippingRates(systemOrderId: string, shipmentCategory: 'B2C' | 'B2B' = 'B2C', riskType = '', options?: RequestOptions): Promise<ShippingRatesResponse> {
+  async getShippingRates(systemOrderId: string, shipmentCategory: 'B2C' | 'B2B' | 'b2c' | 'b2b' = 'B2C', riskType = '', options?: RequestOptions): Promise<ShippingRatesResponse> {
+    const normalizedCategory = typeof shipmentCategory === 'string' ? shipmentCategory.toLowerCase() : shipmentCategory;
     return this.executeApiCall('/api/order/shipping/rates', 'GET',
-      () => this.axios.get('/api/order/shipping/rates', { params: { shipment_category: shipmentCategory, system_order_id: systemOrderId, risk_type: riskType }, ...this.mergeAxiosConfig(options) }),
+      () => this.axios.get('/api/order/shipping/rates', { params: { shipment_category: normalizedCategory, system_order_id: systemOrderId, risk_type: riskType }, ...this.mergeAxiosConfig(options) }),
       z.array(ShippingRateItemSchema), 'Shipping rates retrieved successfully');
   }
 
@@ -450,18 +463,20 @@ export class BigshipClient {
         },
       } as unknown as TrackingResponse;
     } catch (err) {
-      if (err instanceof BigshipApiError && err.statusCode === 200) {
-        const emptyResponse = {
+      if (err instanceof BigshipApiError && err.statusCode === 200 && err.responseBody) {
+        const body = err.responseBody as { data: { order_detail: any; scan_histories: any[] } };
+        const orderDetail = body.data?.order_detail;
+        return {
           success: false as const,
           message: err.message,
           responseCode: 200 as const,
           data: {
-            tracking_id: trackingId,
-            tracking_type: trackingType,
-            tracking_events: [],
+            tracking_id: orderDetail?.tracking_id || trackingId,
+            tracking_type: orderDetail?.tracking_type || trackingType,
+            current_status: orderDetail?.current_tracking_status,
+            tracking_events: body.data?.scan_histories || [],
           },
         } as unknown as TrackingResponse;
-        return emptyResponse;
       }
       throw err;
     }

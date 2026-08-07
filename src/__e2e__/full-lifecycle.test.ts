@@ -108,7 +108,7 @@ const handlers = [
 
   // Warehouse add
   http.post(`${BASE}/api/warehouse/add`, () => {
-    return apiOk({ warehouse_id: 42, warehouse_name: 'Main WH', address_line1: '123 Street', address_line2: null, address_landmark: null, address_pincode: '110001', address_city: 'Delhi', address_state: 'Delhi', warehouse_contact_person: 'Raj', warehouse_contact_number_primary: '9876543210' });
+    return apiOk({ warehouse_id: 42, warehouse_name: 'Main WH', address_line1: '123 Street', address_line2: null, address_landmark: null, address_pincode: '110001', address_city: 'Delhi', address_state: 'Delhi', address_country: 'India', address_email_id: 'test@bigship.in', warehouse_contact_person: 'Raj', warehouse_contact_number_primary: '9876543210' });
   }),
 
   // Warehouse list
@@ -116,7 +116,7 @@ const handlers = [
     return apiOk({
       result_count: 1,
       result_data: [
-        { warehouse_id: 42, warehouse_name: 'Main WH', address_line1: '123 Street', address_line2: null, address_landmark: null, address_pincode: '110001', address_city: 'Delhi', address_state: 'Delhi', warehouse_contact_person: 'Raj', warehouse_contact_number_primary: '9876543210' },
+        { warehouse_id: 42, warehouse_name: 'Main WH', address_line1: '123 Street', address_line2: null, address_landmark: null, address_pincode: '110001', address_city: 'Delhi', address_state: 'Delhi', address_country: 'India', address_email_id: 'test@bigship.in', warehouse_contact_person: 'Raj', warehouse_contact_number_primary: '9876543210' },
       ],
     });
   }),

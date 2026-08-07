@@ -711,16 +711,16 @@ describe('BigshipClient', () => {
   });
 
   describe('getShippingRates', () => {
-    it('passes params correctly', async () => {
-      const rates = [{ courier_id: 1, courier_name: 'D', total_shipping_charges: 100, courier_charge: 80, risk_type_name: null, other_additional_charges: null }];
-      mockAxios.get.mockResolvedValueOnce(apiSuccess(rates));
-      const client = new BigshipClient(getConfig());
-      const result = await client.getShippingRates('ORDER-1', 'B2B', 'risk1');
-      expect(result.data).toHaveLength(1);
-      expect(mockAxios.get).toHaveBeenCalledWith('/api/order/shipping/rates', {
-        params: { shipment_category: 'B2B', system_order_id: 'ORDER-1', risk_type: 'risk1' },
-      });
+  it('passes params correctly', async () => {
+    const rates = [{ courier_id: 1, courier_name: 'D', total_shipping_charges: 100, courier_charge: 80, risk_type_name: null, other_additional_charges: null }];
+    mockAxios.get.mockResolvedValueOnce(apiSuccess(rates));
+    const client = new BigshipClient(getConfig());
+    const result = await client.getShippingRates('ORDER-1', 'B2B', 'risk1');
+    expect(result.data).toHaveLength(1);
+    expect(mockAxios.get).toHaveBeenCalledWith('/api/order/shipping/rates', {
+      params: { shipment_category: 'b2b', system_order_id: 'ORDER-1', risk_type: 'risk1' },
     });
+  });
   });
 
   describe('getAWB', () => {
@@ -754,22 +754,22 @@ describe('BigshipClient', () => {
   });
 
   describe('addWarehouse', () => {
-    it('returns warehouse data', async () => {
-      const warehouse = { warehouse_id: 1, warehouse_name: 'Main WH', address_line1: 'Addr', address_line2: null, address_landmark: null, address_pincode: '110001', address_city: 'Delhi', address_state: 'DL', warehouse_contact_person: 'A', warehouse_contact_number_primary: '9876543210' };
-      mockAxios.post.mockReset();
-      mockAxios.post.mockImplementation((url: string) => {
-        if (url === '/api/login/user') return Promise.resolve(LOGIN_RESPONSE);
-        if (url === '/api/warehouse/add') return Promise.resolve(apiSuccess(warehouse));
-        return Promise.resolve(apiSuccess(null));
-      });
-      const client = new BigshipClient(getConfig());
-      const result = await client.addWarehouse({
-        address_line1: '123 Warehouse Street',
-        address_pincode: '110001',
-        contact_number_primary: '9876543210',
-      });
-      expect(result.data.warehouse_id).toBe(1);
+  it('returns warehouse data', async () => {
+    const warehouse = { warehouse_id: 1, warehouse_name: 'Main WH', address_line1: 'Addr', address_line2: null, address_landmark: null, address_pincode: '110001', address_city: 'Delhi', address_state: 'DL', address_country: 'India', address_email_id: 'test@bigship.in', warehouse_contact_person: 'A', warehouse_contact_number_primary: '9876543210' };
+    mockAxios.post.mockReset();
+    mockAxios.post.mockImplementation((url: string) => {
+      if (url === '/api/login/user') return Promise.resolve(LOGIN_RESPONSE);
+      if (url === '/api/warehouse/add') return Promise.resolve(apiSuccess(warehouse));
+      return Promise.resolve(apiSuccess(null));
     });
+    const client = new BigshipClient(getConfig());
+    const result = await client.addWarehouse({
+      address_line1: '123 Warehouse Street',
+      address_pincode: '110001',
+      contact_number_primary: '9876543210',
+    });
+    expect(result.data.warehouse_id).toBe(1);
+  });
   });
 
   describe('getWarehouseList', () => {
