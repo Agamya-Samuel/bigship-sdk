@@ -72,18 +72,24 @@ const handlers = [
       return apiOk({ courier_id: '1', courier_name: 'Delhivery', lr_number: 'LR-001', master_awb: 'AWB-98765' });
     }
     if (id === '2') {
-      return apiOk('data:application/pdf;base64,JVBERi0xLjQK');
+      return apiOk({
+        res_FileContent: 'JVBERi0xLjQK',
+        res_MediaType: 'application/pdf',
+        res_PrintFor: 'label',
+      });
     }
-    return apiOk(null); // not ready
+    return apiOk(null); // id=3 or not ready
   }),
 
   // Track
   http.get(`${BASE}/api/tracking`, () => {
     return apiOk({
-      tracking_id: 'AWB-98765',
-      tracking_type: 'awb',
-      current_status: 'In Transit',
-      tracking_events: [
+      order_detail: {
+        tracking_id: 'AWB-98765',
+        tracking_type: 'awb',
+        current_tracking_status: 'In Transit',
+      },
+      scan_histories: [
         { scan_status: 'Picked Up', scan_datetime: '2024-01-01T10:00:00Z', scan_location: 'Delhi' },
         { scan_status: 'In Transit', scan_datetime: '2024-01-02T14:00:00Z', scan_location: 'Mumbai' },
       ],
@@ -141,7 +147,7 @@ const handlers = [
   // Transporter list
   http.get(`${BASE}/api/courier/get/transport/list`, () => {
     return apiOk([
-      { transporter_id: 1, transporter_name: 'Surface Express' },
+      { courier_id: 1, courier_name: 'Delhivery', transport_id: '06AAPCS9575E1ZR' },
     ]);
   }),
 ];
@@ -274,7 +280,7 @@ describe('E2E: Shipping Rates Flow', () => {
 
     const transporters = await client.getCourierTransporterList(1);
     expect(transporters.data).toHaveLength(1);
-    expect(transporters.data[0].transporter_name).toBe('Surface Express');
+    expect(transporters.data[0].courier_name).toBe('Delhivery');
   });
 });
 

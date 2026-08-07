@@ -15,11 +15,12 @@
  *   npx vitest run --config vitest.config.integration.ts
  */
 import 'dotenv/config';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { BigshipClient } from '../core/BigshipClient';
 import {
   BigshipApiError,
   BigshipDuplicateInvoiceError,
+  BigshipValidationError,
 } from '../errors';
 import type { BigshipConfig, RequestContext } from '../core/types';
 
@@ -37,6 +38,11 @@ const hasCredentials = !!(env.userName && env.password && env.accessKey);
 const itIfCreds = hasCredentials ? it : it.skip;
 const itIfWrite = hasCredentials && env.testWrite ? it : it.skip;
 
+// ========== Shared State ==========
+
+let warehouseId: number | null = null;
+let b2cCourierId: number | null = null;
+
 // ========== Helpers ==========
 function getConfig(overrides: Partial<BigshipConfig> = {}): BigshipConfig {
   return {
@@ -52,13 +58,13 @@ function getConfig(overrides: Partial<BigshipConfig> = {}): BigshipConfig {
 }
 
 function uniqueInvoiceId() {
-  return `TEST-SDK-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return `INV-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 }
 
-function makeOrderPayload(invoiceId: string, category: 'b2c' | 'b2b' = 'b2c') {
-  const base = {
-    shipment_category: category,
-    warehouse_detail: { pickup_location_id: 0, return_location_id: 0 },
+function b2cOrderPayload(invoiceId: string, pickupLocationId: number, returnLocationId: number) {
+  return {
+    shipment_category: 'b2c' as const,
+    warehouse_detail: { pickup_location_id: pickupLocationId, return_location_id: returnLocationId },
     consignee_detail: {
       first_name: 'Test',
       last_name: 'Recipient',
@@ -95,8 +101,101 @@ function makeOrderPayload(invoiceId: string, category: 'b2c' | 'b2b' = 'b2c') {
       },
     },
   };
-  return base;
 }
+
+function b2bOrderPayload(invoiceId: string, pickupLocationId: number, returnLocationId: number) {
+  return {
+    shipment_category: 'b2b' as const,
+    warehouse_detail: { pickup_location_id: pickupLocationId, return_location_id: returnLocationId },
+    consignee_detail: {
+      first_name: 'Test',
+      last_name: 'Recipient',
+      contact_number_primary: '9876543210',
+      consignee_address: {
+        address_line1: '456 Test Delivery Address',
+        pincode: '110001',
+      },
+    },
+    order_detail: {
+      invoice_date: new Date().toISOString(),
+      invoice_id: invoiceId,
+      payment_type: 'Prepaid' as const,
+      total_collectable_amount: 0,
+      shipment_invoice_amount: 1000,
+      ewaybill_number: '',
+      box_details: [
+        {
+          each_box_dead_weight: 1,
+          each_box_length: 20,
+          each_box_width: 15,
+          each_box_height: 10,
+          each_box_invoice_amount: 0,
+          each_box_collectable_amount: 0,
+          box_count: 1 as const,
+          product_details: [{
+            product_category: 'Accessories',
+            product_name: 'Test Product A',
+            product_quantity: 1,
+            each_product_invoice_amount: 0,
+            each_product_collectable_amount: 0,
+          }],
+        },
+        {
+          each_box_dead_weight: 1,
+          each_box_length: 20,
+          each_box_width: 15,
+          each_box_height: 10,
+          each_box_invoice_amount: 0,
+          each_box_collectable_amount: 0,
+          box_count: 1 as const,
+          product_details: [{
+            product_category: 'Accessories',
+            product_name: 'Test Product B',
+            product_quantity: 1,
+            each_product_invoice_amount: 0,
+            each_product_collectable_amount: 0,
+          }],
+        },
+      ],
+      document_detail: {
+        invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJcfsj6IKNSAwIG9iago8PC9MZW5ndGggMzQvRmlsdGVyL0ZsYXRlRGVjb2RlPj5zdHJlYW0KeJwr5FIwAgAMxAYqBQAAAA==',
+        ewaybill_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJcfsj6IKNSAwIG9iago8PC9MZW5ndGggMzQvRmlsdGVyL0ZsYXRlRGVjb2RlPj5zdHJlYW0KeJwr5FIwAgAMxAYqBQAAAA==',
+      },
+    },
+  };
+}
+
+async function cancelIfAWB(client: BigshipClient, awb: string | undefined) {
+  if (!awb) return;
+  try {
+    await client.cancelShipments([awb]);
+  } catch {
+    console.warn(`Cleanup failed for AWB ${awb}`);
+  }
+}
+
+async function getFirstCourierId(client: BigshipClient, orderId: string): Promise<number> {
+  const rates = await client.getShippingRates(orderId, 'B2C');
+  if (rates.data && rates.data.length > 0) {
+    return rates.data[0].courier_id;
+  }
+  throw new Error('No couriers available for shipping rates');
+}
+
+// ========== Setup ==========
+
+beforeAll(async () => {
+  if (!hasCredentials) return;
+  const client = new BigshipClient(getConfig());
+  const wh = await client.getWarehouseList(1, 1);
+  if (wh.data && wh.data.result_data.length > 0) {
+    warehouseId = wh.data.result_data[0].warehouse_id;
+  }
+  const couriers = await client.getCourierList('b2c');
+  if (couriers.data && couriers.data.length > 0) {
+    b2cCourierId = couriers.data[0].courier_id;
+  }
+});
 
 // ========== Tests ==========
 
@@ -114,12 +213,17 @@ describe('Integration: Authentication', () => {
       onResponse: (_r, ctx) => responses.push(ctx),
     }));
 
-    // Multiple calls should reuse the same token
     await client.getWalletBalance();
     await client.getCourierList();
 
     expect(responses).toHaveLength(2);
-    // Both should succeed (proving token was valid for both)
+  });
+
+  itIfCreds('deprecated login() method returns token', async () => {
+    const client = new BigshipClient(getConfig());
+    const token = await client.login();
+    expect(typeof token).toBe('string');
+    expect(token.length).toBeGreaterThan(0);
   });
 });
 
@@ -129,7 +233,6 @@ describe('Integration: Wallet', () => {
     const result = await client.getWalletBalance();
     expect(result.success).toBe(true);
     expect(result.data).toBeTruthy();
-    // Balance should be parseable as a number
     const balance = parseFloat(result.data!);
     expect(balance).not.toBeNaN();
     expect(balance).toBeGreaterThanOrEqual(0);
@@ -160,7 +263,7 @@ describe('Integration: Courier', () => {
   itIfCreds('getCourierTransporterList returns transporters', async () => {
     const client = new BigshipClient(getConfig());
     const couriers = await client.getCourierList('b2c');
-    if (couriers.data!.length === 0) return; // skip if no couriers
+    if (couriers.data!.length === 0) return;
 
     const courierId = couriers.data![0].courier_id;
     const result = await client.getCourierTransporterList(courierId);
@@ -170,7 +273,7 @@ describe('Integration: Courier', () => {
 });
 
 describe('Integration: Payment', () => {
-  itIfCreds('getPaymentCategory returns categories', async () => {
+  itIfCreds('getPaymentCategory returns categories for b2c', async () => {
     const client = new BigshipClient(getConfig());
     const result = await client.getPaymentCategory('b2c');
     expect(result.success).toBe(true);
@@ -179,10 +282,17 @@ describe('Integration: Payment', () => {
       expect(['COD', 'Prepaid', 'ToPay']).toContain(result.data![0].payment_category);
     }
   });
+
+  itIfCreds('getPaymentCategory returns categories for b2b', async () => {
+    const client = new BigshipClient(getConfig());
+    const result = await client.getPaymentCategory('b2b');
+    expect(result.success).toBe(true);
+    expect(Array.isArray(result.data)).toBe(true);
+  });
 });
 
 describe('Integration: Warehouse', () => {
-  itIfCreds('getWarehouseList returns warehouses', async () => {
+  itIfCreds('getWarehouseList returns warehouses with default pagination', async () => {
     const client = new BigshipClient(getConfig());
     const result = await client.getWarehouseList();
     expect(result.success).toBe(true);
@@ -190,10 +300,27 @@ describe('Integration: Warehouse', () => {
     expect(typeof result.data!.result_count).toBe('number');
     expect(Array.isArray(result.data!.result_data)).toBe(true);
   });
+
+  itIfCreds('getWarehouseList supports pagination params', async () => {
+    const client = new BigshipClient(getConfig());
+    const result = await client.getWarehouseList(1, 5);
+    expect(result.success).toBe(true);
+    expect(result.data!.result_data.length).toBeLessThanOrEqual(5);
+  });
+
+  itIfCreds('getWarehouseList rejects page_size=201', async () => {
+    const client = new BigshipClient(getConfig({ maxRetries: 0 }));
+    try {
+      await client.getWarehouseList(1, 201);
+      expect.fail('should have thrown BigshipApiError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(BigshipApiError);
+    }
+  });
 });
 
 describe('Integration: Calculator', () => {
-  itIfCreds('calculateRate returns rate options', async () => {
+  itIfCreds('calculateRate returns rate options for B2C', async () => {
     const client = new BigshipClient(getConfig());
     const result = await client.calculateRate({
       shipment_category: 'B2C',
@@ -236,14 +363,14 @@ describe('Integration: Shipment Data Validation', () => {
 });
 
 describe('Integration: Error Handling', () => {
-  itIfCreds('non-existent endpoint returns proper error', async () => {
+  itIfCreds('trackShipment with fake AWB throws BigshipApiError', async () => {
     const client = new BigshipClient(getConfig({ maxRetries: 0 }));
-    // TrackShipment with a fake ID — API should return an error or empty
-    const result = await client.trackShipment('FAKE-AWB-DOES-NOT-EXIST-99999');
-    // Depending on API, this might succeed with empty events or fail gracefully
-    // Either way, the SDK should not crash
-    expect(result).toBeDefined();
-    expect(typeof result.success).toBe('boolean');
+    try {
+      await client.trackShipment('FAKE-AWB-DOES-NOT-EXIST-99999');
+      expect.fail('should have thrown BigshipApiError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(BigshipApiError);
+    }
   });
 });
 
@@ -275,7 +402,6 @@ describe('Integration: Lifecycle Hooks', () => {
       },
     }));
 
-    // Should not break the request — custom header is ignored by API
     const result = await client.getWalletBalance();
     expect(result.success).toBe(true);
   });
@@ -287,23 +413,37 @@ describe('Integration: Add Order (WRITE)', () => {
   itIfWrite('addSingleOrder creates an order and returns system_order_id', async () => {
     const client = new BigshipClient(getConfig());
     const invoiceId = uniqueInvoiceId();
-
-    const result = await client.addSingleOrder(makeOrderPayload(invoiceId));
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
+    const result = await client.addSingleOrder(b2cOrderPayload(invoiceId, pid, rid));
     expect(result.success).toBe(true);
     expect(result.data).toBeTruthy();
     expect(typeof result.data).toBe('string');
+    await cancelIfAWB(client, undefined);
+  });
+
+  itIfWrite('addHeavyOrder creates a B2B order and returns system_order_id', async () => {
+    const client = new BigshipClient(getConfig());
+    const invoiceId = uniqueInvoiceId();
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
+    const result = await client.addHeavyOrder(b2bOrderPayload(invoiceId, pid, rid));
+    expect(result.success).toBe(true);
+    expect(result.data).toBeTruthy();
+    expect(typeof result.data).toBe('string');
+    await cancelIfAWB(client, undefined);
   });
 
   itIfWrite('duplicate invoice throws BigshipDuplicateInvoiceError', async () => {
     const client = new BigshipClient(getConfig());
     const invoiceId = uniqueInvoiceId();
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
 
-    // First add succeeds
-    await client.addSingleOrder(makeOrderPayload(invoiceId));
+    await client.addSingleOrder(b2cOrderPayload(invoiceId, pid, rid));
 
-    // Second add with same invoice → duplicate
     try {
-      await client.addSingleOrder(makeOrderPayload(invoiceId));
+      await client.addSingleOrder(b2cOrderPayload(invoiceId, pid, rid));
       expect.fail('should have thrown BigshipDuplicateInvoiceError');
     } catch (err) {
       expect(err).toBeInstanceOf(BigshipDuplicateInvoiceError);
@@ -312,20 +452,355 @@ describe('Integration: Add Order (WRITE)', () => {
   });
 });
 
-describe('Integration: Get Shipment Data (WRITE)', () => {
-  itIfWrite('getAWB returns AWB data for a freshly created order', async () => {
+describe('Integration: Full B2C Lifecycle (WRITE)', () => {
+  itIfWrite('create → getShippingRates → manifest → getAWB → track → getShipmentFile(label/manifest) → cancel', async () => {
     const client = new BigshipClient(getConfig());
     const invoiceId = uniqueInvoiceId();
-    const order = await client.addSingleOrder(makeOrderPayload(invoiceId));
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
+
+    let awbNumber: string | undefined;
 
     try {
-      const awb = await client.getAWB(order.data!);
-      if (awb.data) {
-        expect(awb.data.master_awb).toBeDefined();
-        expect(awb.data.courier_name).toBeDefined();
+      const order = await client.addSingleOrder(b2cOrderPayload(invoiceId, pid, rid));
+      expect(order.success).toBe(true);
+      expect(order.data).toBeTruthy();
+      const orderId = order.data!;
+
+      const rates = await client.getShippingRates(orderId, 'B2C');
+      expect(rates.success).toBe(true);
+      expect(Array.isArray(rates.data)).toBe(true);
+      if (rates.data!.length === 0) {
+        expect.fail('No shipping rates available');
       }
+      const courierId = rates.data![0].courier_id;
+
+      const manifest = await client.manifestSingle({ system_order_id: orderId, courier_id: courierId });
+      expect(manifest.success).toBe(true);
+
+      const awbResponse = await client.getAWB(orderId);
+      expect(awbResponse.success).toBe(true);
+      expect(awbResponse.data).toBeDefined();
+      if (typeof awbResponse.data === 'string') {
+        expect.fail('AWB data should not be string');
+      }
+      awbNumber = awbResponse.data.master_awb;
+      expect(awbNumber).toBeTruthy();
+
+      const tracking = await client.trackShipment(awbNumber, 'awb');
+      expect(tracking).toBeDefined();
+      expect(tracking.data).toBeDefined();
+      expect(Array.isArray(tracking.data.tracking_events)).toBe(true);
+
+      const label = await client.getShipmentFile(2, orderId);
+      expect(label.success).toBe(true);
+
+      const manifestFile = await client.getShipmentFile(3, orderId);
+      expect(manifestFile.success).toBe(true);
+
+      const cancel = await client.cancelShipments([awbNumber]);
+      expect(cancel.success).toBe(true);
+      awbNumber = undefined;
+    } finally {
+      await cancelIfAWB(client, awbNumber);
+    }
+  });
+});
+
+describe('Integration: Full B2B Lifecycle (WRITE)', () => {
+  itIfWrite('create heavy order → getShippingRates → manifest heavy → getAWB → cancel', async () => {
+    const client = new BigshipClient(getConfig());
+    const invoiceId = uniqueInvoiceId();
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
+
+    let awbNumber: string | undefined;
+
+    try {
+      const order = await client.addHeavyOrder(b2bOrderPayload(invoiceId, pid, rid));
+      expect(order.success).toBe(true);
+      expect(order.data).toBeTruthy();
+      const orderId = order.data!;
+
+      const rates = await client.getShippingRates(orderId, 'B2B', 'OwnerRisk');
+      expect(rates.success).toBe(true);
+      expect(Array.isArray(rates.data)).toBe(true);
+      if (rates.data!.length === 0) {
+        expect.fail('No B2B shipping rates available');
+      }
+      const courierId = rates.data![0].courier_id;
+
+      const manifest = await client.manifestHeavy({
+        system_order_id: orderId,
+        courier_id: courierId,
+        risk_type: 'OwnerRisk',
+      });
+      expect(manifest.success).toBe(true);
+
+      let awbResponse;
+      for (let i = 0; i < 5; i++) {
+        awbResponse = await client.getAWB(orderId);
+        if (awbResponse.data && typeof awbResponse.data !== 'string') break;
+        await new Promise(r => setTimeout(r, 2000));
+      }
+      expect(awbResponse.success).toBe(true);
+      if (typeof awbResponse.data === 'string') {
+        expect.fail('AWB data should not be string');
+      }
+      awbNumber = awbResponse.data.master_awb;
+      expect(awbNumber).toBeTruthy();
+
+      const cancel = await client.cancelShipments([awbNumber]);
+      expect(cancel.success).toBe(true);
+      awbNumber = undefined;
+    } finally {
+      await cancelIfAWB(client, awbNumber);
+    }
+  });
+});
+
+describe('Integration: Get Shipping Rates (WRITE)', () => {
+  itIfWrite('getShippingRates returns rates for a B2C order', async () => {
+    const client = new BigshipClient(getConfig());
+    const invoiceId = uniqueInvoiceId();
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
+
+    const order = await client.addSingleOrder(b2cOrderPayload(invoiceId, pid, rid));
+    expect(order.success).toBe(true);
+    const orderId = order.data!;
+
+    const rates = await client.getShippingRates(orderId, 'B2C');
+    expect(rates.success).toBe(true);
+    expect(Array.isArray(rates.data)).toBe(true);
+    expect(rates.data!.length).toBeGreaterThan(0);
+    const rate = rates.data![0];
+    expect(typeof rate.courier_id).toBe('number');
+    expect(typeof rate.courier_name).toBe('string');
+    expect(typeof rate.total_shipping_charges).toBe('number');
+    expect(rate.total_shipping_charges).toBeGreaterThan(0);
+  });
+
+  itIfWrite('getShippingRates returns rates for a B2B order', async () => {
+    const client = new BigshipClient(getConfig());
+    const invoiceId = uniqueInvoiceId();
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
+
+    let awbNumber: string | undefined;
+    try {
+      const order = await client.addHeavyOrder(b2bOrderPayload(invoiceId, pid, rid));
+      expect(order.success).toBe(true);
+      const orderId = order.data!;
+
+      const rates = await client.getShippingRates(orderId, 'B2B', 'OwnerRisk');
+      expect(rates.success).toBe(true);
+      expect(Array.isArray(rates.data)).toBe(true);
+      expect(rates.data!.length).toBeGreaterThan(0);
+      const rate = rates.data![0];
+      expect(typeof rate.courier_id).toBe('number');
+      expect(typeof rate.courier_name).toBe('string');
+      expect(typeof rate.total_shipping_charges).toBe('number');
+    } finally {
+      await cancelIfAWB(client, awbNumber);
+    }
+  });
+});
+
+describe('Integration: Track Shipment (WRITE)', () => {
+  itIfWrite('trackShipment returns tracking events for a real AWB', async () => {
+    const client = new BigshipClient(getConfig());
+    const invoiceId = uniqueInvoiceId();
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
+
+    let awbNumber: string | undefined;
+    try {
+      const order = await client.addSingleOrder(b2cOrderPayload(invoiceId, pid, rid));
+      const orderId = order.data!;
+      const courierId = await getFirstCourierId(client, orderId);
+      await client.manifestSingle({ system_order_id: orderId, courier_id: courierId });
+      const awbResponse = await client.getAWB(orderId);
+      if (typeof awbResponse.data === 'string') {
+        expect.fail('AWB data should not be string');
+      }
+      awbNumber = awbResponse.data.master_awb;
+
+      const tracking = await client.trackShipment(awbNumber, 'awb');
+      expect(tracking).toBeDefined();
+      expect(tracking.data).toBeDefined();
+      expect(Array.isArray(tracking.data.tracking_events)).toBe(true);
+    } finally {
+      await cancelIfAWB(client, awbNumber);
+    }
+  });
+});
+
+describe('Integration: Convenience Methods (WRITE)', () => {
+  itIfWrite('manifestAndGetAWB returns awb and courierName', async () => {
+    const client = new BigshipClient(getConfig());
+    const invoiceId = uniqueInvoiceId();
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
+
+    let awbNumber: string | undefined;
+    try {
+      const order = await client.addSingleOrder(b2cOrderPayload(invoiceId, pid, rid));
+      const orderId = order.data!;
+      const courierId = await getFirstCourierId(client, orderId);
+      const result = await client.manifestAndGetAWB(orderId, courierId);
+      expect(result.awb).toBeTruthy();
+      expect(result.courierName).toBeTruthy();
+      awbNumber = result.awb;
+    } finally {
+      await cancelIfAWB(client, awbNumber);
+    }
+  });
+
+  itIfWrite('getShipmentDetails returns awb, courierName, courierId, labelData, manifestData', async () => {
+    const client = new BigshipClient(getConfig());
+    const invoiceId = uniqueInvoiceId();
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
+
+    let awbNumber: string | undefined;
+    try {
+      const order = await client.addSingleOrder(b2cOrderPayload(invoiceId, pid, rid));
+      const orderId = order.data!;
+      const courierId = await getFirstCourierId(client, orderId);
+      await client.manifestSingle({ system_order_id: orderId, courier_id: courierId });
+
+      let details;
+      for (let i = 0; i < 5; i++) {
+        try {
+          details = await client.getShipmentDetails(orderId);
+          break;
+        } catch {
+          await new Promise(r => setTimeout(r, 2000));
+        }
+      }
+
+      expect(details).toBeDefined();
+      expect(details!.awb).toBeTruthy();
+      expect(details!.courierName).toBeTruthy();
+      expect(details!.courierId).toBeTruthy();
+      expect(typeof details!.labelData).toBe('string');
+      expect(typeof details!.manifestData).toBe('string');
+      awbNumber = details!.awb;
+    } finally {
+      await cancelIfAWB(client, awbNumber);
+    }
+  });
+
+  itIfWrite('createAndFinalizeShipment returns full shipment details', async () => {
+    const client = new BigshipClient(getConfig());
+    const invoiceId = uniqueInvoiceId();
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
+
+    let awbNumber: string | undefined;
+    try {
+      const probeOrder = await client.addSingleOrder(b2cOrderPayload(invoiceId, pid, rid));
+      const rates = await client.getShippingRates(probeOrder.data!, 'B2C');
+      const courierId = rates.data![0].courier_id;
+
+      const result = await client.createAndFinalizeShipment({
+        order: b2cOrderPayload(uniqueInvoiceId(), pid, rid),
+        courierId,
+      });
+      expect(result.orderId).toBeTruthy();
+      expect(result.awb).toBeTruthy();
+      expect(result.courierName).toBeTruthy();
+      expect(typeof result.labelData).toBe('string');
+      expect(typeof result.manifestData).toBe('string');
+      awbNumber = result.awb;
+    } finally {
+      await cancelIfAWB(client, awbNumber);
+    }
+  });
+});
+
+describe('Integration: ShipmentWorkflow (WRITE)', () => {
+  itIfWrite('step-by-step workflow: create → withCourier → manifest → finalize', async () => {
+    const client = new BigshipClient(getConfig());
+    const invoiceId = uniqueInvoiceId();
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
+
+    let awbNumber: string | undefined;
+    try {
+      const probeOrder = await client.addSingleOrder(b2cOrderPayload(invoiceId, pid, rid));
+      const rates = await client.getShippingRates(probeOrder.data!, 'B2C');
+      const courierId = rates.data![0].courier_id;
+
+      const workflow = client.workflow();
+      await workflow.create(b2cOrderPayload(uniqueInvoiceId(), pid, rid));
+      workflow.withCourier(courierId);
+      const finalized = await workflow.manifest();
+      const result = await finalized.finalize();
+
+      expect(result.awb).toBeTruthy();
+      expect(result.courierName).toBeTruthy();
+      expect(typeof result.labelData).toBe('string');
+      expect(typeof result.manifestData).toBe('string');
+      awbNumber = result.awb;
+    } finally {
+      await cancelIfAWB(client, awbNumber);
+    }
+  });
+
+  itIfWrite('workflow.execute shorthand runs full lifecycle', async () => {
+    const client = new BigshipClient(getConfig());
+    const invoiceId = uniqueInvoiceId();
+    const pid = warehouseId ?? 0;
+    const rid = warehouseId ?? 0;
+
+    let awbNumber: string | undefined;
+    try {
+      const probeOrder = await client.addSingleOrder(b2cOrderPayload(invoiceId, pid, rid));
+      const rates = await client.getShippingRates(probeOrder.data!, 'B2C');
+      const courierId = rates.data![0].courier_id;
+
+      const result = await client.workflow().execute(
+        b2cOrderPayload(uniqueInvoiceId(), pid, rid),
+        courierId
+      );
+      expect(result.awb).toBeTruthy();
+      expect(result.courierName).toBeTruthy();
+      awbNumber = result.awb;
+    } finally {
+      await cancelIfAWB(client, awbNumber);
+    }
+  });
+});
+
+describe('Integration: Error Scenarios (WRITE)', () => {
+  itIfWrite('cancelShipments with non-existent AWB throws BigshipApiError', async () => {
+    const client = new BigshipClient(getConfig({ maxRetries: 0 }));
+    try {
+      await client.cancelShipments(['FAKE-AWB-99999']);
+      expect.fail('should have thrown BigshipApiError');
     } catch (err) {
-      // AWB may not be assigned immediately for fresh orders
+      expect(err).toBeInstanceOf(BigshipApiError);
+    }
+  });
+
+  itIfWrite('manifestSingle with invalid system_order_id returns error', async () => {
+    const client = new BigshipClient(getConfig({ maxRetries: 0 }));
+    try {
+      await client.manifestSingle({ system_order_id: 'FAKE-ORDER-99999', courier_id: 1 });
+      expect.fail('should have thrown BigshipApiError');
+    } catch (err) {
+      expect(err).toBeInstanceOf(BigshipApiError);
+    }
+  });
+
+  itIfWrite('manifestHeavy with invalid system_order_id returns error', async () => {
+    const client = new BigshipClient(getConfig({ maxRetries: 0 }));
+    try {
+      await client.manifestHeavy({ system_order_id: 'FAKE-ORDER-99999', courier_id: 1, risk_type: 'OwnerRisk' });
+      expect.fail('should have thrown BigshipApiError');
+    } catch (err) {
       expect(err).toBeInstanceOf(BigshipApiError);
     }
   });
@@ -335,7 +810,6 @@ describe('Integration: Zod Schema Validation Against Real API', () => {
   itIfCreds('real wallet response matches WalletBalanceResponseSchema', async () => {
     const client = new BigshipClient(getConfig());
     const result = await client.getWalletBalance();
-    // If this passes without throwing, the response matched the Zod schema
     expect(result).toMatchObject({ success: true, responseCode: 200 });
     expect(typeof result.data).toBe('string');
   });
@@ -343,7 +817,6 @@ describe('Integration: Zod Schema Validation Against Real API', () => {
   itIfCreds('real courier list matches CourierItemSchema', async () => {
     const client = new BigshipClient(getConfig());
     const result = await client.getCourierList();
-    // Validates against z.array(CourierItemSchema)
     expect(result.success).toBe(true);
     for (const courier of result.data!) {
       expect(courier.courier_id).toBeDefined();
