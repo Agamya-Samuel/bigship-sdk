@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   test:
-    name: Node ${{ matrix.node-version }}
+    name: SDK — Node ${{ matrix.node-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -33,9 +33,31 @@ jobs:
 
       - name: Type check
         run: npx tsc --noEmit
+        working-directory: packages/sdk
 
       - name: Tests
-        run: npm test
+        run: npm test -w packages/sdk
 
       - name: Build
-        run: npm run build
+        run: npm run build -w packages/sdk
+
+  build-playground:
+    name: Playground — Build
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build SDK (playground dependency)
+        run: npm run build -w packages/sdk
+
+      - name: Build Playground
+        run: npm run build -w packages/playground

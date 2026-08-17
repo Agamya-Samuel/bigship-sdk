@@ -25,13 +25,13 @@ jobs:
       - run: npm ci
 
       - name: Tests
-        run: npm test
+        run: npm test -w packages/sdk
 
       - name: Extract release notes
         id: notes
         run: |
           VERSION="${GITHUB_REF#refs/tags/v}"
-          NOTES=$(sed -n "/^## \[${VERSION}\]/,/^## \[/p" CHANGELOG.md | sed '1d;$d')
+          NOTES=$(sed -n "/^## \[${VERSION}\]/,/^## \[/p" packages/sdk/CHANGELOG.md | sed '1d;$d')
           echo "notes<<EOF" >> "$GITHUB_OUTPUT"
           echo "$NOTES" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -43,3 +43,6 @@ jobs:
 
       - name: Publish to npm
         run: npm publish --access public
+        working-directory: packages/sdk
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
