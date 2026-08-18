@@ -1,5 +1,5 @@
-import { BigshipError, type BigshipConfig, type RequestContext } from '../core/types';
-import { BigshipNetworkError } from '../errors';
+import type { BigshipConfig, RequestContext } from '../core/types';
+import { BigshipError, BigshipNetworkError } from '../errors';
 import { EventDispatcher } from '../infrastructure/EventDispatcher';
 
 /**

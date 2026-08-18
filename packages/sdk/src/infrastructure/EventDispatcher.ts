@@ -1,5 +1,6 @@
 import type { InternalAxiosRequestConfig } from 'axios';
-import type { BigshipConfig, ApiResponse, RequestContext, BigshipError } from '../core/types';
+import type { BigshipConfig, ApiResponse, RequestContext } from '../core/types';
+import type { BigshipError } from '../errors/BigshipError';
 import type { Logger } from './Logger';
 
 type BeforeRequestHook = (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig>;
