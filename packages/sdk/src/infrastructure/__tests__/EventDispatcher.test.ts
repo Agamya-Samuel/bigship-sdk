@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { EventDispatcher } from '../EventDispatcher';
-import type { BigshipConfig, ApiResponse, RequestContext, BigshipError } from '../../core/types';
+import type { BigshipConfig, ApiResponse, RequestContext } from '../../core/types';
+import type { BigshipError } from '../../errors/BigshipError';
 import type { InternalAxiosRequestConfig } from 'axios';
 
 function createConfig(hooks: Partial<BigshipConfig> = {}): BigshipConfig {

@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RetryManager } from '../RetryManager';
 import { EventDispatcher } from '../../infrastructure/EventDispatcher';
-import { BigshipApiError, BigshipAuthError, BigshipNetworkError } from '../../errors';
-import { BigshipError } from '../../core/types';
+import { BigshipApiError, BigshipAuthError, BigshipNetworkError, BigshipError } from '../../errors';
 import type { BigshipConfig, RequestContext } from '../../core/types';
 
 function createConfig(overrides: Partial<BigshipConfig> = {}): BigshipConfig {

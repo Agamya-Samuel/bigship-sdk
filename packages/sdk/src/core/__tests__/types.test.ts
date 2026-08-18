@@ -15,8 +15,8 @@ import {
   ApiResponseSchema,
   isSuccessResponse,
   isFailedResponse,
-  BigshipError,
 } from '../types';
+import { BigshipError } from '../../errors/BigshipError';
 import { z } from 'zod';
 
 describe('LoginRequestSchema', () => {

@@ -11,7 +11,7 @@ import {
   isBigshipNetworkError,
   isBigshipApiError,
 } from '../index';
-import { BigshipError } from '../../core/types';
+import { BigshipError } from '../BigshipError';
 
 describe('BigshipError', () => {
   it('creates with default statusCode 0', () => {
