@@ -9,7 +9,7 @@ description: Complete API reference for @agamya/bigship-sdk
 
 ### ShipmentDataType
 
-Defined in: [packages/sdk/src/core/types.ts:645](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L645)
+Defined in: [packages/sdk/src/core/types.ts:645](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L645)
 
 Shipment data type identifiers
 
@@ -21,15 +21,15 @@ Bigship API documentation
 
 | Enumeration Member | Value | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="enumeration-member-awb"></a> `AWB` | `1` | Air Waybill - Contains AWB number and courier details | [packages/sdk/src/core/types.ts:647](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L647) |
-| <a id="enumeration-member-label"></a> `LABEL` | `2` | Shipping label - Contains label download URL/data | [packages/sdk/src/core/types.ts:649](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L649) |
-| <a id="enumeration-member-manifest"></a> `MANIFEST` | `3` | Manifest document - Contains manifest download URL/data | [packages/sdk/src/core/types.ts:651](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L651) |
+| <a id="enumeration-member-awb"></a> `AWB` | `1` | Air Waybill - Contains AWB number and courier details | [packages/sdk/src/core/types.ts:647](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L647) |
+| <a id="enumeration-member-label"></a> `LABEL` | `2` | Shipping label - Contains label download URL/data | [packages/sdk/src/core/types.ts:649](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L649) |
+| <a id="enumeration-member-manifest"></a> `MANIFEST` | `3` | Manifest document - Contains manifest download URL/data | [packages/sdk/src/core/types.ts:651](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L651) |
 
 ## Classes
 
 ### BigshipApiError
 
-Defined in: [packages/sdk/src/errors/index.ts:30](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L30)
+Defined in: [packages/sdk/src/errors/index.ts:30](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L30)
 
 Base API error with additional context information
 
@@ -69,7 +69,7 @@ new BigshipApiError(
    options?: BigshipApiErrorOptions): BigshipApiError;
 ```
 
-Defined in: [packages/sdk/src/errors/index.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L35)
+Defined in: [packages/sdk/src/errors/index.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L35)
 
 ###### Parameters
 
@@ -97,18 +97,18 @@ Defined in: [packages/sdk/src/errors/index.ts:35](https://github.com/Agamya-Samu
 
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="apiresponse"></a> `apiResponse?` | `readonly` | [`BigshipErrorData`](#bigshiperrordata) | - | [`BigshipError`](#bigshiperror).[`apiResponse`](#apiresponse-3) | [packages/sdk/src/errors/BigshipError.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L33) |
+| <a id="apiresponse"></a> `apiResponse?` | `readonly` | [`BigshipErrorData`](#bigshiperrordata) | - | [`BigshipError`](#bigshiperror).[`apiResponse`](#apiresponse-3) | [packages/sdk/src/errors/BigshipError.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L33) |
 | <a id="cause"></a> `cause?` | `public` | `unknown` | - | [`BigshipError`](#bigshiperror).[`cause`](#cause-3) | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code"></a> `code?` | `readonly` | `string` | - | [`BigshipError`](#bigshiperror).[`code`](#code-3) | [packages/sdk/src/errors/BigshipError.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L32) |
-| <a id="endpoint"></a> `endpoint?` | `readonly` | `string` | - | - | [packages/sdk/src/errors/index.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L32) |
+| <a id="code"></a> `code?` | `readonly` | `string` | - | [`BigshipError`](#bigshiperror).[`code`](#code-3) | [packages/sdk/src/errors/BigshipError.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L32) |
+| <a id="endpoint"></a> `endpoint?` | `readonly` | `string` | - | - | [packages/sdk/src/errors/index.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L32) |
 | <a id="message"></a> `message` | `public` | `string` | - | [`BigshipError`](#bigshiperror).[`message`](#message-3) | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name"></a> `name` | `public` | `string` | - | [`BigshipError`](#bigshiperror).[`name`](#name-3) | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
-| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | - | [packages/sdk/src/errors/index.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L31) |
-| <a id="responsebody"></a> `responseBody?` | `readonly` | `unknown` | - | - | [packages/sdk/src/errors/index.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L33) |
+| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | - | [packages/sdk/src/errors/index.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L31) |
+| <a id="responsebody"></a> `responseBody?` | `readonly` | `unknown` | - | - | [packages/sdk/src/errors/index.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L33) |
 | <a id="stack"></a> `stack?` | `public` | `string` | - | [`BigshipError`](#bigshiperror).[`stack`](#stack-3) | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
-| <a id="statuscode"></a> `statusCode` | `readonly` | `number` | - | [`BigshipError`](#bigshiperror).[`statusCode`](#statuscode-3) | [packages/sdk/src/errors/BigshipError.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L31) |
-| <a id="traceid"></a> `traceId?` | `readonly` | `string` | - | [`BigshipError`](#bigshiperror).[`traceId`](#traceid-3) | [packages/sdk/src/errors/BigshipError.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L35) |
-| <a id="validationerrors"></a> `validationErrors?` | `readonly` | `Record`\<`string`, `string`[]\> | - | [`BigshipError`](#bigshiperror).[`validationErrors`](#validationerrors-3) | [packages/sdk/src/errors/BigshipError.ts:34](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L34) |
+| <a id="statuscode"></a> `statusCode` | `readonly` | `number` | - | [`BigshipError`](#bigshiperror).[`statusCode`](#statuscode-3) | [packages/sdk/src/errors/BigshipError.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L31) |
+| <a id="traceid"></a> `traceId?` | `readonly` | `string` | - | [`BigshipError`](#bigshiperror).[`traceId`](#traceid-3) | [packages/sdk/src/errors/BigshipError.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L35) |
+| <a id="validationerrors"></a> `validationErrors?` | `readonly` | `Record`\<`string`, `string`[]\> | - | [`BigshipError`](#bigshiperror).[`validationErrors`](#validationerrors-3) | [packages/sdk/src/errors/BigshipError.ts:34](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L34) |
 | <a id="stacktracelimit"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | [`BigshipError`](#bigshiperror).[`stackTraceLimit`](#stacktracelimit-3) | node\_modules/@types/node/globals.d.ts:68 |
 
 #### Methods
@@ -119,7 +119,7 @@ Defined in: [packages/sdk/src/errors/index.ts:35](https://github.com/Agamya-Samu
 isAuthError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L61)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L61)
 
 ###### Returns
 
@@ -135,7 +135,7 @@ Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agam
 isRateLimitError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L57)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L57)
 
 ###### Returns
 
@@ -151,7 +151,7 @@ Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agam
 isValidationError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:53](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L53)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:53](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L53)
 
 ###### Returns
 
@@ -265,7 +265,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 ### BigshipAuthError
 
-Defined in: [packages/sdk/src/errors/index.ts:147](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L147)
+Defined in: [packages/sdk/src/errors/index.ts:147](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L147)
 
 Error thrown when authentication fails
 
@@ -293,7 +293,7 @@ try {
 new BigshipAuthError(message?: string, options?: Omit<BigshipApiErrorOptions, "code" | "apiResponse">): BigshipAuthError;
 ```
 
-Defined in: [packages/sdk/src/errors/index.ts:148](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L148)
+Defined in: [packages/sdk/src/errors/index.ts:148](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L148)
 
 ###### Parameters
 
@@ -317,18 +317,18 @@ Defined in: [packages/sdk/src/errors/index.ts:148](https://github.com/Agamya-Sam
 
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="apiresponse-1"></a> `apiResponse?` | `readonly` | [`BigshipErrorData`](#bigshiperrordata) | - | [`BigshipApiError`](#bigshipapierror).[`apiResponse`](#apiresponse) | [packages/sdk/src/errors/BigshipError.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L33) |
+| <a id="apiresponse-1"></a> `apiResponse?` | `readonly` | [`BigshipErrorData`](#bigshiperrordata) | - | [`BigshipApiError`](#bigshipapierror).[`apiResponse`](#apiresponse) | [packages/sdk/src/errors/BigshipError.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L33) |
 | <a id="cause-1"></a> `cause?` | `public` | `unknown` | - | [`BigshipApiError`](#bigshipapierror).[`cause`](#cause) | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code-1"></a> `code?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`code`](#code) | [packages/sdk/src/errors/BigshipError.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L32) |
-| <a id="endpoint-1"></a> `endpoint?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`endpoint`](#endpoint) | [packages/sdk/src/errors/index.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L32) |
+| <a id="code-1"></a> `code?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`code`](#code) | [packages/sdk/src/errors/BigshipError.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L32) |
+| <a id="endpoint-1"></a> `endpoint?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`endpoint`](#endpoint) | [packages/sdk/src/errors/index.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L32) |
 | <a id="message-1"></a> `message` | `public` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`message`](#message) | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name-1"></a> `name` | `public` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`name`](#name) | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
-| <a id="requestid-1"></a> `requestId?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`requestId`](#requestid) | [packages/sdk/src/errors/index.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L31) |
-| <a id="responsebody-1"></a> `responseBody?` | `readonly` | `unknown` | - | [`BigshipApiError`](#bigshipapierror).[`responseBody`](#responsebody) | [packages/sdk/src/errors/index.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L33) |
+| <a id="requestid-1"></a> `requestId?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`requestId`](#requestid) | [packages/sdk/src/errors/index.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L31) |
+| <a id="responsebody-1"></a> `responseBody?` | `readonly` | `unknown` | - | [`BigshipApiError`](#bigshipapierror).[`responseBody`](#responsebody) | [packages/sdk/src/errors/index.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L33) |
 | <a id="stack-1"></a> `stack?` | `public` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`stack`](#stack) | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
-| <a id="statuscode-1"></a> `statusCode` | `readonly` | `number` | - | [`BigshipApiError`](#bigshipapierror).[`statusCode`](#statuscode) | [packages/sdk/src/errors/BigshipError.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L31) |
-| <a id="traceid-1"></a> `traceId?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`traceId`](#traceid) | [packages/sdk/src/errors/BigshipError.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L35) |
-| <a id="validationerrors-1"></a> `validationErrors?` | `readonly` | `Record`\<`string`, `string`[]\> | - | [`BigshipApiError`](#bigshipapierror).[`validationErrors`](#validationerrors) | [packages/sdk/src/errors/BigshipError.ts:34](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L34) |
+| <a id="statuscode-1"></a> `statusCode` | `readonly` | `number` | - | [`BigshipApiError`](#bigshipapierror).[`statusCode`](#statuscode) | [packages/sdk/src/errors/BigshipError.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L31) |
+| <a id="traceid-1"></a> `traceId?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`traceId`](#traceid) | [packages/sdk/src/errors/BigshipError.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L35) |
+| <a id="validationerrors-1"></a> `validationErrors?` | `readonly` | `Record`\<`string`, `string`[]\> | - | [`BigshipApiError`](#bigshipapierror).[`validationErrors`](#validationerrors) | [packages/sdk/src/errors/BigshipError.ts:34](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L34) |
 | <a id="stacktracelimit-1"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | [`BigshipApiError`](#bigshipapierror).[`stackTraceLimit`](#stacktracelimit) | node\_modules/@types/node/globals.d.ts:68 |
 
 #### Methods
@@ -339,7 +339,7 @@ Defined in: [packages/sdk/src/errors/index.ts:148](https://github.com/Agamya-Sam
 isAuthError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L61)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L61)
 
 ###### Returns
 
@@ -355,7 +355,7 @@ Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agam
 isRateLimitError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L57)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L57)
 
 ###### Returns
 
@@ -371,7 +371,7 @@ Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agam
 isValidationError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:53](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L53)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:53](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L53)
 
 ###### Returns
 
@@ -485,7 +485,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 ### BigshipClient
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:79](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L79)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:79](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L79)
 
 #### Constructors
 
@@ -497,7 +497,7 @@ new BigshipClient(config: BigshipConfig & {
 }): BigshipClient;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:87](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L87)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:87](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L87)
 
 ###### Parameters
 
@@ -574,7 +574,7 @@ addHeavyOrder(payload: {
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:348](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L348)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:348](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L348)
 
 ###### Parameters
 
@@ -844,7 +844,7 @@ addSingleOrder(payload: {
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:336](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L336)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:336](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L336)
 
 ###### Parameters
 
@@ -1085,7 +1085,7 @@ addWarehouse(payload: {
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:297](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L297)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:297](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L297)
 
 ###### Parameters
 
@@ -1193,7 +1193,7 @@ calculateRate(payload: {
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:394](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L394)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:394](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L394)
 
 ###### Parameters
 
@@ -1295,7 +1295,7 @@ cancelShipments(awbs: string[], options?: RequestOptions): Promise<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:384](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L384)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:384](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L384)
 
 ###### Parameters
 
@@ -1448,7 +1448,7 @@ createAndFinalizeShipment(config: {
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:545](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L545)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:545](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L545)
 
 ###### Parameters
 
@@ -1610,7 +1610,7 @@ getAWB(systemOrderId: string, options?: RequestOptions): Promise<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:407](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L407)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:407](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L407)
 
 ###### Parameters
 
@@ -1660,7 +1660,7 @@ getCourierList(shipmentCategory?: "b2c" | "b2b", options?: RequestOptions): Prom
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:272](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L272)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:272](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L272)
 
 ###### Parameters
 
@@ -1709,7 +1709,7 @@ getCourierTransporterList(courierId: number, options?: RequestOptions): Promise<
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:279](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L279)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:279](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L279)
 
 ###### Parameters
 
@@ -1754,7 +1754,7 @@ getPaymentCategory(shipmentCategory?: "b2c" | "b2b", options?: RequestOptions): 
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:288](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L288)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:288](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L288)
 
 ###### Parameters
 
@@ -1805,7 +1805,7 @@ getShipmentData(
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:432](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L432)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:432](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L432)
 
 ###### Parameters
 
@@ -1861,7 +1861,7 @@ getShipmentData(
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:433](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L433)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:433](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L433)
 
 ###### Parameters
 
@@ -1906,7 +1906,7 @@ getShipmentData(
 options?: RequestOptions): Promise<ShipmentDataAnyResponse>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:434](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L434)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:434](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L434)
 
 ###### Parameters
 
@@ -1942,7 +1942,7 @@ getShipmentDetails(orderId: string, options?: RequestOptions): Promise<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:513](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L513)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:513](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L513)
 
 ###### Parameters
 
@@ -1989,7 +1989,7 @@ getShipmentFile(
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:414](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L414)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:414](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L414)
 
 ###### Parameters
 
@@ -2068,7 +2068,7 @@ getShippingRates(
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:376](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L376)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:376](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L376)
 
 ###### Parameters
 
@@ -2140,7 +2140,7 @@ getWalletBalance(options?: RequestOptions): Promise<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:263](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L263)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:263](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L263)
 
 ###### Parameters
 
@@ -2193,7 +2193,7 @@ getWarehouseList(
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:305](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L305)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:305](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L305)
 
 ###### Parameters
 
@@ -2246,7 +2246,7 @@ When API request fails
 login(): Promise<string>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:256](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L256)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:256](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L256)
 
 ###### Returns
 
@@ -2268,7 +2268,7 @@ manifestAndGetAWB(
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:491](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L491)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:491](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L491)
 
 ###### Parameters
 
@@ -2310,7 +2310,7 @@ manifestHeavy(payload: {
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:368](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L368)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:368](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L368)
 
 ###### Parameters
 
@@ -2363,7 +2363,7 @@ manifestSingle(payload: {
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:360](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L360)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:360](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L360)
 
 ###### Parameters
 
@@ -2429,7 +2429,7 @@ trackShipment(
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:450](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L450)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:450](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L450)
 
 ###### Parameters
 
@@ -2481,7 +2481,7 @@ When API request fails
 workflow(): ShipmentWorkflow;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:623](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L623)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:623](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L623)
 
 ###### Returns
 
@@ -2493,7 +2493,7 @@ Defined in: [packages/sdk/src/core/BigshipClient.ts:623](https://github.com/Agam
 static fileToBase64DataURI(file: File): Promise<string>;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:325](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L325)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:325](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L325)
 
 ###### Parameters
 
@@ -2511,7 +2511,7 @@ Defined in: [packages/sdk/src/core/BigshipClient.ts:325](https://github.com/Agam
 static isValidBase64DataURI(value: string): boolean;
 ```
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:329](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L329)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:329](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L329)
 
 ###### Parameters
 
@@ -2527,7 +2527,7 @@ Defined in: [packages/sdk/src/core/BigshipClient.ts:329](https://github.com/Agam
 
 ### BigshipDuplicateInvoiceError
 
-Defined in: [packages/sdk/src/errors/index.ts:69](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L69)
+Defined in: [packages/sdk/src/errors/index.ts:69](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L69)
 
 Error thrown when a duplicate invoice ID is detected
 
@@ -2556,7 +2556,7 @@ try {
 new BigshipDuplicateInvoiceError(invoiceId: string, options?: Omit<BigshipApiErrorOptions, "code">): BigshipDuplicateInvoiceError;
 ```
 
-Defined in: [packages/sdk/src/errors/index.ts:72](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L72)
+Defined in: [packages/sdk/src/errors/index.ts:72](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L72)
 
 ###### Parameters
 
@@ -2580,19 +2580,19 @@ Defined in: [packages/sdk/src/errors/index.ts:72](https://github.com/Agamya-Samu
 
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="apiresponse-2"></a> `apiResponse?` | `readonly` | [`BigshipErrorData`](#bigshiperrordata) | - | [`BigshipApiError`](#bigshipapierror).[`apiResponse`](#apiresponse) | [packages/sdk/src/errors/BigshipError.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L33) |
+| <a id="apiresponse-2"></a> `apiResponse?` | `readonly` | [`BigshipErrorData`](#bigshiperrordata) | - | [`BigshipApiError`](#bigshipapierror).[`apiResponse`](#apiresponse) | [packages/sdk/src/errors/BigshipError.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L33) |
 | <a id="cause-2"></a> `cause?` | `public` | `unknown` | - | [`BigshipApiError`](#bigshipapierror).[`cause`](#cause) | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code-2"></a> `code?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`code`](#code) | [packages/sdk/src/errors/BigshipError.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L32) |
-| <a id="endpoint-2"></a> `endpoint?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`endpoint`](#endpoint) | [packages/sdk/src/errors/index.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L32) |
-| <a id="invoiceid"></a> `invoiceId` | `readonly` | `string` | - | - | [packages/sdk/src/errors/index.ts:70](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L70) |
+| <a id="code-2"></a> `code?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`code`](#code) | [packages/sdk/src/errors/BigshipError.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L32) |
+| <a id="endpoint-2"></a> `endpoint?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`endpoint`](#endpoint) | [packages/sdk/src/errors/index.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L32) |
+| <a id="invoiceid"></a> `invoiceId` | `readonly` | `string` | - | - | [packages/sdk/src/errors/index.ts:70](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L70) |
 | <a id="message-2"></a> `message` | `public` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`message`](#message) | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name-2"></a> `name` | `public` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`name`](#name) | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
-| <a id="requestid-2"></a> `requestId?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`requestId`](#requestid) | [packages/sdk/src/errors/index.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L31) |
-| <a id="responsebody-2"></a> `responseBody?` | `readonly` | `unknown` | - | [`BigshipApiError`](#bigshipapierror).[`responseBody`](#responsebody) | [packages/sdk/src/errors/index.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L33) |
+| <a id="requestid-2"></a> `requestId?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`requestId`](#requestid) | [packages/sdk/src/errors/index.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L31) |
+| <a id="responsebody-2"></a> `responseBody?` | `readonly` | `unknown` | - | [`BigshipApiError`](#bigshipapierror).[`responseBody`](#responsebody) | [packages/sdk/src/errors/index.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L33) |
 | <a id="stack-2"></a> `stack?` | `public` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`stack`](#stack) | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
-| <a id="statuscode-2"></a> `statusCode` | `readonly` | `number` | - | [`BigshipApiError`](#bigshipapierror).[`statusCode`](#statuscode) | [packages/sdk/src/errors/BigshipError.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L31) |
-| <a id="traceid-2"></a> `traceId?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`traceId`](#traceid) | [packages/sdk/src/errors/BigshipError.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L35) |
-| <a id="validationerrors-2"></a> `validationErrors?` | `readonly` | `Record`\<`string`, `string`[]\> | - | [`BigshipApiError`](#bigshipapierror).[`validationErrors`](#validationerrors) | [packages/sdk/src/errors/BigshipError.ts:34](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L34) |
+| <a id="statuscode-2"></a> `statusCode` | `readonly` | `number` | - | [`BigshipApiError`](#bigshipapierror).[`statusCode`](#statuscode) | [packages/sdk/src/errors/BigshipError.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L31) |
+| <a id="traceid-2"></a> `traceId?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`traceId`](#traceid) | [packages/sdk/src/errors/BigshipError.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L35) |
+| <a id="validationerrors-2"></a> `validationErrors?` | `readonly` | `Record`\<`string`, `string`[]\> | - | [`BigshipApiError`](#bigshipapierror).[`validationErrors`](#validationerrors) | [packages/sdk/src/errors/BigshipError.ts:34](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L34) |
 | <a id="stacktracelimit-2"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | [`BigshipApiError`](#bigshipapierror).[`stackTraceLimit`](#stacktracelimit) | node\_modules/@types/node/globals.d.ts:68 |
 
 #### Methods
@@ -2603,7 +2603,7 @@ Defined in: [packages/sdk/src/errors/index.ts:72](https://github.com/Agamya-Samu
 isAuthError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L61)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L61)
 
 ###### Returns
 
@@ -2619,7 +2619,7 @@ Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agam
 isRateLimitError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L57)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L57)
 
 ###### Returns
 
@@ -2635,7 +2635,7 @@ Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agam
 isValidationError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:53](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L53)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:53](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L53)
 
 ###### Returns
 
@@ -2749,7 +2749,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 ### BigshipError
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:30](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L30)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:30](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L30)
 
 Custom error class for Bigship API errors
 Provides structured access to error details and helper methods for error type checking
@@ -2796,7 +2796,7 @@ new BigshipError(
 }): BigshipError;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:37](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L37)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:37](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L37)
 
 ###### Parameters
 
@@ -2836,15 +2836,15 @@ Error.constructor
 
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="apiresponse-3"></a> `apiResponse?` | `readonly` | [`BigshipErrorData`](#bigshiperrordata) | - | - | [packages/sdk/src/errors/BigshipError.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L33) |
+| <a id="apiresponse-3"></a> `apiResponse?` | `readonly` | [`BigshipErrorData`](#bigshiperrordata) | - | - | [packages/sdk/src/errors/BigshipError.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L33) |
 | <a id="cause-3"></a> `cause?` | `public` | `unknown` | - | `Error.cause` | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code-3"></a> `code?` | `readonly` | `string` | - | - | [packages/sdk/src/errors/BigshipError.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L32) |
+| <a id="code-3"></a> `code?` | `readonly` | `string` | - | - | [packages/sdk/src/errors/BigshipError.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L32) |
 | <a id="message-3"></a> `message` | `public` | `string` | - | `Error.message` | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name-3"></a> `name` | `public` | `string` | - | `Error.name` | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
 | <a id="stack-3"></a> `stack?` | `public` | `string` | - | `Error.stack` | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
-| <a id="statuscode-3"></a> `statusCode` | `readonly` | `number` | - | - | [packages/sdk/src/errors/BigshipError.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L31) |
-| <a id="traceid-3"></a> `traceId?` | `readonly` | `string` | - | - | [packages/sdk/src/errors/BigshipError.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L35) |
-| <a id="validationerrors-3"></a> `validationErrors?` | `readonly` | `Record`\<`string`, `string`[]\> | - | - | [packages/sdk/src/errors/BigshipError.ts:34](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L34) |
+| <a id="statuscode-3"></a> `statusCode` | `readonly` | `number` | - | - | [packages/sdk/src/errors/BigshipError.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L31) |
+| <a id="traceid-3"></a> `traceId?` | `readonly` | `string` | - | - | [packages/sdk/src/errors/BigshipError.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L35) |
+| <a id="validationerrors-3"></a> `validationErrors?` | `readonly` | `Record`\<`string`, `string`[]\> | - | - | [packages/sdk/src/errors/BigshipError.ts:34](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L34) |
 | <a id="stacktracelimit-3"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | `Error.stackTraceLimit` | node\_modules/@types/node/globals.d.ts:68 |
 
 #### Methods
@@ -2855,7 +2855,7 @@ Error.constructor
 isAuthError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L61)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L61)
 
 ###### Returns
 
@@ -2867,7 +2867,7 @@ Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agam
 isRateLimitError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L57)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L57)
 
 ###### Returns
 
@@ -2879,7 +2879,7 @@ Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agam
 isValidationError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:53](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L53)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:53](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L53)
 
 ###### Returns
 
@@ -2993,7 +2993,7 @@ Error.prepareStackTrace
 
 ### BigshipNetworkError
 
-Defined in: [packages/sdk/src/errors/index.ts:169](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L169)
+Defined in: [packages/sdk/src/errors/index.ts:169](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L169)
 
 Error thrown when network request fails
 Uses statusCode -1 since this is not an HTTP error.
@@ -3011,7 +3011,7 @@ Check `error instanceof BigshipNetworkError` rather than comparing statusCode.
 new BigshipNetworkError(message: string, options?: Omit<BigshipApiErrorOptions, "code">): BigshipNetworkError;
 ```
 
-Defined in: [packages/sdk/src/errors/index.ts:170](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L170)
+Defined in: [packages/sdk/src/errors/index.ts:170](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L170)
 
 ###### Parameters
 
@@ -3035,18 +3035,18 @@ Defined in: [packages/sdk/src/errors/index.ts:170](https://github.com/Agamya-Sam
 
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="apiresponse-4"></a> `apiResponse?` | `readonly` | [`BigshipErrorData`](#bigshiperrordata) | - | [`BigshipApiError`](#bigshipapierror).[`apiResponse`](#apiresponse) | [packages/sdk/src/errors/BigshipError.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L33) |
+| <a id="apiresponse-4"></a> `apiResponse?` | `readonly` | [`BigshipErrorData`](#bigshiperrordata) | - | [`BigshipApiError`](#bigshipapierror).[`apiResponse`](#apiresponse) | [packages/sdk/src/errors/BigshipError.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L33) |
 | <a id="cause-4"></a> `cause?` | `public` | `unknown` | - | [`BigshipApiError`](#bigshipapierror).[`cause`](#cause) | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code-4"></a> `code?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`code`](#code) | [packages/sdk/src/errors/BigshipError.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L32) |
-| <a id="endpoint-3"></a> `endpoint?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`endpoint`](#endpoint) | [packages/sdk/src/errors/index.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L32) |
+| <a id="code-4"></a> `code?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`code`](#code) | [packages/sdk/src/errors/BigshipError.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L32) |
+| <a id="endpoint-3"></a> `endpoint?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`endpoint`](#endpoint) | [packages/sdk/src/errors/index.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L32) |
 | <a id="message-4"></a> `message` | `public` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`message`](#message) | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name-4"></a> `name` | `public` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`name`](#name) | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
-| <a id="requestid-3"></a> `requestId?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`requestId`](#requestid) | [packages/sdk/src/errors/index.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L31) |
-| <a id="responsebody-3"></a> `responseBody?` | `readonly` | `unknown` | - | [`BigshipApiError`](#bigshipapierror).[`responseBody`](#responsebody) | [packages/sdk/src/errors/index.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L33) |
+| <a id="requestid-3"></a> `requestId?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`requestId`](#requestid) | [packages/sdk/src/errors/index.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L31) |
+| <a id="responsebody-3"></a> `responseBody?` | `readonly` | `unknown` | - | [`BigshipApiError`](#bigshipapierror).[`responseBody`](#responsebody) | [packages/sdk/src/errors/index.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L33) |
 | <a id="stack-4"></a> `stack?` | `public` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`stack`](#stack) | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
-| <a id="statuscode-4"></a> `statusCode` | `readonly` | `number` | - | [`BigshipApiError`](#bigshipapierror).[`statusCode`](#statuscode) | [packages/sdk/src/errors/BigshipError.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L31) |
-| <a id="traceid-4"></a> `traceId?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`traceId`](#traceid) | [packages/sdk/src/errors/BigshipError.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L35) |
-| <a id="validationerrors-4"></a> `validationErrors?` | `readonly` | `Record`\<`string`, `string`[]\> | - | [`BigshipApiError`](#bigshipapierror).[`validationErrors`](#validationerrors) | [packages/sdk/src/errors/BigshipError.ts:34](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L34) |
+| <a id="statuscode-4"></a> `statusCode` | `readonly` | `number` | - | [`BigshipApiError`](#bigshipapierror).[`statusCode`](#statuscode) | [packages/sdk/src/errors/BigshipError.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L31) |
+| <a id="traceid-4"></a> `traceId?` | `readonly` | `string` | - | [`BigshipApiError`](#bigshipapierror).[`traceId`](#traceid) | [packages/sdk/src/errors/BigshipError.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L35) |
+| <a id="validationerrors-4"></a> `validationErrors?` | `readonly` | `Record`\<`string`, `string`[]\> | - | [`BigshipApiError`](#bigshipapierror).[`validationErrors`](#validationerrors) | [packages/sdk/src/errors/BigshipError.ts:34](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L34) |
 | <a id="stacktracelimit-4"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | [`BigshipApiError`](#bigshipapierror).[`stackTraceLimit`](#stacktracelimit) | node\_modules/@types/node/globals.d.ts:68 |
 
 #### Methods
@@ -3057,7 +3057,7 @@ Defined in: [packages/sdk/src/errors/index.ts:170](https://github.com/Agamya-Sam
 isAuthError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L61)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L61)
 
 ###### Returns
 
@@ -3073,7 +3073,7 @@ Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agam
 isRateLimitError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L57)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L57)
 
 ###### Returns
 
@@ -3089,7 +3089,7 @@ Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agam
 isValidationError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:53](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L53)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:53](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L53)
 
 ###### Returns
 
@@ -3203,7 +3203,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 ### BigshipValidationError
 
-Defined in: [packages/sdk/src/errors/index.ts:111](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L111)
+Defined in: [packages/sdk/src/errors/index.ts:111](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L111)
 
 Error thrown when request validation fails
 
@@ -3235,7 +3235,7 @@ new BigshipValidationError(
    options?: Omit<BigshipApiErrorOptions, "code" | "apiResponse">): BigshipValidationError;
 ```
 
-Defined in: [packages/sdk/src/errors/index.ts:114](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L114)
+Defined in: [packages/sdk/src/errors/index.ts:114](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L114)
 
 ###### Parameters
 
@@ -3263,18 +3263,18 @@ Defined in: [packages/sdk/src/errors/index.ts:114](https://github.com/Agamya-Sam
 
 | Property | Modifier | Type | Description | Overrides | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="apiresponse-5"></a> `apiResponse?` | `readonly` | [`BigshipErrorData`](#bigshiperrordata) | - | - | [`BigshipApiError`](#bigshipapierror).[`apiResponse`](#apiresponse) | [packages/sdk/src/errors/BigshipError.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L33) |
+| <a id="apiresponse-5"></a> `apiResponse?` | `readonly` | [`BigshipErrorData`](#bigshiperrordata) | - | - | [`BigshipApiError`](#bigshipapierror).[`apiResponse`](#apiresponse) | [packages/sdk/src/errors/BigshipError.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L33) |
 | <a id="cause-5"></a> `cause?` | `public` | `unknown` | - | - | [`BigshipApiError`](#bigshipapierror).[`cause`](#cause) | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code-5"></a> `code?` | `readonly` | `string` | - | - | [`BigshipApiError`](#bigshipapierror).[`code`](#code) | [packages/sdk/src/errors/BigshipError.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L32) |
-| <a id="endpoint-4"></a> `endpoint?` | `readonly` | `string` | - | - | [`BigshipApiError`](#bigshipapierror).[`endpoint`](#endpoint) | [packages/sdk/src/errors/index.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L32) |
+| <a id="code-5"></a> `code?` | `readonly` | `string` | - | - | [`BigshipApiError`](#bigshipapierror).[`code`](#code) | [packages/sdk/src/errors/BigshipError.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L32) |
+| <a id="endpoint-4"></a> `endpoint?` | `readonly` | `string` | - | - | [`BigshipApiError`](#bigshipapierror).[`endpoint`](#endpoint) | [packages/sdk/src/errors/index.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L32) |
 | <a id="message-5"></a> `message` | `public` | `string` | - | - | [`BigshipApiError`](#bigshipapierror).[`message`](#message) | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name-5"></a> `name` | `public` | `string` | - | - | [`BigshipApiError`](#bigshipapierror).[`name`](#name) | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
-| <a id="requestid-4"></a> `requestId?` | `readonly` | `string` | - | - | [`BigshipApiError`](#bigshipapierror).[`requestId`](#requestid) | [packages/sdk/src/errors/index.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L31) |
-| <a id="responsebody-4"></a> `responseBody?` | `readonly` | `unknown` | - | - | [`BigshipApiError`](#bigshipapierror).[`responseBody`](#responsebody) | [packages/sdk/src/errors/index.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L33) |
+| <a id="requestid-4"></a> `requestId?` | `readonly` | `string` | - | - | [`BigshipApiError`](#bigshipapierror).[`requestId`](#requestid) | [packages/sdk/src/errors/index.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L31) |
+| <a id="responsebody-4"></a> `responseBody?` | `readonly` | `unknown` | - | - | [`BigshipApiError`](#bigshipapierror).[`responseBody`](#responsebody) | [packages/sdk/src/errors/index.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L33) |
 | <a id="stack-5"></a> `stack?` | `public` | `string` | - | - | [`BigshipApiError`](#bigshipapierror).[`stack`](#stack) | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
-| <a id="statuscode-5"></a> `statusCode` | `readonly` | `number` | - | - | [`BigshipApiError`](#bigshipapierror).[`statusCode`](#statuscode) | [packages/sdk/src/errors/BigshipError.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L31) |
-| <a id="traceid-5"></a> `traceId?` | `readonly` | `string` | - | - | [`BigshipApiError`](#bigshipapierror).[`traceId`](#traceid) | [packages/sdk/src/errors/BigshipError.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L35) |
-| <a id="validationerrors-5"></a> `validationErrors` | `readonly` | `Record`\<`string`, `string`[]\> | - | [`BigshipApiError`](#bigshipapierror).[`validationErrors`](#validationerrors) | - | [packages/sdk/src/errors/index.ts:112](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L112) |
+| <a id="statuscode-5"></a> `statusCode` | `readonly` | `number` | - | - | [`BigshipApiError`](#bigshipapierror).[`statusCode`](#statuscode) | [packages/sdk/src/errors/BigshipError.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L31) |
+| <a id="traceid-5"></a> `traceId?` | `readonly` | `string` | - | - | [`BigshipApiError`](#bigshipapierror).[`traceId`](#traceid) | [packages/sdk/src/errors/BigshipError.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L35) |
+| <a id="validationerrors-5"></a> `validationErrors` | `readonly` | `Record`\<`string`, `string`[]\> | - | [`BigshipApiError`](#bigshipapierror).[`validationErrors`](#validationerrors) | - | [packages/sdk/src/errors/index.ts:112](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L112) |
 | <a id="stacktracelimit-5"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | - | [`BigshipApiError`](#bigshipapierror).[`stackTraceLimit`](#stacktracelimit) | node\_modules/@types/node/globals.d.ts:68 |
 
 #### Methods
@@ -3285,7 +3285,7 @@ Defined in: [packages/sdk/src/errors/index.ts:114](https://github.com/Agamya-Sam
 isAuthError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L61)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L61)
 
 ###### Returns
 
@@ -3301,7 +3301,7 @@ Defined in: [packages/sdk/src/errors/BigshipError.ts:61](https://github.com/Agam
 isRateLimitError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L57)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L57)
 
 ###### Returns
 
@@ -3317,7 +3317,7 @@ Defined in: [packages/sdk/src/errors/BigshipError.ts:57](https://github.com/Agam
 isValidationError(): boolean;
 ```
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:53](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L53)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:53](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L53)
 
 ###### Returns
 
@@ -3431,7 +3431,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 ### ShipmentWorkflow
 
-Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:8](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/workflow/ShipmentWorkflow.ts#L8)
+Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:8](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/workflow/ShipmentWorkflow.ts#L8)
 
 #### Constructors
 
@@ -3441,7 +3441,7 @@ Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:8](https://github.com
 new ShipmentWorkflow(client: BigshipClient): ShipmentWorkflow;
 ```
 
-Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:14](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/workflow/ShipmentWorkflow.ts#L14)
+Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:14](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/workflow/ShipmentWorkflow.ts#L14)
 
 ###### Parameters
 
@@ -3563,7 +3563,7 @@ create(order:
 }): Promise<ShipmentWorkflow>;
 ```
 
-Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:18](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/workflow/ShipmentWorkflow.ts#L18)
+Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:18](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/workflow/ShipmentWorkflow.ts#L18)
 
 ###### Parameters
 
@@ -3789,7 +3789,7 @@ execute(order:
 }>;
 ```
 
-Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:77](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/workflow/ShipmentWorkflow.ts#L77)
+Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:77](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/workflow/ShipmentWorkflow.ts#L77)
 
 ###### Parameters
 
@@ -3922,7 +3922,7 @@ finalize(): Promise<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:55](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/workflow/ShipmentWorkflow.ts#L55)
+Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:55](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/workflow/ShipmentWorkflow.ts#L55)
 
 ###### Returns
 
@@ -3939,7 +3939,7 @@ Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:55](https://github.co
 manifest(): Promise<ShipmentWorkflow>;
 ```
 
-Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:41](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/workflow/ShipmentWorkflow.ts#L41)
+Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:41](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/workflow/ShipmentWorkflow.ts#L41)
 
 ###### Returns
 
@@ -3951,7 +3951,7 @@ Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:41](https://github.co
 withCourier(courierId: number): this;
 ```
 
-Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:36](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/workflow/ShipmentWorkflow.ts#L36)
+Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:36](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/workflow/ShipmentWorkflow.ts#L36)
 
 ###### Parameters
 
@@ -3967,7 +3967,7 @@ Defined in: [packages/sdk/src/workflow/ShipmentWorkflow.ts:36](https://github.co
 
 ### ApiResponse
 
-Defined in: [packages/sdk/src/core/types.ts:596](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L596)
+Defined in: [packages/sdk/src/core/types.ts:596](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L596)
 
 Base API response wrapper
 All Bigship API responses follow this structure
@@ -3982,74 +3982,74 @@ All Bigship API responses follow this structure
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="data"></a> `data` | `T` \| `null` | [packages/sdk/src/core/types.ts:600](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L600) |
-| <a id="message-6"></a> `message` | `string` | [packages/sdk/src/core/types.ts:598](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L598) |
-| <a id="responsecode"></a> `responseCode` | `number` | [packages/sdk/src/core/types.ts:599](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L599) |
-| <a id="success"></a> `success` | `boolean` | [packages/sdk/src/core/types.ts:597](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L597) |
+| <a id="data"></a> `data` | `T` \| `null` | [packages/sdk/src/core/types.ts:600](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L600) |
+| <a id="message-6"></a> `message` | `string` | [packages/sdk/src/core/types.ts:598](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L598) |
+| <a id="responsecode"></a> `responseCode` | `number` | [packages/sdk/src/core/types.ts:599](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L599) |
+| <a id="success"></a> `success` | `boolean` | [packages/sdk/src/core/types.ts:597](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L597) |
 
 ***
 
 ### BigshipApiErrorOptions
 
-Defined in: [packages/sdk/src/errors/index.ts:5](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L5)
+Defined in: [packages/sdk/src/errors/index.ts:5](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L5)
 
 #### Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="apiresponse-7"></a> `apiResponse?` | [`BigshipErrorData`](#bigshiperrordata) | [packages/sdk/src/errors/index.ts:7](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L7) |
-| <a id="cause-6"></a> `cause?` | `Error` | [packages/sdk/src/errors/index.ts:11](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L11) |
-| <a id="code-6"></a> `code?` | `string` | [packages/sdk/src/errors/index.ts:6](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L6) |
-| <a id="endpoint-5"></a> `endpoint?` | `string` | [packages/sdk/src/errors/index.ts:9](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L9) |
-| <a id="requestid-5"></a> `requestId?` | `string` | [packages/sdk/src/errors/index.ts:8](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L8) |
-| <a id="responsebody-5"></a> `responseBody?` | `unknown` | [packages/sdk/src/errors/index.ts:10](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L10) |
+| <a id="apiresponse-7"></a> `apiResponse?` | [`BigshipErrorData`](#bigshiperrordata) | [packages/sdk/src/errors/index.ts:7](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L7) |
+| <a id="cause-6"></a> `cause?` | `Error` | [packages/sdk/src/errors/index.ts:11](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L11) |
+| <a id="code-6"></a> `code?` | `string` | [packages/sdk/src/errors/index.ts:6](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L6) |
+| <a id="endpoint-5"></a> `endpoint?` | `string` | [packages/sdk/src/errors/index.ts:9](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L9) |
+| <a id="requestid-5"></a> `requestId?` | `string` | [packages/sdk/src/errors/index.ts:8](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L8) |
+| <a id="responsebody-5"></a> `responseBody?` | `unknown` | [packages/sdk/src/errors/index.ts:10](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L10) |
 
 ***
 
 ### BigshipConfig
 
-Defined in: [packages/sdk/src/core/types.ts:6](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L6)
+Defined in: [packages/sdk/src/core/types.ts:6](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L6)
 
 #### Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="accesskey"></a> `accessKey` | `string` | [packages/sdk/src/core/types.ts:10](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L10) |
-| <a id="baseurl"></a> `baseURL` | `string` | [packages/sdk/src/core/types.ts:7](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L7) |
-| <a id="enabledetailedlogging"></a> `enableDetailedLogging?` | `boolean` | [packages/sdk/src/core/types.ts:14](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L14) |
-| <a id="maxretries"></a> `maxRetries?` | `number` | [packages/sdk/src/core/types.ts:15](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L15) |
-| <a id="maxretrydelay"></a> `maxRetryDelay?` | `number` | [packages/sdk/src/core/types.ts:17](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L17) |
-| <a id="onbeforerequest"></a> `onBeforeRequest?` | (`config`: `InternalAxiosRequestConfig`) => \| `InternalAxiosRequestConfig`\<`any`, `any`\> \| `Promise`\<`InternalAxiosRequestConfig`\<`any`, `any`\>\> | [packages/sdk/src/core/types.ts:25](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L25) |
-| <a id="onerror"></a> `onError?` | (`error`: [`BigshipError`](#bigshiperror), `context`: [`RequestContext`](#requestcontext)) => `void` \| `Promise`\<`void`\> | [packages/sdk/src/core/types.ts:23](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L23) |
-| <a id="onresponse"></a> `onResponse?` | (`response`: [`ApiResponse`](#apiresponse-6)\<`unknown`\>, `context`: [`RequestContext`](#requestcontext)) => `void` \| `Promise`\<`void`\> | [packages/sdk/src/core/types.ts:22](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L22) |
-| <a id="onretry"></a> `onRetry?` | (`attempt`: `number`, `error`: [`BigshipError`](#bigshiperror), `context`: [`RequestContext`](#requestcontext)) => `void` \| `Promise`\<`void`\> | [packages/sdk/src/core/types.ts:24](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L24) |
-| <a id="password"></a> `password` | `string` | [packages/sdk/src/core/types.ts:9](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L9) |
-| <a id="retrydelay"></a> `retryDelay?` | `number` | [packages/sdk/src/core/types.ts:16](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L16) |
-| <a id="retryonstatuscodes"></a> `retryOnStatusCodes?` | `number`[] | [packages/sdk/src/core/types.ts:18](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L18) |
-| <a id="timeout"></a> `timeout?` | `number` | [packages/sdk/src/core/types.ts:11](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L11) |
-| <a id="tokenttlms"></a> `tokenTtlMs?` | `number` | [packages/sdk/src/core/types.ts:19](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L19) |
-| <a id="username"></a> `userName` | `string` | [packages/sdk/src/core/types.ts:8](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L8) |
+| <a id="accesskey"></a> `accessKey` | `string` | [packages/sdk/src/core/types.ts:10](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L10) |
+| <a id="baseurl"></a> `baseURL` | `string` | [packages/sdk/src/core/types.ts:7](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L7) |
+| <a id="enabledetailedlogging"></a> `enableDetailedLogging?` | `boolean` | [packages/sdk/src/core/types.ts:14](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L14) |
+| <a id="maxretries"></a> `maxRetries?` | `number` | [packages/sdk/src/core/types.ts:15](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L15) |
+| <a id="maxretrydelay"></a> `maxRetryDelay?` | `number` | [packages/sdk/src/core/types.ts:17](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L17) |
+| <a id="onbeforerequest"></a> `onBeforeRequest?` | (`config`: `InternalAxiosRequestConfig`) => \| `InternalAxiosRequestConfig`\<`any`, `any`\> \| `Promise`\<`InternalAxiosRequestConfig`\<`any`, `any`\>\> | [packages/sdk/src/core/types.ts:25](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L25) |
+| <a id="onerror"></a> `onError?` | (`error`: [`BigshipError`](#bigshiperror), `context`: [`RequestContext`](#requestcontext)) => `void` \| `Promise`\<`void`\> | [packages/sdk/src/core/types.ts:23](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L23) |
+| <a id="onresponse"></a> `onResponse?` | (`response`: [`ApiResponse`](#apiresponse-6)\<`unknown`\>, `context`: [`RequestContext`](#requestcontext)) => `void` \| `Promise`\<`void`\> | [packages/sdk/src/core/types.ts:22](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L22) |
+| <a id="onretry"></a> `onRetry?` | (`attempt`: `number`, `error`: [`BigshipError`](#bigshiperror), `context`: [`RequestContext`](#requestcontext)) => `void` \| `Promise`\<`void`\> | [packages/sdk/src/core/types.ts:24](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L24) |
+| <a id="password"></a> `password` | `string` | [packages/sdk/src/core/types.ts:9](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L9) |
+| <a id="retrydelay"></a> `retryDelay?` | `number` | [packages/sdk/src/core/types.ts:16](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L16) |
+| <a id="retryonstatuscodes"></a> `retryOnStatusCodes?` | `number`[] | [packages/sdk/src/core/types.ts:18](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L18) |
+| <a id="timeout"></a> `timeout?` | `number` | [packages/sdk/src/core/types.ts:11](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L11) |
+| <a id="tokenttlms"></a> `tokenTtlMs?` | `number` | [packages/sdk/src/core/types.ts:19](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L19) |
+| <a id="username"></a> `userName` | `string` | [packages/sdk/src/core/types.ts:8](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L8) |
 
 ***
 
 ### BigshipErrorData
 
-Defined in: [packages/sdk/src/errors/BigshipError.ts:1](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L1)
+Defined in: [packages/sdk/src/errors/BigshipError.ts:1](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L1)
 
 #### Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="errors"></a> `errors?` | `Record`\<`string`, `string`[]\> | [packages/sdk/src/errors/BigshipError.ts:4](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L4) |
-| <a id="message-7"></a> `message?` | `string` | [packages/sdk/src/errors/BigshipError.ts:3](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L3) |
-| <a id="status"></a> `status?` | `string` | [packages/sdk/src/errors/BigshipError.ts:2](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L2) |
-| <a id="trace_id"></a> `trace_id?` | `string` | [packages/sdk/src/errors/BigshipError.ts:5](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/BigshipError.ts#L5) |
+| <a id="errors"></a> `errors?` | `Record`\<`string`, `string`[]\> | [packages/sdk/src/errors/BigshipError.ts:4](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L4) |
+| <a id="message-7"></a> `message?` | `string` | [packages/sdk/src/errors/BigshipError.ts:3](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L3) |
+| <a id="status"></a> `status?` | `string` | [packages/sdk/src/errors/BigshipError.ts:2](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L2) |
+| <a id="trace_id"></a> `trace_id?` | `string` | [packages/sdk/src/errors/BigshipError.ts:5](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/BigshipError.ts#L5) |
 
 ***
 
 ### LoggerAdapter
 
-Defined in: [packages/sdk/src/core/types.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L32)
+Defined in: [packages/sdk/src/core/types.ts:32](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L32)
 
 Logger interface for pluggable logging.
 Implement this interface to integrate with Winston, pino, etc.
@@ -4062,7 +4062,7 @@ Implement this interface to integrate with Winston, pino, etc.
 optional debug(message: string, data?: unknown): void;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L33)
+Defined in: [packages/sdk/src/core/types.ts:33](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L33)
 
 ###### Parameters
 
@@ -4084,7 +4084,7 @@ Defined in: [packages/sdk/src/core/types.ts:33](https://github.com/Agamya-Samuel
 optional error(message: string, data?: unknown): void;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:36](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L36)
+Defined in: [packages/sdk/src/core/types.ts:36](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L36)
 
 ###### Parameters
 
@@ -4106,7 +4106,7 @@ Defined in: [packages/sdk/src/core/types.ts:36](https://github.com/Agamya-Samuel
 optional info(message: string, data?: unknown): void;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:34](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L34)
+Defined in: [packages/sdk/src/core/types.ts:34](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L34)
 
 ###### Parameters
 
@@ -4128,7 +4128,7 @@ Defined in: [packages/sdk/src/core/types.ts:34](https://github.com/Agamya-Samuel
 optional warn(message: string, data?: unknown): void;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L35)
+Defined in: [packages/sdk/src/core/types.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L35)
 
 ###### Parameters
 
@@ -4148,7 +4148,7 @@ Defined in: [packages/sdk/src/core/types.ts:35](https://github.com/Agamya-Samuel
 
 ### RequestContext
 
-Defined in: [packages/sdk/src/core/types.ts:43](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L43)
+Defined in: [packages/sdk/src/core/types.ts:43](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L43)
 
 Request context for event hooks
 Provides information about the current request for logging and debugging
@@ -4157,18 +4157,18 @@ Provides information about the current request for logging and debugging
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="attempt"></a> `attempt?` | `number` | [packages/sdk/src/core/types.ts:47](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L47) |
-| <a id="duration"></a> `duration?` | `number` | [packages/sdk/src/core/types.ts:49](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L49) |
-| <a id="endpoint-6"></a> `endpoint` | `string` | [packages/sdk/src/core/types.ts:44](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L44) |
-| <a id="method"></a> `method` | `string` | [packages/sdk/src/core/types.ts:45](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L45) |
-| <a id="requestid-6"></a> `requestId?` | `string` | [packages/sdk/src/core/types.ts:46](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L46) |
-| <a id="starttime"></a> `startTime` | `number` | [packages/sdk/src/core/types.ts:48](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L48) |
+| <a id="attempt"></a> `attempt?` | `number` | [packages/sdk/src/core/types.ts:47](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L47) |
+| <a id="duration"></a> `duration?` | `number` | [packages/sdk/src/core/types.ts:49](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L49) |
+| <a id="endpoint-6"></a> `endpoint` | `string` | [packages/sdk/src/core/types.ts:44](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L44) |
+| <a id="method"></a> `method` | `string` | [packages/sdk/src/core/types.ts:45](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L45) |
+| <a id="requestid-6"></a> `requestId?` | `string` | [packages/sdk/src/core/types.ts:46](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L46) |
+| <a id="starttime"></a> `startTime` | `number` | [packages/sdk/src/core/types.ts:48](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L48) |
 
 ***
 
 ### RequestOptions
 
-Defined in: [packages/sdk/src/core/BigshipClient.ts:72](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L72)
+Defined in: [packages/sdk/src/core/BigshipClient.ts:72](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L72)
 
 Per-request options that can override client-level defaults.
 
@@ -4176,8 +4176,8 @@ Per-request options that can override client-level defaults.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="signal"></a> `signal?` | `AbortSignal` | AbortSignal to cancel the request | [packages/sdk/src/core/BigshipClient.ts:76](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L76) |
-| <a id="timeout-1"></a> `timeout?` | `number` | Override the default timeout (ms) for this request | [packages/sdk/src/core/BigshipClient.ts:74](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/BigshipClient.ts#L74) |
+| <a id="signal"></a> `signal?` | `AbortSignal` | AbortSignal to cancel the request | [packages/sdk/src/core/BigshipClient.ts:76](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L76) |
+| <a id="timeout-1"></a> `timeout?` | `number` | Override the default timeout (ms) for this request | [packages/sdk/src/core/BigshipClient.ts:74](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/BigshipClient.ts#L74) |
 
 ## Type Aliases
 
@@ -4187,7 +4187,7 @@ Per-request options that can override client-level defaults.
 type AddHeavyOrderRequest = z.infer<typeof AddHeavyOrderRequestSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:253](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L253)
+Defined in: [packages/sdk/src/core/types.ts:253](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L253)
 
 ***
 
@@ -4197,7 +4197,7 @@ Defined in: [packages/sdk/src/core/types.ts:253](https://github.com/Agamya-Samue
 type AddOrderResponse = z.infer<typeof AddOrderResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:528](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L528)
+Defined in: [packages/sdk/src/core/types.ts:528](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L528)
 
 ***
 
@@ -4207,7 +4207,7 @@ Defined in: [packages/sdk/src/core/types.ts:528](https://github.com/Agamya-Samue
 type AddSingleOrderRequest = z.infer<typeof AddSingleOrderRequestSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:243](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L243)
+Defined in: [packages/sdk/src/core/types.ts:243](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L243)
 
 ***
 
@@ -4217,7 +4217,7 @@ Defined in: [packages/sdk/src/core/types.ts:243](https://github.com/Agamya-Samue
 type BigshipUtilsType = typeof BigshipUtils;
 ```
 
-Defined in: [packages/sdk/src/utils/index.ts:72](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/utils/index.ts#L72)
+Defined in: [packages/sdk/src/utils/index.ts:72](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/utils/index.ts#L72)
 
 ***
 
@@ -4227,7 +4227,7 @@ Defined in: [packages/sdk/src/utils/index.ts:72](https://github.com/Agamya-Samue
 type CalculateRateResponse = z.infer<typeof CalculateRateResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:535](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L535)
+Defined in: [packages/sdk/src/core/types.ts:535](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L535)
 
 ***
 
@@ -4237,7 +4237,7 @@ Defined in: [packages/sdk/src/core/types.ts:535](https://github.com/Agamya-Samue
 type CancelResponse = z.infer<typeof CancelResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:530](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L530)
+Defined in: [packages/sdk/src/core/types.ts:530](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L530)
 
 ***
 
@@ -4247,7 +4247,7 @@ Defined in: [packages/sdk/src/core/types.ts:530](https://github.com/Agamya-Samue
 type CourierListResponse = z.infer<typeof CourierListResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:523](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L523)
+Defined in: [packages/sdk/src/core/types.ts:523](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L523)
 
 ***
 
@@ -4257,7 +4257,7 @@ Defined in: [packages/sdk/src/core/types.ts:523](https://github.com/Agamya-Samue
 type DocumentDetailB2B = z.infer<typeof DocumentDetailB2BSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:162](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L162)
+Defined in: [packages/sdk/src/core/types.ts:162](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L162)
 
 Document files for B2B orders
 
@@ -4278,7 +4278,7 @@ document_detail: {
 type DocumentDetailB2C = z.infer<typeof DocumentDetailB2CSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:147](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L147)
+Defined in: [packages/sdk/src/core/types.ts:147](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L147)
 
 Document files for B2C orders
 
@@ -4298,7 +4298,7 @@ document_detail: {
 type LoginRequest = z.infer<typeof LoginRequestSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:64](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L64)
+Defined in: [packages/sdk/src/core/types.ts:64](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L64)
 
 ***
 
@@ -4308,7 +4308,7 @@ Defined in: [packages/sdk/src/core/types.ts:64](https://github.com/Agamya-Samuel
 type LoginResponse = z.infer<typeof LoginResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:521](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L521)
+Defined in: [packages/sdk/src/core/types.ts:521](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L521)
 
 ***
 
@@ -4318,7 +4318,7 @@ Defined in: [packages/sdk/src/core/types.ts:521](https://github.com/Agamya-Samue
 type ManifestResponse = z.infer<typeof ManifestResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:529](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L529)
+Defined in: [packages/sdk/src/core/types.ts:529](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L529)
 
 ***
 
@@ -4328,7 +4328,7 @@ Defined in: [packages/sdk/src/core/types.ts:529](https://github.com/Agamya-Samue
 type PaymentCategoryResponse = z.infer<typeof PaymentCategoryResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:525](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L525)
+Defined in: [packages/sdk/src/core/types.ts:525](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L525)
 
 ***
 
@@ -4338,7 +4338,7 @@ Defined in: [packages/sdk/src/core/types.ts:525](https://github.com/Agamya-Samue
 type ProductCategory = typeof PRODUCT_CATEGORIES[number];
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:588](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L588)
+Defined in: [packages/sdk/src/core/types.ts:588](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L588)
 
 ***
 
@@ -4348,7 +4348,7 @@ Defined in: [packages/sdk/src/core/types.ts:588](https://github.com/Agamya-Samue
 type RateCalculatorRequest = z.infer<typeof RateCalculatorRequestSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:207](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L207)
+Defined in: [packages/sdk/src/core/types.ts:207](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L207)
 
 ***
 
@@ -4358,7 +4358,7 @@ Defined in: [packages/sdk/src/core/types.ts:207](https://github.com/Agamya-Samue
 type ShipmentAWBResponse = z.infer<typeof ShipmentAWBResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:533](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L533)
+Defined in: [packages/sdk/src/core/types.ts:533](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L533)
 
 ***
 
@@ -4370,7 +4370,7 @@ type ShipmentDataAnyResponse =
   | ShipmentFileResponse;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:542](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L542)
+Defined in: [packages/sdk/src/core/types.ts:542](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L542)
 
 Union type for all possible shipment data responses
 Use this when the shipment data type is unknown at compile time
@@ -4383,7 +4383,7 @@ Use this when the shipment data type is unknown at compile time
 type ShipmentDataResponse = z.infer<typeof ShipmentDataResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:532](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L532)
+Defined in: [packages/sdk/src/core/types.ts:532](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L532)
 
 ***
 
@@ -4393,7 +4393,7 @@ Defined in: [packages/sdk/src/core/types.ts:532](https://github.com/Agamya-Samue
 type ShipmentFileResponse = z.infer<typeof ShipmentFileResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:534](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L534)
+Defined in: [packages/sdk/src/core/types.ts:534](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L534)
 
 ***
 
@@ -4403,7 +4403,7 @@ Defined in: [packages/sdk/src/core/types.ts:534](https://github.com/Agamya-Samue
 type ShippingRatesResponse = z.infer<typeof ShippingRatesResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:531](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L531)
+Defined in: [packages/sdk/src/core/types.ts:531](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L531)
 
 ***
 
@@ -4413,7 +4413,7 @@ Defined in: [packages/sdk/src/core/types.ts:531](https://github.com/Agamya-Samue
 type TrackingResponse = z.infer<typeof TrackingResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:536](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L536)
+Defined in: [packages/sdk/src/core/types.ts:536](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L536)
 
 ***
 
@@ -4423,7 +4423,7 @@ Defined in: [packages/sdk/src/core/types.ts:536](https://github.com/Agamya-Samue
 type TransporterListResponse = z.infer<typeof TransporterListResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:524](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L524)
+Defined in: [packages/sdk/src/core/types.ts:524](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L524)
 
 ***
 
@@ -4433,7 +4433,7 @@ Defined in: [packages/sdk/src/core/types.ts:524](https://github.com/Agamya-Samue
 type WalletBalanceResponse = z.infer<typeof WalletBalanceResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:522](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L522)
+Defined in: [packages/sdk/src/core/types.ts:522](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L522)
 
 ***
 
@@ -4443,7 +4443,7 @@ Defined in: [packages/sdk/src/core/types.ts:522](https://github.com/Agamya-Samue
 type WarehouseAddRequest = z.infer<typeof WarehouseAddRequestSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:231](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L231)
+Defined in: [packages/sdk/src/core/types.ts:231](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L231)
 
 ***
 
@@ -4453,7 +4453,7 @@ Defined in: [packages/sdk/src/core/types.ts:231](https://github.com/Agamya-Samue
 type WarehouseAddResponse = z.infer<typeof WarehouseAddResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:526](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L526)
+Defined in: [packages/sdk/src/core/types.ts:526](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L526)
 
 ***
 
@@ -4463,7 +4463,7 @@ Defined in: [packages/sdk/src/core/types.ts:526](https://github.com/Agamya-Samue
 type WarehouseListResponse = z.infer<typeof WarehouseListResponseSchema>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:527](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L527)
+Defined in: [packages/sdk/src/core/types.ts:527](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L527)
 
 ## Variables
 
@@ -4779,7 +4779,7 @@ const AddHeavyOrderRequestSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:246](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L246)
+Defined in: [packages/sdk/src/core/types.ts:246](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L246)
 
 ***
 
@@ -4825,7 +4825,7 @@ const AdditionalChargesSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:384](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L384)
+Defined in: [packages/sdk/src/core/types.ts:384](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L384)
 
 Additional charges breakdown for shipping rates
 
@@ -4852,7 +4852,7 @@ const AddOrderResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:357](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L357)
+Defined in: [packages/sdk/src/core/types.ts:357](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L357)
 
 Response from addSingleOrder or addHeavyOrder
 
@@ -5190,7 +5190,7 @@ const AddSingleOrderRequestSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:236](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L236)
+Defined in: [packages/sdk/src/core/types.ts:236](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L236)
 
 ***
 
@@ -5266,17 +5266,17 @@ const BigshipUtils: {
 };
 ```
 
-Defined in: [packages/sdk/src/utils/index.ts:64](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/utils/index.ts#L64)
+Defined in: [packages/sdk/src/utils/index.ts:64](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/utils/index.ts#L64)
 
 #### Type Declaration
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-calculatecollectableamount"></a> `calculateCollectableAmount()` | (`paymentType`: `"Prepaid"` \| `"COD"`, `codAmount`: `number`) => `number` | [packages/sdk/src/utils/index.ts:67](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/utils/index.ts#L67) |
-| <a id="property-filetobase64datauri"></a> `fileToBase64DataURI()` | (`file`: `File`) => `Promise`\<`string`\> | [packages/sdk/src/utils/index.ts:65](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/utils/index.ts#L65) |
-| <a id="property-formatzoderrors"></a> `formatZodErrors()` | (`zodErrors`: `ZodIssue`[]) => `Record`\<`string`, `string`[]\> | [packages/sdk/src/utils/index.ts:69](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/utils/index.ts#L69) |
-| <a id="property-isvalidbase64datauri"></a> `isValidBase64DataURI()` | (`value`: `string`) => `boolean` | [packages/sdk/src/utils/index.ts:66](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/utils/index.ts#L66) |
-| <a id="property-validateorderdetail"></a> `validateOrderDetail()` | (`orderDetail`: \| \{ `box_details`: \{ `box_count`: `1`; `each_box_collectable_amount`: `number`; `each_box_dead_weight`: `number`; `each_box_height`: `number`; `each_box_invoice_amount`: `number`; `each_box_length`: `number`; `each_box_width`: `number`; `product_details`: \{ `each_product_collectable_amount?`: `number`; `each_product_invoice_amount?`: `number`; `hsn?`: `string`; `product_category`: `string`; `product_name`: `string`; `product_quantity`: `number`; `product_sub_category?`: `string`; \}[]; \}[]; `document_detail`: \{ `ewaybill_document_file?`: `string`; `invoice_document_file?`: `string`; \}; `ewaybill_number?`: `string`; `invoice_date`: `string`; `invoice_id`: `string`; `payment_type`: `"Prepaid"` \| `"COD"`; `shipment_invoice_amount`: `number`; `total_collectable_amount?`: `number`; \} \| \{ `box_details`: \{ `box_count`: `number`; `each_box_collectable_amount?`: `number`; `each_box_dead_weight`: `number`; `each_box_height`: `number`; `each_box_invoice_amount?`: `number`; `each_box_length`: `number`; `each_box_width`: `number`; `product_details`: \{ `each_product_collectable_amount?`: `number`; `each_product_invoice_amount?`: `number`; `hsn?`: `string`; `product_category`: `string`; `product_name`: `string`; `product_quantity`: `number`; `product_sub_category?`: `string`; \}[]; \}[]; `document_detail`: \{ `ewaybill_document_file?`: `string`; `invoice_document_file`: `string`; \}; `ewaybill_number?`: `string`; `invoice_date`: `string`; `invoice_id`: `string`; `payment_type`: `"Prepaid"` \| `"COD"` \| `"ToPay"`; `shipment_invoice_amount`: `number`; `total_collectable_amount?`: `number`; \}, `shipmentCategory`: `"b2c"` \| `"b2b"`) => `void` | [packages/sdk/src/utils/index.ts:68](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/utils/index.ts#L68) |
+| <a id="property-calculatecollectableamount"></a> `calculateCollectableAmount()` | (`paymentType`: `"Prepaid"` \| `"COD"`, `codAmount`: `number`) => `number` | [packages/sdk/src/utils/index.ts:67](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/utils/index.ts#L67) |
+| <a id="property-filetobase64datauri"></a> `fileToBase64DataURI()` | (`file`: `File`) => `Promise`\<`string`\> | [packages/sdk/src/utils/index.ts:65](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/utils/index.ts#L65) |
+| <a id="property-formatzoderrors"></a> `formatZodErrors()` | (`zodErrors`: `ZodIssue`[]) => `Record`\<`string`, `string`[]\> | [packages/sdk/src/utils/index.ts:69](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/utils/index.ts#L69) |
+| <a id="property-isvalidbase64datauri"></a> `isValidBase64DataURI()` | (`value`: `string`) => `boolean` | [packages/sdk/src/utils/index.ts:66](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/utils/index.ts#L66) |
+| <a id="property-validateorderdetail"></a> `validateOrderDetail()` | (`orderDetail`: \| \{ `box_details`: \{ `box_count`: `1`; `each_box_collectable_amount`: `number`; `each_box_dead_weight`: `number`; `each_box_height`: `number`; `each_box_invoice_amount`: `number`; `each_box_length`: `number`; `each_box_width`: `number`; `product_details`: \{ `each_product_collectable_amount?`: `number`; `each_product_invoice_amount?`: `number`; `hsn?`: `string`; `product_category`: `string`; `product_name`: `string`; `product_quantity`: `number`; `product_sub_category?`: `string`; \}[]; \}[]; `document_detail`: \{ `ewaybill_document_file?`: `string`; `invoice_document_file?`: `string`; \}; `ewaybill_number?`: `string`; `invoice_date`: `string`; `invoice_id`: `string`; `payment_type`: `"Prepaid"` \| `"COD"`; `shipment_invoice_amount`: `number`; `total_collectable_amount?`: `number`; \} \| \{ `box_details`: \{ `box_count`: `number`; `each_box_collectable_amount?`: `number`; `each_box_dead_weight`: `number`; `each_box_height`: `number`; `each_box_invoice_amount?`: `number`; `each_box_length`: `number`; `each_box_width`: `number`; `product_details`: \{ `each_product_collectable_amount?`: `number`; `each_product_invoice_amount?`: `number`; `hsn?`: `string`; `product_category`: `string`; `product_name`: `string`; `product_quantity`: `number`; `product_sub_category?`: `string`; \}[]; \}[]; `document_detail`: \{ `ewaybill_document_file?`: `string`; `invoice_document_file`: `string`; \}; `ewaybill_number?`: `string`; `invoice_date`: `string`; `invoice_id`: `string`; `payment_type`: `"Prepaid"` \| `"COD"` \| `"ToPay"`; `shipment_invoice_amount`: `number`; `total_collectable_amount?`: `number`; \}, `shipmentCategory`: `"b2c"` \| `"b2b"`) => `void` | [packages/sdk/src/utils/index.ts:68](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/utils/index.ts#L68) |
 
 ***
 
@@ -5353,7 +5353,7 @@ const BoxDetailB2BSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:112](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L112)
+Defined in: [packages/sdk/src/core/types.ts:112](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L112)
 
 ***
 
@@ -5430,7 +5430,7 @@ const BoxDetailB2CSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:100](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L100)
+Defined in: [packages/sdk/src/core/types.ts:100](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L100)
 
 ***
 
@@ -5600,7 +5600,7 @@ const CalculateRateResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:495](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L495)
+Defined in: [packages/sdk/src/core/types.ts:495](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L495)
 
 ***
 
@@ -5705,7 +5705,7 @@ const CalculatorRateItemSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:482](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L482)
+Defined in: [packages/sdk/src/core/types.ts:482](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L482)
 
 ***
 
@@ -5715,7 +5715,7 @@ Defined in: [packages/sdk/src/core/types.ts:482](https://github.com/Agamya-Samue
 const CancelRequestSchema: ZodArray<ZodString, "many">;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:220](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L220)
+Defined in: [packages/sdk/src/core/types.ts:220](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L220)
 
 ***
 
@@ -5762,7 +5762,7 @@ const CancelResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:361](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L361)
+Defined in: [packages/sdk/src/core/types.ts:361](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L361)
 
 ***
 
@@ -5787,7 +5787,7 @@ const ConsigneeAddressSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:72](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L72)
+Defined in: [packages/sdk/src/core/types.ts:72](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L72)
 
 ***
 
@@ -5846,7 +5846,7 @@ const ConsigneeDetailSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:79](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L79)
+Defined in: [packages/sdk/src/core/types.ts:79](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L79)
 
 ***
 
@@ -5877,7 +5877,7 @@ const CourierItemSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:277](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L277)
+Defined in: [packages/sdk/src/core/types.ts:277](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L277)
 
 ***
 
@@ -5939,7 +5939,7 @@ const CourierListResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:286](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L286)
+Defined in: [packages/sdk/src/core/types.ts:286](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L286)
 
 ***
 
@@ -5958,7 +5958,7 @@ const DocumentDetailB2BSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:130](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L130)
+Defined in: [packages/sdk/src/core/types.ts:130](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L130)
 
 ***
 
@@ -5977,7 +5977,7 @@ const DocumentDetailB2CSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:124](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L124)
+Defined in: [packages/sdk/src/core/types.ts:124](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L124)
 
 ***
 
@@ -5993,7 +5993,7 @@ const LoginDataSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:267](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L267)
+Defined in: [packages/sdk/src/core/types.ts:267](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L267)
 
 ***
 
@@ -6015,7 +6015,7 @@ const LoginRequestSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:58](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L58)
+Defined in: [packages/sdk/src/core/types.ts:58](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L58)
 
 ***
 
@@ -6052,7 +6052,7 @@ const LoginResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:271](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L271)
+Defined in: [packages/sdk/src/core/types.ts:271](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L271)
 
 ***
 
@@ -6075,7 +6075,7 @@ const ManifestHeavyRequestSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:215](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L215)
+Defined in: [packages/sdk/src/core/types.ts:215](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L215)
 
 ***
 
@@ -6100,7 +6100,7 @@ const ManifestResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:359](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L359)
+Defined in: [packages/sdk/src/core/types.ts:359](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L359)
 
 ***
 
@@ -6119,7 +6119,7 @@ const ManifestSingleRequestSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:210](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L210)
+Defined in: [packages/sdk/src/core/types.ts:210](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L210)
 
 ***
 
@@ -6272,7 +6272,7 @@ const OrderDetailB2BSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:177](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L177)
+Defined in: [packages/sdk/src/core/types.ts:177](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L177)
 
 ***
 
@@ -6425,7 +6425,7 @@ const OrderDetailB2CSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:165](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L165)
+Defined in: [packages/sdk/src/core/types.ts:165](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L165)
 
 ***
 
@@ -6444,7 +6444,7 @@ const PaymentCategoryItemSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:297](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L297)
+Defined in: [packages/sdk/src/core/types.ts:297](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L297)
 
 ***
 
@@ -6486,7 +6486,7 @@ const PaymentCategoryResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:302](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L302)
+Defined in: [packages/sdk/src/core/types.ts:302](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L302)
 
 ***
 
@@ -6529,7 +6529,7 @@ const PRODUCT_CATEGORIES: readonly [{
 }];
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:574](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L574)
+Defined in: [packages/sdk/src/core/types.ts:574](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L574)
 
 Static list of product categories supported by Bigship API.
 These categories are used in the product_category field when creating orders.
@@ -6591,7 +6591,7 @@ const ProductDetailSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:89](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L89)
+Defined in: [packages/sdk/src/core/types.ts:89](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L89)
 
 ***
 
@@ -6619,7 +6619,7 @@ const RateCalculatorBoxDetailSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:189](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L189)
+Defined in: [packages/sdk/src/core/types.ts:189](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L189)
 
 ***
 
@@ -6683,17 +6683,17 @@ const RateCalculatorRequestSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:197](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L197)
+Defined in: [packages/sdk/src/core/types.ts:197](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L197)
 
 ***
 
 ### SDK\_VERSION
 
 ```ts
-const SDK_VERSION: string = '2.1.2';
+const SDK_VERSION: string = '2.2.0';
 ```
 
-Defined in: [packages/sdk/src/version.ts:3](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/version.ts#L3)
+Defined in: [packages/sdk/src/version.ts:3](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/version.ts#L3)
 
 ***
 
@@ -6718,7 +6718,7 @@ const ShipmentAWBDataSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:454](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L454)
+Defined in: [packages/sdk/src/core/types.ts:454](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L454)
 
 ***
 
@@ -6770,7 +6770,7 @@ const ShipmentAWBResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:474](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L474)
+Defined in: [packages/sdk/src/core/types.ts:474](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L474)
 
 ***
 
@@ -6795,7 +6795,7 @@ const ShipmentDataDataSchema: ZodObject<{
 }> = ShipmentAWBDataSchema;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:478](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L478)
+Defined in: [packages/sdk/src/core/types.ts:478](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L478)
 
 ***
 
@@ -6847,7 +6847,7 @@ const ShipmentDataResponseSchema: ZodObject<{
 }> = ShipmentAWBResponseSchema;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:479](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L479)
+Defined in: [packages/sdk/src/core/types.ts:479](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L479)
 
 ***
 
@@ -6872,7 +6872,7 @@ const ShipmentFileDataSchema: ZodUnion<[ZodString, ZodObject<{
 }>, ZodNull]>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:462](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L462)
+Defined in: [packages/sdk/src/core/types.ts:462](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L462)
 
 ***
 
@@ -6926,7 +6926,7 @@ const ShipmentFileResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:475](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L475)
+Defined in: [packages/sdk/src/core/types.ts:475](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L475)
 
 ***
 
@@ -7040,7 +7040,7 @@ const ShippingRateItemSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:433](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L433)
+Defined in: [packages/sdk/src/core/types.ts:433](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L433)
 
 Shipping rate quote from a courier
 
@@ -7247,7 +7247,7 @@ const ShippingRatesResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:449](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L449)
+Defined in: [packages/sdk/src/core/types.ts:449](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L449)
 
 ***
 
@@ -7331,7 +7331,7 @@ const TrackingDataSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:505](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L505)
+Defined in: [packages/sdk/src/core/types.ts:505](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L505)
 
 ***
 
@@ -7356,7 +7356,7 @@ const TrackingEventSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:498](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L498)
+Defined in: [packages/sdk/src/core/types.ts:498](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L498)
 
 ***
 
@@ -7489,7 +7489,7 @@ const TrackingResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:518](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L518)
+Defined in: [packages/sdk/src/core/types.ts:518](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L518)
 
 ***
 
@@ -7511,7 +7511,7 @@ const TransporterItemSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:288](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L288)
+Defined in: [packages/sdk/src/core/types.ts:288](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L288)
 
 ***
 
@@ -7558,7 +7558,7 @@ const TransporterListResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:294](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L294)
+Defined in: [packages/sdk/src/core/types.ts:294](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L294)
 
 ***
 
@@ -7583,7 +7583,7 @@ const WalletBalanceResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:274](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L274)
+Defined in: [packages/sdk/src/core/types.ts:274](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L274)
 
 ***
 
@@ -7611,7 +7611,7 @@ const WarehouseAddRequestSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:223](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L223)
+Defined in: [packages/sdk/src/core/types.ts:223](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L223)
 
 ***
 
@@ -7708,7 +7708,7 @@ const WarehouseAddResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:321](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L321)
+Defined in: [packages/sdk/src/core/types.ts:321](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L321)
 
 ***
 
@@ -7727,7 +7727,7 @@ const WarehouseDetailSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:67](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L67)
+Defined in: [packages/sdk/src/core/types.ts:67](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L67)
 
 ***
 
@@ -7816,7 +7816,7 @@ const WarehouseListDataSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:323](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L323)
+Defined in: [packages/sdk/src/core/types.ts:323](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L323)
 
 ***
 
@@ -7868,7 +7868,7 @@ const WarehouseListItemSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:305](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L305)
+Defined in: [packages/sdk/src/core/types.ts:305](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L305)
 
 ***
 
@@ -8008,7 +8008,7 @@ const WarehouseListResponseSchema: ZodObject<{
 }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:328](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L328)
+Defined in: [packages/sdk/src/core/types.ts:328](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L328)
 
 ## Functions
 
@@ -8023,7 +8023,7 @@ function ApiResponseSchema<T>(dataSchema: T): ZodObject<{
 }, "strip", ZodTypeAny, { [k in "message" | "success" | "responseCode" | "data"]: addQuestionMarks<baseObjectOutputType<{ data: ZodNullable<T>; message: ZodString; responseCode: ZodNumber; success: ZodBoolean }>, any>[k] }, { [k in "message" | "success" | "responseCode" | "data"]: baseObjectInputType<{ data: ZodNullable<T>; message: ZodString; responseCode: ZodNumber; success: ZodBoolean }>[k] }>;
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:258](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L258)
+Defined in: [packages/sdk/src/core/types.ts:258](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L258)
 
 #### Type Parameters
 
@@ -8054,7 +8054,7 @@ Defined in: [packages/sdk/src/core/types.ts:258](https://github.com/Agamya-Samue
 function calculateCollectableAmount(paymentType: "Prepaid" | "COD", codAmount: number): number;
 ```
 
-Defined in: [packages/sdk/src/utils/index.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/utils/index.ts#L35)
+Defined in: [packages/sdk/src/utils/index.ts:35](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/utils/index.ts#L35)
 
 #### Parameters
 
@@ -8078,7 +8078,7 @@ Defined in: [packages/sdk/src/utils/index.ts:35](https://github.com/Agamya-Samue
 function fileToBase64DataURI(file: File): Promise<string>;
 ```
 
-Defined in: [packages/sdk/src/utils/index.ts:10](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/utils/index.ts#L10)
+Defined in: [packages/sdk/src/utils/index.ts:10](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/utils/index.ts#L10)
 
 #### Parameters
 
@@ -8098,7 +8098,7 @@ Defined in: [packages/sdk/src/utils/index.ts:10](https://github.com/Agamya-Samue
 function formatZodErrors(zodErrors: ZodIssue[]): Record<string, string[]>;
 ```
 
-Defined in: [packages/sdk/src/utils/index.ts:83](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/utils/index.ts#L83)
+Defined in: [packages/sdk/src/utils/index.ts:83](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/utils/index.ts#L83)
 
 Helper function to format Zod errors into a readable format
 
@@ -8127,7 +8127,7 @@ const errors = formatZodErrors(zodError.issues);
 function isBigshipApiError(error: unknown): error is BigshipApiError;
 ```
 
-Defined in: [packages/sdk/src/errors/index.ts:199](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L199)
+Defined in: [packages/sdk/src/errors/index.ts:199](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L199)
 
 #### Parameters
 
@@ -8147,7 +8147,7 @@ Defined in: [packages/sdk/src/errors/index.ts:199](https://github.com/Agamya-Sam
 function isBigshipAuthError(error: unknown): error is BigshipAuthError;
 ```
 
-Defined in: [packages/sdk/src/errors/index.ts:191](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L191)
+Defined in: [packages/sdk/src/errors/index.ts:191](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L191)
 
 #### Parameters
 
@@ -8167,7 +8167,7 @@ Defined in: [packages/sdk/src/errors/index.ts:191](https://github.com/Agamya-Sam
 function isBigshipDuplicateInvoiceError(error: unknown): error is BigshipDuplicateInvoiceError;
 ```
 
-Defined in: [packages/sdk/src/errors/index.ts:183](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L183)
+Defined in: [packages/sdk/src/errors/index.ts:183](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L183)
 
 #### Parameters
 
@@ -8187,7 +8187,7 @@ Defined in: [packages/sdk/src/errors/index.ts:183](https://github.com/Agamya-Sam
 function isBigshipNetworkError(error: unknown): error is BigshipNetworkError;
 ```
 
-Defined in: [packages/sdk/src/errors/index.ts:195](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L195)
+Defined in: [packages/sdk/src/errors/index.ts:195](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L195)
 
 #### Parameters
 
@@ -8207,7 +8207,7 @@ Defined in: [packages/sdk/src/errors/index.ts:195](https://github.com/Agamya-Sam
 function isBigshipValidationError(error: unknown): error is BigshipValidationError;
 ```
 
-Defined in: [packages/sdk/src/errors/index.ts:187](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/errors/index.ts#L187)
+Defined in: [packages/sdk/src/errors/index.ts:187](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/errors/index.ts#L187)
 
 #### Parameters
 
@@ -8227,7 +8227,7 @@ Defined in: [packages/sdk/src/errors/index.ts:187](https://github.com/Agamya-Sam
 function isFailedResponse<T>(response: ApiResponse<T>): response is ApiResponse<T> & { data: null; success: false };
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:637](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L637)
+Defined in: [packages/sdk/src/core/types.ts:637](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L637)
 
 Type guard to check if an API response failed
 Narrows the type to ensure data is null.
@@ -8269,7 +8269,7 @@ if (isFailedResponse(response)) {
 function isSuccessResponse<T>(response: ApiResponse<T>): response is ApiResponse<T> & { data: T; success: true };
 ```
 
-Defined in: [packages/sdk/src/core/types.ts:617](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/core/types.ts#L617)
+Defined in: [packages/sdk/src/core/types.ts:617](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/core/types.ts#L617)
 
 Type guard to check if an API response is successful
 Narrows the type to ensure data is non-null
@@ -8307,7 +8307,7 @@ if (isSuccessResponse(response)) {
 function isValidBase64DataURI(value: string): boolean;
 ```
 
-Defined in: [packages/sdk/src/utils/index.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/utils/index.ts#L31)
+Defined in: [packages/sdk/src/utils/index.ts:31](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/utils/index.ts#L31)
 
 #### Parameters
 
@@ -8387,7 +8387,7 @@ function validateOrderDetail(orderDetail:
 }, shipmentCategory: "b2c" | "b2b"): void;
 ```
 
-Defined in: [packages/sdk/src/utils/index.ts:45](https://github.com/Agamya-Samuel/bigship-sdk/blob/fce8de00757f50f6ff50932effe45f02efc745a9/packages/sdk/src/utils/index.ts#L45)
+Defined in: [packages/sdk/src/utils/index.ts:45](https://github.com/Agamya-Samuel/bigship-sdk/blob/9e5ca090f471a8053f9c955ed8688654fc227e6b/packages/sdk/src/utils/index.ts#L45)
 
 #### Parameters
 
