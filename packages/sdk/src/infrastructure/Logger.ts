@@ -16,6 +16,8 @@ export interface LoggerAdapter {
 /**
  * Default console logger with sanitization.
  *
+ * @internal
+ *
  * @example
  * ```ts
  * // Default console logging

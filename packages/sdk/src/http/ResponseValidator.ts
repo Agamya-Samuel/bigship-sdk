@@ -13,6 +13,8 @@ import {
 /**
  * Response validation utilities
  * Validates API responses and throws appropriate errors
+ *
+ * @internal
  */
 export class ResponseValidator {
   /**

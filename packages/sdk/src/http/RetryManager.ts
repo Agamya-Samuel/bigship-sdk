@@ -6,6 +6,8 @@ import { EventDispatcher } from '../infrastructure/EventDispatcher';
  * Retry manager with configurable retry logic
  * Handles retry attempts with exponential backoff and jitter
  *
+ * @internal
+ *
  * @example
  * ```ts
  * const retryManager = new RetryManager(config, eventDispatcher);

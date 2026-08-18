@@ -7,6 +7,9 @@ type ResponseHook = (response: ApiResponse<unknown>, context: RequestContext) =>
 type ErrorHook = (error: BigshipError, context: RequestContext) => void | Promise<void>;
 type RetryHook = (attempt: number, error: BigshipError, context: RequestContext) => void | Promise<void>;
 
+/**
+ * @internal
+ */
 export class EventDispatcher {
   private hooks: {
     onResponse?: ResponseHook;
