@@ -17,13 +17,13 @@
       "types": "./dist/errors/index.d.ts",
       "default": "./dist/errors/index.js"
     },
-    "./auth": {
-      "types": "./dist/auth/index.d.ts",
-      "default": "./dist/auth/index.js"
-    },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
+    },
+    "./workflow": {
+      "types": "./dist/workflow/index.d.ts",
+      "default": "./dist/workflow/index.js"
     }
   },
   "files": [
