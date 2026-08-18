@@ -2,7 +2,7 @@
  * 01 — Setup & Configuration
  *
  * Every way to initialize BigshipClient and every config option.
- * Run: npx tsx examples/01-setup-and-config.ts
+ * Run: npx tsx examples/node/setup-and-config.ts
  */
 
 import {

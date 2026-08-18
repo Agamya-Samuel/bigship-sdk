@@ -4,7 +4,7 @@
  * Hook into the SDK lifecycle for logging, metrics, and custom behavior.
  * Hooks: onBeforeRequest, onResponse, onError, onRetry
  *
- * Run: npx tsx examples/07-hooks-and-monitoring.ts
+ * Run: npx tsx examples/node/hooks-and-monitoring.ts
  */
 
 import {

@@ -4,7 +4,7 @@
  * Side-by-side comparison of the 4 ways to ship an order.
  * Shows when to use each approach.
  *
- * Run: npx tsx examples/10-all-workflows.ts
+ * Run: npx tsx examples/workflows/all-workflows.ts
  */
 
 import {

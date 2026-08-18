@@ -4,7 +4,7 @@
  * Add, list, and manage warehouses (pickup/return locations).
  * Warehouse IDs are used in order creation as pickup_location_id.
  *
- * Run: npx tsx examples/05-warehouse-management.ts
+ * Run: npx tsx examples/node/warehouse-management.ts
  */
 
 import { BigshipClient, isSuccessResponse } from '@agamya/bigship-sdk';

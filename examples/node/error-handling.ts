@@ -3,7 +3,7 @@
  *
  * Every error class, every type guard, every helper method.
  *
- * Run: npx tsx examples/06-error-handling.ts
+ * Run: npx tsx examples/node/error-handling.ts
  */
 
 import {

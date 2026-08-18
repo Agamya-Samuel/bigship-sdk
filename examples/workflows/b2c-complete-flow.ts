@@ -4,7 +4,7 @@
  * Full lifecycle: check balance → get couriers → calculate rates →
  * create order → manifest → get AWB → get label → track → cancel
  *
- * Run: npx tsx examples/02-b2c-complete-flow.ts
+ * Run: npx tsx examples/workflows/b2c-complete-flow.ts
  */
 
 import {

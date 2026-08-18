@@ -8,7 +8,7 @@
  * - Uses addHeavyOrder / manifestHeavy
  * - Track by LRN (Lorry Receipt Number) instead of AWB
  *
- * Run: npx tsx examples/03-b2b-complete-flow.ts
+ * Run: npx tsx examples/workflows/b2b-complete-flow.ts
  */
 
 import {

@@ -3,7 +3,7 @@
  *
  * Compare shipping rates across couriers before creating an order.
  *
- * Run: npx tsx examples/04-rate-calculation.ts
+ * Run: npx tsx examples/node/rate-calculation.ts
  */
 
 import { BigshipClient, isSuccessResponse } from '@agamya/bigship-sdk';
