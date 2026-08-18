@@ -1,22 +1,39 @@
 # Changelog
 
-## [2.2.0](https://github.com/agamya-samuel/bigship-sdk/compare/v2.1.1...v2.2.0) (2026-08-17)
+## [2.2.0](https://github.com/agamya-samuel/bigship-sdk/compare/v2.1.1...v2.2.0) (2026-08-18)
 
-### Changes
+### ⚠ Breaking Changes
 
-- **exports**: removed `./http` and `./infrastructure` subpath exports. All symbols remain accessible via the root entry point (`@agamya/bigship-sdk`). This only affects deep import paths like `@agamya/bigship-sdk/http`.
-- **api**: added `@internal` JSDoc tags to `EventDispatcher`, `Logger`, `RetryManager`, and `ResponseValidator` to clarify API stability boundaries
+- **Removed internal symbols from root entry point.** `EventDispatcher`, `Logger`, `ResponseValidator`, `RetryManager`, and `TokenManager` are no longer exported from `@agamya/bigship-sdk`. These were always `@internal` and not intended for direct consumer use.
+- **Removed `./auth` subpath export.** `TokenManager` is internal — `BigshipClient` manages authentication automatically.
+- **Removed `BigshipError` re-export from `./core`.** `BigshipError` and `BigshipErrorData` are now only available from `@agamya/bigship-sdk/errors` (or the root entry point).
+
+### ✨ Additions
+
+- **Added `./workflow` subpath export.** `ShipmentWorkflow` is now importable as `import { ShipmentWorkflow } from '@agamya/bigship-sdk/workflow'`.
+
+### 🔧 Improvements
+
+- **Moved `LoggerAdapter` type to `core/types.ts`.** It's a consumer-facing configuration type and belongs with `BigshipConfig`, not next to the `@internal` `Logger` class.
+- **Moved `formatZodErrors` to `./utils`.** Pure utility function now accessible via `@agamya/bigship-sdk/utils`.
 
 ### Migration
 
-If you were importing from deep paths:
+If you were importing internal classes from the root:
 
 ```diff
-- import { RetryManager } from '@agamya/bigship-sdk/http';
-- import { EventDispatcher } from '@agamya/bigship-sdk/infrastructure';
-+ import { RetryManager } from '@agamya/bigship-sdk';
-+ import { EventDispatcher } from '@agamya/bigship-sdk';
+- import { RetryManager, ResponseValidator, EventDispatcher, Logger, TokenManager } from '@agamya/bigship-sdk';
 ```
+
+These classes were never part of the public API. If you depended on them, pin to `2.1.x` and open an issue describing your use case.
+
+If you were importing `BigshipError` from `./core`:
+
+```diff
+- import { BigshipError } from '@agamya/bigship-sdk/core';
++ import { BigshipError } from '@agamya/bigship-sdk/errors';
+```
+
 
 ## [2.1.1](https://github.com/agamya-samuel/bigship-sdk/compare/v2.1.0...v2.1.1) (2026-08-07)
 
@@ -142,13 +159,9 @@ const client = new BigshipClient({
 
 #### 6. `BigshipError` moved to `errors/BigshipError.ts`
 
-`BigshipError` and `BigshipErrorData` are now defined in `src/errors/BigshipError.ts` instead of `src/core/types.ts`. They are re-exported from `types.ts` for backward compatibility, but new code should import from `@agamya/bigship-sdk/errors`:
+`BigshipError` and `BigshipErrorData` are now defined in `src/errors/BigshipError.ts` instead of `src/core/types.ts`. Import from `@agamya/bigship-sdk/errors`:
 
 ```ts
-// Still works (re-exported):
-import { BigshipError } from '@agamya/bigship-sdk/core';
-
-// Preferred:
 import { BigshipError } from '@agamya/bigship-sdk/errors';
 ```
 
@@ -209,7 +222,7 @@ import { BigshipError } from '@agamya/bigship-sdk/errors';
 
 - **`getShipmentDetails`**: Retrieve AWB, label, and manifest data in parallel.
 
-- **Sub-path exports**: Tree-shakeable imports for `./core`, `./errors`, `./http`, `./infrastructure`, `./auth`, `./utils`.
+- **Sub-path exports**: Tree-shakeable imports for `./core`, `./errors`, `./utils`.
 
 - **`SDK_VERSION`**: Exported version constant, auto-synced from `package.json` via `npm run sync-version`.
 
