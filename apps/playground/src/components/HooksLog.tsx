@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { HookEvent } from '@/lib/execute-stream';
+import { usePrivacyGuard } from '@/components/PrivacyGuard';
+import { maskText } from '@/lib/privacy';
 import { Activity } from 'lucide-react';
 
 interface HooksLogProps {
@@ -18,6 +20,8 @@ const typeColors: Record<string, string> = {
 };
 
 export function HooksLog({ hooks }: HooksLogProps) {
+  const { privacyEnabled } = usePrivacyGuard();
+
   if (hooks.length === 0) {
     return (
       <Card>
@@ -50,14 +54,14 @@ export function HooksLog({ hooks }: HooksLogProps) {
                   {hook.endpoint && (
                     <p className="font-mono text-xs truncate">
                       {hook.method && <span className="text-muted-foreground">{hook.method} </span>}
-                      {hook.endpoint}
+                      {maskText(hook.endpoint, privacyEnabled)}
                     </p>
                   )}
                   {hook.duration !== undefined && (
                     <p className="text-xs text-muted-foreground">{hook.duration}ms</p>
                   )}
                   {hook.error && (
-                    <p className="text-xs text-destructive">{hook.error}</p>
+                    <p className="text-xs text-destructive">{maskText(hook.error, privacyEnabled)}</p>
                   )}
                   {hook.attempt !== undefined && (
                     <p className="text-xs text-muted-foreground">Attempt {hook.attempt}</p>

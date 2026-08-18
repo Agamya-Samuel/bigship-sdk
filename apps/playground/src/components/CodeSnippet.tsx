@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Check, Copy } from 'lucide-react';
+import { usePrivacyGuard } from '@/components/PrivacyGuard';
+import { maskText } from '@/lib/privacy';
 
 interface CodeSnippetProps {
   code: string;
@@ -11,8 +13,12 @@ interface CodeSnippetProps {
 
 export function CodeSnippet({ code, language = 'typescript' }: CodeSnippetProps) {
   const [copied, setCopied] = useState(false);
+  const { privacyEnabled } = usePrivacyGuard();
+
+  const displayCode = maskText(code, privacyEnabled);
 
   const handleCopy = async () => {
+    // Always copy the original code, not the masked version
     await navigator.clipboard.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -28,7 +34,7 @@ export function CodeSnippet({ code, language = 'typescript' }: CodeSnippetProps)
         </Button>
       </div>
       <pre className="overflow-x-auto p-4 text-sm leading-relaxed">
-        <code>{code}</code>
+        <code>{displayCode}</code>
       </pre>
     </div>
   );

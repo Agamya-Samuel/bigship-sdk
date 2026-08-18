@@ -2,15 +2,20 @@
 
 import { useState } from 'react';
 import { usePlayground, type BigshipCredentials } from '@/components/PlaygroundProvider';
+import { usePrivacyGuard } from '@/components/PrivacyGuard';
+import { PrivacyToggle } from '@/components/PrivacyToggle';
+import { maskCredential } from '@/lib/privacy';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 import { Loader2, Lock, LogOut } from 'lucide-react';
 
 export function CredentialGate({ children }: { children: React.ReactNode }) {
   const { credentials, setCredentials, clearCredentials, hydrated } = usePlayground();
+  const { privacyEnabled } = usePrivacyGuard();
 
   // During SSR and before useEffect hydrates sessionStorage, both server and
   // client render the same skeleton — no hydration mismatch.
@@ -28,13 +33,18 @@ export function CredentialGate({ children }: { children: React.ReactNode }) {
         <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Lock className="h-3.5 w-3.5" />
-            <span className="truncate max-w-[200px]">{credentials.userName}</span>
+            <span className={cn('truncate max-w-[200px]', privacyEnabled && 'blur-sm select-none')}>
+              {maskCredential(credentials.userName, privacyEnabled)}
+            </span>
             <span className="text-xs">· {credentials.baseURL}</span>
           </div>
-          <Button variant="ghost" size="sm" onClick={clearCredentials} className="h-7 text-xs">
-            <LogOut className="h-3 w-3 mr-1" />
-            Disconnect
-          </Button>
+          <div className="flex items-center gap-1">
+            <PrivacyToggle />
+            <Button variant="ghost" size="sm" onClick={clearCredentials} className="h-7 text-xs">
+              <LogOut className="h-3 w-3 mr-1" />
+              Disconnect
+            </Button>
+          </div>
         </div>
         {children}
       </div>

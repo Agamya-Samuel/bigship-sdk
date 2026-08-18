@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { usePrivacyGuard } from '@/components/PrivacyGuard';
+import { maskJson } from '@/lib/privacy';
 
 interface ResponseViewerProps {
   data: unknown;
@@ -13,9 +15,11 @@ interface ResponseViewerProps {
 
 export function ResponseViewer({ data, success, label }: ResponseViewerProps) {
   const [expanded, setExpanded] = useState(true);
+  const { privacyEnabled } = usePrivacyGuard();
 
-  const json = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
-  const preview = typeof data === 'string' ? data : JSON.stringify(data);
+  const maskedData = privacyEnabled ? maskJson(data, true) : data;
+  const json = typeof maskedData === 'string' ? maskedData : JSON.stringify(maskedData, null, 2);
+  const preview = typeof maskedData === 'string' ? maskedData : JSON.stringify(maskedData);
 
   return (
     <div className="rounded-lg border">
