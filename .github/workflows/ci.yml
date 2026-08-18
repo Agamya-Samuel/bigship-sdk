@@ -60,4 +60,28 @@ jobs:
         run: npm run build -w packages/sdk
 
       - name: Build Playground
-        run: npm run build -w packages/playground
+        run: npm run build -w apps/playground
+
+  build-docs:
+    name: Docs — Build
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build SDK (TypeDoc dependency)
+        run: npm run build -w packages/sdk
+
+      - name: Generate API Reference
+        run: npm run docs:generate
+
+      - name: Build Docs Site
+        run: npm run build -w apps/docs
