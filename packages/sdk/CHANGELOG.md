@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.2.0](https://github.com/agamya-samuel/bigship-sdk/compare/v2.1.1...v2.2.0) (2026-08-17)
+
+### Changes
+
+- **exports**: removed `./http` and `./infrastructure` subpath exports. All symbols remain accessible via the root entry point (`@agamya/bigship-sdk`). This only affects deep import paths like `@agamya/bigship-sdk/http`.
+- **api**: added `@internal` JSDoc tags to `EventDispatcher`, `Logger`, `RetryManager`, and `ResponseValidator` to clarify API stability boundaries
+
+### Migration
+
+If you were importing from deep paths:
+
+```diff
+- import { RetryManager } from '@agamya/bigship-sdk/http';
+- import { EventDispatcher } from '@agamya/bigship-sdk/infrastructure';
++ import { RetryManager } from '@agamya/bigship-sdk';
++ import { EventDispatcher } from '@agamya/bigship-sdk';
+```
+
 ## [2.1.1](https://github.com/agamya-samuel/bigship-sdk/compare/v2.1.0...v2.1.1) (2026-08-07)
 
 ### Bug Fixes

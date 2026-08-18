@@ -30,17 +30,17 @@ npm install @agamya/bigship-sdk
 
 | Document | Description |
 |----------|-------------|
-| [**Complete Guide**](./docs/guide.md) | Architecture, step-by-step B2C/B2B walkthroughs, error handling, configuration, utilities, migration |
+| [**Complete Guide**](https://bigship-sdk.agamya.dev) | Architecture, step-by-step B2C/B2B walkthroughs, error handling, configuration, utilities, migration |
 | [**Examples**](./examples/) | 10 runnable code examples covering every SDK feature |
 | [**CHANGELOG**](./CHANGELOG.md) | Breaking changes, new features, migration checklist |
 
 ### Quick Links
 
-- **Quick Start** → [docs/guide.md#quick-start](./docs/guide.md)
-- **B2C Flow** → [examples/02-b2c-complete-flow.ts](./examples/02-b2c-complete-flow.ts)
-- **B2B Flow** → [examples/03-b2b-complete-flow.ts](./examples/03-b2b-complete-flow.ts)
-- **Error Handling** → [examples/06-error-handling.ts](./examples/06-error-handling.ts)
-- **Next.js Integration** → [examples/08-nextjs-integration.ts](./examples/08-nextjs-integration.ts)
+- **Quick Start** → [Getting Started](https://bigship-sdk.agamya.dev/getting-started/introduction)
+- **B2C Flow** → [examples/workflows/b2c-complete-flow.ts](https://github.com/Agamya-Samuel/bigship-sdk/tree/main/examples/workflows/b2c-complete-flow.ts)
+- **B2B Flow** → [examples/workflows/b2b-complete-flow.ts](https://github.com/Agamya-Samuel/bigship-sdk/tree/main/examples/workflows/b2b-complete-flow.ts)
+- **Error Handling** → [examples/node/error-handling.ts](https://github.com/Agamya-Samuel/bigship-sdk/tree/main/examples/node/error-handling.ts)
+- **Next.js Integration** → [examples/frameworks/nextjs-integration.ts](https://github.com/Agamya-Samuel/bigship-sdk/tree/main/examples/frameworks/nextjs-integration.ts)
 - **Migration from v1** → [CHANGELOG.md](./CHANGELOG.md)
 
 ## API Reference
@@ -70,16 +70,16 @@ npm install @agamya/bigship-sdk
 
 | File | Description |
 |------|-------------|
-| `01-setup-and-config.ts` | Client initialization, all config options, AbortController, custom logger |
-| `02-b2c-complete-flow.ts` | Full B2C lifecycle (10 steps with inline comments) |
-| `03-b2b-complete-flow.ts` | B2B heavy order: ewaybill, multi-box, LRN tracking |
-| `04-rate-calculation.ts` | Prepaid, COD, B2B rate comparison |
-| `05-warehouse-management.ts` | Warehouse CRUD with pagination |
-| `06-error-handling.ts` | All 5 error classes, type guards, helper methods |
-| `07-hooks-and-monitoring.ts` | Event hooks, metrics collection, custom LoggerAdapter |
-| `08-nextjs-integration.ts` | Next.js App Router (Server Actions + Route Handlers) |
-| `09-browser-file-upload.ts` | Browser file upload with base64 conversion |
-| `10-all-workflows.ts` | Side-by-side: manual vs helpers vs workflow builder |
+| `setup-and-config.ts` | Client initialization, all config options, AbortController, custom logger |
+| `b2c-complete-flow.ts` | Full B2C lifecycle (10 steps with inline comments) |
+| `b2b-complete-flow.ts` | B2B heavy order: ewaybill, multi-box, LRN tracking |
+| `rate-calculation.ts` | Prepaid, COD, B2B rate comparison |
+| `warehouse-management.ts` | Warehouse CRUD with pagination |
+| `error-handling.ts` | All 5 error classes, type guards, helper methods |
+| `hooks-and-monitoring.ts` | Event hooks, metrics collection, custom LoggerAdapter |
+| `nextjs-integration.ts` | Next.js App Router (Server Actions + Route Handlers) |
+| `browser-file-upload.ts` | Browser file upload with base64 conversion |
+| `all-workflows.ts` | Side-by-side: manual vs helpers vs workflow builder |
 
 ## License
 

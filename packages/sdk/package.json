@@ -17,14 +17,6 @@
       "types": "./dist/errors/index.d.ts",
       "default": "./dist/errors/index.js"
     },
-    "./http": {
-      "types": "./dist/http/index.d.ts",
-      "default": "./dist/http/index.js"
-    },
-    "./infrastructure": {
-      "types": "./dist/infrastructure/index.d.ts",
-      "default": "./dist/infrastructure/index.js"
-    },
     "./auth": {
       "types": "./dist/auth/index.d.ts",
       "default": "./dist/auth/index.js"
