@@ -1,0 +1,44 @@
+---
+title: Cancellation
+description: Cancel one or more shipments by AWB number
+---
+
+Cancel shipments using the `cancelShipments` method. Pass an array of AWB numbers to cancel one or more shipments at once.
+
+## Imports
+
+```typescript
+import {
+  BigshipClient,
+  isSuccessResponse,
+} from '@agamya/bigship-sdk';
+```
+
+## Cancel Shipments
+
+```typescript
+const result = await client.cancelShipments(['13090318586270']);
+if (isSuccessResponse(result)) {
+  console.log('Shipment cancelled');
+}
+```
+
+### Cancel Multiple Shipments
+
+```typescript
+const result = await client.cancelShipments([
+  '13090318586270',
+  '13090318586271',
+  '13090318586272',
+]);
+```
+
+## Method Signature
+
+```typescript
+cancelShipments(awbNumbers: string[]): Promise<ApiResponse<null>>
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `awbNumbers` | `string[]` | Array of AWB numbers to cancel |

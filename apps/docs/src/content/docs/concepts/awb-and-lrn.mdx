@@ -1,0 +1,53 @@
+---
+title: AWB and LRN
+description: Understanding Air Waybill (AWB) and Lorry Receipt Number (LRN) tracking identifiers in the Bigship SDK
+---
+
+Bigship uses two types of tracking identifiers depending on the shipment category: **AWB** for B2C and **LRN** for B2B.
+
+## AWB (Air Waybill)
+
+An AWB is the tracking number assigned to **B2C shipments** after manifestation. It uniquely identifies a parcel in the courier's network and is used for tracking and label generation.
+
+```typescript
+const manifest = await client.manifestSingle({ order_id: 'ORD-123' });
+const awb = await client.getAWB({ order_id: 'ORD-123' });
+
+// Track by AWB
+const tracking = await client.trackShipment(awb.data, 'awb');
+```
+
+## LRN (Lorry Receipt Number)
+
+An LRN is the tracking number assigned to **B2B shipments** after manifestation. It serves the same purpose as an AWB but for heavy/bulk shipments transported by road.
+
+```typescript
+const manifest = await client.manifestHeavy({ order_id: 'ORD-456' });
+
+// Track by LRN
+const tracking = await client.trackShipment('LRN-789', 'lrn');
+```
+
+## Comparison
+
+| Aspect | AWB | LRN |
+|--------|-----|-----|
+| **Shipment type** | B2C | B2B |
+| **Assigned by** | `manifestSingle` | `manifestHeavy` |
+| **Retrieve with** | `getAWB` | `getShipmentData` |
+| **Track with** | `trackShipment(id, 'awb')` | `trackShipment(id, 'lrn')` |
+| **Transport mode** | Air / surface (last-mile) | Road (heavy freight) |
+
+## Tracking
+
+The `trackShipment` method accepts the identifier type as its second argument:
+
+```typescript
+// B2C tracking
+const b2cStatus = await client.trackShipment('1234567890', 'awb');
+
+// B2B tracking
+const b2bStatus = await client.trackShipment('LRN-789', 'lrn');
+```
+
+Passing the wrong type will result in a tracking error — always match the identifier to the shipment category.

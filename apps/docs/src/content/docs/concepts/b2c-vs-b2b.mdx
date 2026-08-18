@@ -1,0 +1,68 @@
+---
+title: B2C vs B2B
+description: Understanding the differences between B2C and B2B shipment types in the Bigship SDK
+---
+
+Bigship classifies shipments into two categories: **B2C** (Business-to-Consumer) and **B2B** (Business-to-Business). They use different API methods, validation rules, and tracking identifiers.
+
+## Key Differences
+
+| Aspect | B2C | B2B |
+|--------|-----|-----|
+| **Order method** | `addSingleOrder` | `addHeavyOrder` |
+| **Manifest method** | `manifestSingle` | `manifestHeavy` |
+| **Shipment category** | `shipment_category: 'b2c'` | `shipment_category: 'b2b'` |
+| **Box count** | Must be `1` | Can be `> 1` |
+| **Tracking identifier** | AWB (Air Waybill) | LRN (Lorry Receipt Number) |
+| **E-Waybill** | Not required | Required (`ewaybill_number` + `ewaybill_document_file`) |
+
+## B2C Shipments
+
+B2C shipments are standard last-mile deliveries to individual consumers. They are simpler — a single box per order, no e-waybill, and tracking via AWB.
+
+```typescript
+const order = await client.addSingleOrder({
+  shipment_category: 'b2c',
+  consignee_name: 'John Doe',
+  consignee_address: '123 Main St',
+  consignee_city: 'Mumbai',
+  consignee_state: 'Maharashtra',
+  consignee_pincode: '400001',
+  consignee_phone: '9876543210',
+  product_name: 'T-Shirt',
+  payment_type: 'Prepaid',
+  total_collectable_amount: 0,
+  box_count: 1,
+  invoice_document_file: 'data:application/pdf;base64,...',
+  // ...other fields
+});
+```
+
+## B2B Shipments
+
+B2B shipments are heavy or bulk deliveries between businesses. They support multiple boxes and require an e-waybill.
+
+```typescript
+const order = await client.addHeavyOrder({
+  shipment_category: 'b2b',
+  consignee_name: 'Acme Corp',
+  consignee_address: '456 Industrial Area',
+  consignee_city: 'Delhi',
+  consignee_state: 'Delhi',
+  consignee_pincode: '110001',
+  consignee_phone: '9876543210',
+  product_name: 'Electronics',
+  payment_type: 'Prepaid',
+  total_collectable_amount: 0,
+  box_count: 5,
+  ewaybill_number: '123456789012',
+  ewaybill_document_file: 'data:application/pdf;base64,...',
+  invoice_document_file: 'data:application/pdf;base64,...',
+  // ...other fields
+});
+```
+
+## Choosing the Right Type
+
+- Use **B2C** for single-box consumer deliveries (e-commerce orders, D2C shipments).
+- Use **B2B** for multi-box business deliveries, inter-city warehouse transfers, or shipments requiring an e-waybill.

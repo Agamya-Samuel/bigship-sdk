@@ -1,0 +1,61 @@
+---
+title: Manifestation
+description: How manifestation assigns a courier to an order and generates tracking identifiers in the Bigship SDK
+---
+
+**Manifestation** is the process of assigning a courier to a confirmed order. After manifestation, the order becomes a shipment with a tracking number (AWB for B2C, LRN for B2B).
+
+## Manifestation Methods
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `manifestSingle` | B2C | Assign a courier to a single-box consumer order |
+| `manifestHeavy` | B2B | Assign a courier to a multi-box business order |
+
+### B2C Manifestation
+
+```typescript
+const result = await client.manifestSingle({ order_id: 'ORD-123' });
+// After this, AWB is generated for the order
+```
+
+### B2B Manifestation
+
+```typescript
+const result = await client.manifestHeavy({ order_id: 'ORD-456' });
+// After this, LRN is generated for the order
+```
+
+## What Happens After Manifestation
+
+1. A courier is assigned to the order
+2. An **AWB** (B2C) or **LRN** (B2B) is generated
+3. Shipping labels become available via `getShipmentFile`
+4. The shipment becomes trackable via `trackShipment`
+
+## Convenience: manifestAndGetAWB
+
+For B2C flows, the SDK provides a convenience method that manifests the order and returns the AWB in a single call:
+
+```typescript
+const awb = await client.manifestAndGetAWB('ORD-123');
+console.log(awb.data); // AWB number
+```
+
+This is equivalent to calling `manifestSingle` followed by `getAWB`, but saves a round-trip.
+
+## Full Flow Example
+
+```typescript
+// 1. Create the order
+const order = await client.addSingleOrder({ /* ... */ });
+
+// 2. Manifest it
+const manifest = await client.manifestSingle({ order_id: order.data.order_id });
+
+// 3. Get the AWB
+const awb = await client.getAWB({ order_id: order.data.order_id });
+
+// 4. Get the shipping label
+const label = await client.getShipmentFile({ awb: awb.data });
+```

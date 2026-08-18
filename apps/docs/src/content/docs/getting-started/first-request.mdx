@@ -1,0 +1,66 @@
+---
+title: First Request
+description: Make your first API call with the Bigship SDK
+---
+
+## Quick Start
+
+```typescript
+import { BigshipClient, isSuccessResponse } from '@agamya/bigship-sdk';
+
+const client = new BigshipClient({
+  baseURL: process.env.BIGSHIP_BASE_URL!,
+  userName: process.env.BIGSHIP_USER_NAME!,
+  password: process.env.BIGSHIP_PASSWORD!,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY!,
+});
+
+// Check wallet balance
+const balance = await client.getWalletBalance();
+if (isSuccessResponse(balance)) {
+  console.log('Balance:', balance.data); // → "5000.00"
+}
+```
+
+## What Happens Internally
+
+When you call `getWalletBalance()`:
+
+1. **Authenticate** — SDK checks for a cached token; if missing/expired, calls login endpoint
+2. **Make request** — Sends `GET /api/Wallet/balance/get` with auth header
+3. **Validate response** — Parses and validates the response with Zod
+4. **Dispatch hooks** — Fires `onResponse` or `onError` hooks
+5. **Return** — Returns typed `ApiResponse<{ balance: string }>`
+
+## Response Shape
+
+All methods return `ApiResponse<T>`:
+
+```typescript
+interface ApiResponse<T> {
+  status: 'success' | 'error';
+  data: T | null;
+  message?: string;
+}
+```
+
+Use type guards to safely access data:
+
+```typescript
+import { isSuccessResponse, isFailedResponse } from '@agamya/bigship-sdk';
+
+const result = await client.getCourierList('b2c');
+
+if (isSuccessResponse(result)) {
+  console.log(result.data); // Typed as Courier[]
+} else if (isFailedResponse(result)) {
+  console.error(result.message);
+}
+```
+
+## Next Steps
+
+- [B2C Shipment Guide](/guides/b2c-shipment) — Complete B2C lifecycle
+- [B2B Shipment Guide](/guides/b2b-shipment) — B2B with e-waybill
+- [Error Handling](/guides/error-handling) — Structured error handling
+- [Configuration](/getting-started/authentication) — All config options

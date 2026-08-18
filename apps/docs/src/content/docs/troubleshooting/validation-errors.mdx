@@ -1,0 +1,115 @@
+---
+title: Validation Errors
+description: Troubleshoot request validation issues including missing fields, invalid formats, duplicate invoices, and business rule violations.
+---
+
+# Validation Errors
+
+## `BigshipValidationError`
+
+The SDK validates requests client-side before sending. A `BigshipValidationError` includes field-level error details:
+
+```ts
+import { BigshipValidationError } from "bigship-sdk";
+
+try {
+  await client.createOrder(orderPayload);
+} catch (err) {
+  if (err instanceof BigshipValidationError) {
+    console.error("Validation failed:");
+    for (const fieldError of err.errors) {
+      console.error(`  ${fieldError.field}: ${fieldError.message}`);
+    }
+  }
+}
+```
+
+## Missing Required Fields
+
+B2B shipments require `invoice_document_file` and `ewaybill_number`. Omitting either triggers a validation error:
+
+```ts
+// ❌ Missing invoice_document_file for B2B
+await client.createOrder({
+  order_type: "B2B",
+  // invoice_document_file: "...", // required for B2B
+  // ewaybill_number: "...",       // required for B2B
+  // ...other fields
+});
+```
+
+Ensure both fields are present for B2B orders.
+
+## Invalid Pincode Format
+
+Pincodes must be exactly 6 digits:
+
+```ts
+// ❌ Invalid
+pincode: "11001"    // 5 digits
+pincode: "11001A"   // contains letter
+
+// ✅ Valid
+pincode: "110001"
+```
+
+## Duplicate Invoice ID → `BigshipDuplicateInvoiceError`
+
+Reusing an `invoice_id` within the same account triggers `BigshipDuplicateInvoiceError`:
+
+```ts
+import { BigshipDuplicateInvoiceError } from "bigship-sdk";
+
+try {
+  await client.createOrder(orderPayload);
+} catch (err) {
+  if (err instanceof BigshipDuplicateInvoiceError) {
+    console.error("Duplicate invoice:", err.message);
+    // Use a unique invoice_id
+  }
+}
+```
+
+Generate unique invoice IDs (e.g., using `uuid` or a timestamp-based scheme).
+
+## B2C `box_count` Must Be 1
+
+For B2C orders, `box_count` is restricted to `1`:
+
+```ts
+// ❌ Invalid for B2C
+await client.createOrder({
+  order_type: "B2C",
+  box_count: 3,
+  // ...
+});
+
+// ✅ Valid for B2C
+await client.createOrder({
+  order_type: "B2C",
+  box_count: 1,
+  // ...
+});
+```
+
+## Prepaid Orders: `total_collectable_amount` Must Be 0
+
+For prepaid orders, `total_collectable_amount` must be `0`:
+
+```ts
+// ❌ Invalid for prepaid
+await client.createOrder({
+  payment_type: "Prepaid",
+  total_collectable_amount: 500,
+  // ...
+});
+
+// ✅ Valid for prepaid
+await client.createOrder({
+  payment_type: "Prepaid",
+  total_collectable_amount: 0,
+  // ...
+});
+```
+
+For COD orders, set `total_collectable_amount` to the amount to collect from the customer.

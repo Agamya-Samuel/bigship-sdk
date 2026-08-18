@@ -1,0 +1,60 @@
+---
+title: Authentication
+description: Configure Bigship API credentials and understand token management
+---
+
+## Credentials
+
+The SDK requires three credentials from your Bigship.in account:
+
+| Credential | Description |
+|------------|-------------|
+| `userName` | Your Bigship login email |
+| `password` | Your Bigship password |
+| `accessKey` | API access key from Bigship dashboard |
+
+## Creating a Client
+
+```typescript
+import { BigshipClient } from '@agamya/bigship-sdk';
+
+const client = new BigshipClient({
+  baseURL: 'https://api.bigship.in',
+  userName: process.env.BIGSHIP_USER_NAME!,
+  password: process.env.BIGSHIP_PASSWORD!,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY!,
+});
+```
+
+## Token Management
+
+The SDK handles authentication automatically:
+
+1. **First request** — SDK calls the Bigship login endpoint to obtain a token
+2. **Token caching** — Token is cached for 55 minutes (configurable via `tokenTtlMs`)
+3. **Concurrent requests** — If multiple requests fire simultaneously, only one login call is made
+4. **Token expiry** — When the token expires, the SDK automatically refreshes it
+
+You never need to manage tokens manually.
+
+## Configuration Options
+
+```typescript
+const client = new BigshipClient({
+  // Required
+  baseURL: 'https://api.bigship.in',
+  userName: 'your-email@example.com',
+  password: 'your-password',
+  accessKey: 'your-access-key',
+
+  // Token management
+  tokenTtlMs: 55 * 60 * 1000,  // Default: 55 minutes
+});
+```
+
+## Security
+
+- **Server-side only** — The SDK is designed for Node.js and server-side runtimes
+- **Never expose credentials** — Do not use the SDK in browser/client-side code
+- **Use environment variables** — Never hardcode credentials in source code
+- **Next.js** — Use Route Handlers or Server Actions, never `"use client"` components

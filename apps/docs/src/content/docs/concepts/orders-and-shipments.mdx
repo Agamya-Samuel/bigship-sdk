@@ -1,0 +1,62 @@
+---
+title: Orders and Shipments
+description: The distinction between orders (data submission) and shipments (physical movement) in the Bigship SDK
+---
+
+The Bigship SDK has two distinct concepts: **Orders** and **Shipments**. Understanding the difference is essential for using the API correctly.
+
+## Orders
+
+An **order** is the data submission stage. You provide shipment details — consignee information, product details, payment method, and documents. At this point, no courier has been assigned and no physical movement has occurred.
+
+**Order methods:**
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `addSingleOrder` | B2C | Submit a single-box consumer order |
+| `addHeavyOrder` | B2B | Submit a multi-box business order |
+
+```typescript
+const order = await client.addSingleOrder({
+  consignee_name: 'Jane Doe',
+  product_name: 'Laptop',
+  payment_type: 'Prepaid',
+  total_collectable_amount: 0,
+  box_count: 1,
+  invoice_document_file: 'data:application/pdf;base64,...',
+  // ...other fields
+});
+```
+
+## Shipments
+
+A **shipment** is the physical movement stage. After an order is manifested, a courier is assigned, an AWB or LRN is generated, and the package can be tracked and labeled.
+
+**Shipment methods:**
+
+| Method | Description |
+|--------|-------------|
+| `manifestSingle` | Assign courier to a B2C order |
+| `manifestHeavy` | Assign courier to a B2B order |
+| `getAWB` | Retrieve the AWB number |
+| `getShipmentFile` | Retrieve shipping label or other documents |
+
+```typescript
+// Manifest the order to create a shipment
+const manifest = await client.manifestSingle({ order_id: 'ORD-123' });
+
+// Now retrieve the AWB
+const awb = await client.getAWB({ order_id: 'ORD-123' });
+
+// Get the shipping label
+const label = await client.getShipmentFile({ awb: awb.data });
+```
+
+## Lifecycle
+
+```
+Order Created ──→ Manifested ──→ Shipment Active ──→ Delivered
+(addSingleOrder)  (manifestSingle)  (AWB assigned)    (tracked)
+```
+
+An order **becomes** a shipment after manifestation. Until then, it exists only as a data record with no courier assignment or tracking number.

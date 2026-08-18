@@ -1,0 +1,86 @@
+---
+title: Rates
+description: Calculate shipping rates and list available couriers
+---
+
+The SDK provides three methods for rate-related operations: pre-shipment rate estimation, post-order rate comparison, and courier listing.
+
+## Imports
+
+```typescript
+import {
+  BigshipClient,
+  isSuccessResponse,
+} from '@agamya/bigship-sdk';
+```
+
+## Calculate Rates — `calculateRate`
+
+Estimate shipping costs before creating an order.
+
+```typescript
+const rates = await client.calculateRate({
+  shipment_category: 'B2C',
+  payment_type: 'Prepaid',
+  pickup_pincode: '110001',
+  destination_pincode: '400001',
+  shipment_invoice_amount: 2500,
+  box_details: [{
+    each_box_dead_weight: 0.5,
+    each_box_length: 20,
+    each_box_width: 15,
+    each_box_height: 10,
+    box_count: 1,
+  }],
+});
+
+if (isSuccessResponse(rates)) {
+  console.log(rates.data);
+}
+```
+
+## Get Shipping Rates — `getShippingRates`
+
+Compare shipping rates after an order has been created. This is useful when you want to pick the cheapest courier for an existing order.
+
+```typescript
+const shippingRates = await client.getShippingRates(orderId, {
+  shipment_category: 'B2C',
+  payment_type: 'Prepaid',
+  shipment_invoice_amount: 2500,
+  box_details: [{
+    each_box_dead_weight: 0.5,
+    each_box_length: 20,
+    each_box_width: 15,
+    each_box_height: 10,
+    box_count: 1,
+  }],
+}, '400001');
+
+if (isSuccessResponse(shippingRates)) {
+  for (const rate of shippingRates.data) {
+    console.log(`${rate.courier_name}: ₹${rate.rate}`);
+  }
+}
+```
+
+## List Couriers — `getCourierList`
+
+Retrieve available couriers filtered by shipment category.
+
+```typescript
+const couriers = await client.getCourierList('b2c');
+if (isSuccessResponse(couriers)) {
+  for (const c of couriers.data) {
+    console.log(`ID: ${c.courier_id} — ${c.courier_name} (${c.courier_type})`);
+  }
+}
+// → ID: 5  — Delhivery (Surface)
+// → ID: 12 — DTDC      (Surface)
+```
+
+Pass `'b2b'` for B2B couriers:
+
+```typescript
+const b2bCouriers = await client.getCourierList('b2b');
+```

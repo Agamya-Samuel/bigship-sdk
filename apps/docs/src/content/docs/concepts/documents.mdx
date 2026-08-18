@@ -1,0 +1,73 @@
+---
+title: Documents
+description: How to handle invoice and e-waybill documents as base64 Data URIs in the Bigship SDK
+---
+
+The Bigship API requires documents (invoices, e-waybills) to be submitted as **base64 Data URIs**. The SDK provides utilities to create and validate these strings.
+
+## Data URI Format
+
+Documents must be base64-encoded Data URIs in one of these formats:
+
+```
+data:application/pdf;base64,<base64-data>
+data:image/jpeg;base64,<base64-data>
+```
+
+## Required Documents
+
+| Document | Field | B2C | B2B |
+|----------|-------|-----|-----|
+| Invoice | `invoice_document_file` | Required | Required |
+| E-Waybill | `ewaybill_document_file` | Not required | Required |
+
+### Invoice (always required)
+
+```typescript
+const order = await client.addSingleOrder({
+  // ...other fields
+  invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQK...',
+});
+```
+
+### E-Waybill (B2B only)
+
+```typescript
+const order = await client.addHeavyOrder({
+  // ...other fields
+  invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQK...',
+  ewaybill_number: '123456789012',
+  ewaybill_document_file: 'data:application/pdf;base64,JVBERi0xLjQK...',
+});
+```
+
+## Utility: fileToBase64DataURI
+
+In browser environments, convert a `File` object from a file input to a base64 Data URI:
+
+```typescript
+const fileInput = document.querySelector<HTMLInputElement>('#invoice')!;
+const file = fileInput.files[0];
+
+const dataUri = await BigshipUtils.fileToBase64DataURI(file);
+// "data:application/pdf;base64,..."
+
+await client.addSingleOrder({
+  invoice_document_file: dataUri,
+  // ...other fields
+});
+```
+
+## Utility: isValidBase64DataURI
+
+Validate a string before sending it to the API:
+
+```typescript
+const isValid = BigshipUtils.isValidBase64DataURI('data:application/pdf;base64,JVBERi0x...');
+// true
+
+const isInvalid = BigshipUtils.isValidBase64DataURI('not-a-data-uri');
+// false
+```
+
+Use this to catch formatting errors early, especially when accepting user uploads.

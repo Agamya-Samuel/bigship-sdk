@@ -1,0 +1,76 @@
+---
+title: Authentication Issues
+description: Troubleshoot common authentication problems including invalid credentials, expired tokens, incorrect baseURL, and network errors.
+---
+
+# Authentication Issues
+
+## Invalid Credentials → `BigshipAuthError` (HTTP 401)
+
+If you receive a `BigshipAuthError` with HTTP status 401, your `clientId` or `clientSecret` is incorrect.
+
+```ts
+import { BigshipClient, BigshipAuthError } from "bigship-sdk";
+
+try {
+  const client = new BigshipClient({
+    clientId: process.env.BIGSHIP_CLIENT_ID,
+    clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  });
+} catch (err) {
+  if (err instanceof BigshipAuthError) {
+    console.error("Authentication failed:", err.message);
+  }
+}
+```
+
+- Verify your credentials in the Bigship dashboard.
+- Ensure no trailing whitespace in environment variables.
+
+## Expired Token
+
+The SDK auto-refreshes tokens before expiry. If you still hit auth errors under load, adjust `tokenTtlMs`:
+
+```ts
+const client = new BigshipClient({
+  clientId: process.env.BIGSHIP_CLIENT_ID,
+  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  tokenTtlMs: 50 * 60 * 1000, // 50 minutes (default is 55 minutes)
+});
+```
+
+Setting `tokenTtlMs` lower than the server-side expiry forces more frequent refreshes.
+
+## Wrong `baseURL`
+
+Ensure the `baseURL` matches your Bigship account region:
+
+```ts
+const client = new BigshipClient({
+  clientId: process.env.BIGSHIP_CLIENT_ID,
+  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  baseURL: "https://apiv2.bigship.in", // India region
+});
+```
+
+Check your account settings for the correct regional endpoint.
+
+## Firewall / Network Issues → `BigshipNetworkError`
+
+If requests fail before reaching the server, you may receive a `BigshipNetworkError`:
+
+```ts
+import { BigshipNetworkError } from "bigship-sdk";
+
+try {
+  await client.createOrder(orderPayload);
+} catch (err) {
+  if (err instanceof BigshipNetworkError) {
+    console.error("Network error:", err.message);
+    // err.statusCode will be -1 for connection-level failures
+  }
+}
+```
+
+- Whitelist `*.bigship.in` domains in your firewall.
+- If behind a corporate proxy, see [Network Errors](/troubleshooting/network-errors#proxy-configuration).

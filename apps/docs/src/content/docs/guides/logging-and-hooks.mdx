@@ -1,0 +1,129 @@
+---
+title: Logging and Hooks
+description: Configure event hooks and custom logging for request lifecycle observability
+---
+
+The SDK provides event hooks for the request lifecycle and a pluggable logger interface.
+
+## Event Hooks
+
+Hooks are configured at client initialization.
+
+### `onBeforeRequest`
+
+Executes before each request. Use this to modify request config. Re-throws on error.
+
+```typescript
+const client = new BigshipClient({
+  // ...
+  onBeforeRequest: (config) => {
+    config.headers['X-Custom-Header'] = 'my-value';
+    return config;
+  },
+});
+```
+
+### `onResponse`
+
+Fires on successful response. Fire-and-forget — errors are logged, not thrown.
+
+```typescript
+const client = new BigshipClient({
+  // ...
+  onResponse: (response, ctx) => {
+    console.log(`[${ctx.endpoint}] ${response.status} in ${ctx.duration}ms`);
+  },
+});
+```
+
+### `onError`
+
+Fires on failed request. Fire-and-forget.
+
+```typescript
+const client = new BigshipClient({
+  // ...
+  onError: (error, ctx) => {
+    console.error(`[${ctx.endpoint}] Failed: ${error.message}`);
+  },
+});
+```
+
+### `onRetry`
+
+Fires before each retry attempt. Fire-and-forget.
+
+```typescript
+const client = new BigshipClient({
+  // ...
+  onRetry: (attempt, error, ctx) => {
+    console.warn(`Retry ${attempt} for ${ctx.endpoint}: ${error.message}`);
+  },
+});
+```
+
+### All Hooks Together
+
+```typescript
+const client = new BigshipClient({
+  baseURL: 'https://api.bigship.in',
+  userName: 'your-email@example.com',
+  password: 'your-password',
+  accessKey: 'your-access-key',
+
+  onBeforeRequest: (config) => {
+    config.headers['X-Request-Source'] = 'my-app';
+    return config;
+  },
+  onResponse: (response, ctx) => {
+    console.log(`✓ ${ctx.endpoint} ${response.status} ${ctx.duration}ms`);
+  },
+  onError: (error, ctx) => {
+    console.error(`✗ ${ctx.endpoint} ${error.message}`);
+  },
+  onRetry: (attempt, error, ctx) => {
+    console.warn(`↻ Retry ${attempt} for ${ctx.endpoint}`);
+  },
+});
+```
+
+## Custom Logger
+
+Implement the `LoggerAdapter` interface to route SDK logs to your logging library.
+
+```typescript
+import type { LoggerAdapter } from '@agamya/bigship-sdk';
+
+const client = new BigshipClient({
+  // ...
+  enableDetailedLogging: true,
+  loggerAdapter: {
+    debug: (msg, data) => winston.debug(msg, data),
+    info:  (msg, data) => winston.info(msg, data),
+    warn:  (msg, data) => winston.warn(msg, data),
+    error: (msg, data) => winston.error(msg, data),
+  },
+});
+```
+
+### `LoggerAdapter` Interface
+
+```typescript
+interface LoggerAdapter {
+  debug(message: string, data?: unknown): void;
+  info(message: string, data?: unknown): void;
+  warn(message: string, data?: unknown): void;
+  error(message: string, data?: unknown): void;
+}
+```
+
+## Built-in Detailed Logging
+
+Enable `enableDetailedLogging` to log requests and responses to the console. Sensitive headers and API keys are automatically sanitized.
+
+```typescript
+const client = new BigshipClient({
+  // ...
+  enableDetailedLogging: true,
+});
+```

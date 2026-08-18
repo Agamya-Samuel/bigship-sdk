@@ -1,0 +1,74 @@
+---
+title: Response Model
+description: Understanding the ApiResponse<T> type and type guard functions in the Bigship SDK
+---
+
+Every method in the Bigship SDK returns an `ApiResponse<T>` object. The SDK provides type guard functions to safely narrow the response type.
+
+## ApiResponse Structure
+
+```typescript
+interface ApiResponse<T> {
+  status: 'success' | 'failure';
+  data: T | null;
+  message: string | null;
+}
+```
+
+- `status` indicates whether the API call succeeded
+- `data` contains the typed payload on success, or `null` on failure
+- `message` contains an error message on failure, or `null` on success
+
+## Type Guards
+
+The SDK exports two type guard functions:
+
+| Guard | Narrows to | When |
+|-------|-----------|------|
+| `isSuccessResponse<T>(res)` | `ApiResponse<T> & { status: 'success'; data: T }` | `status === 'success'` |
+| `isFailedResponse(res)` | `ApiResponse<null> & { status: 'failure'; data: null }` | `status === 'failure'` |
+
+## Usage with isSuccessResponse
+
+```typescript
+import { isSuccessResponse, isFailedResponse } from '@agamya/bigship-sdk';
+
+const response = await client.getWalletBalance();
+
+if (isSuccessResponse(response)) {
+  // response.data is guaranteed to be non-null
+  console.log('Balance:', response.data.balance);
+}
+
+if (isFailedResponse(response)) {
+  // response.data is null, response.message has the error
+  console.error('Error:', response.message);
+}
+```
+
+## Usage with Early Return
+
+```typescript
+const response = await client.addSingleOrder({ /* ... */ });
+
+if (isFailedResponse(response)) {
+  throw new Error(response.message ?? 'Order creation failed');
+}
+
+// response.data is typed and non-null from here
+console.log('Order ID:', response.data.order_id);
+```
+
+## Without Type Guards
+
+Without type guards, you must null-check `data` manually:
+
+```typescript
+const response = await client.getAWB({ order_id: 'ORD-123' });
+
+if (response.data) {
+  console.log('AWB:', response.data); // still needs narrowing
+}
+```
+
+Type guards are preferred because they provide full type narrowing without manual checks.

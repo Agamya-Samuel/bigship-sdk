@@ -1,0 +1,116 @@
+---
+title: Retries and Timeouts
+description: Configure automatic retries with exponential backoff and per-request timeouts
+---
+
+The SDK includes built-in retry logic with exponential backoff and full jitter. All retry and timeout behavior is configurable.
+
+## Default Behavior
+
+- **Retries**: 3 attempts
+- **Backoff**: Exponential with full jitter
+- **Retry status codes**: `[408, 429, 500, 502, 503, 504]`
+
+## Configuration
+
+Set retry and timeout options when creating the client.
+
+```typescript
+const client = new BigshipClient({
+  baseURL: 'https://api.bigship.in',
+  userName: 'your-email@example.com',
+  password: 'your-password',
+  accessKey: 'your-access-key',
+
+  // Retry configuration
+  maxRetries: 3,                                    // Max retry attempts (default: 3)
+  retryDelay: 1000,                                 // Base retry delay in ms (default: 1000)
+  maxRetryDelay: 30000,                             // Max retry delay cap in ms (default: 30000)
+  retryOnStatusCodes: [408, 429, 500, 502, 503, 504], // Status codes to retry on
+
+  // Global timeout
+  timeout: 15000,                                   // Request timeout in ms (default: 15000)
+});
+```
+
+## Per-Request Timeout
+
+Override the timeout for a single call.
+
+```typescript
+await client.addSingleOrder(order, { timeout: 60000 });
+```
+
+## AbortController Support
+
+Cancel in-flight requests using `AbortController`.
+
+```typescript
+const controller = new AbortController();
+
+// Start the request
+const balancePromise = client.getWalletBalance({ signal: controller.signal });
+
+// Cancel after 5 seconds
+setTimeout(() => controller.abort(), 5000);
+
+try {
+  const balance = await balancePromise;
+} catch (error) {
+  // Request was aborted
+}
+```
+
+## Retry Status Codes
+
+| Code | Description |
+|------|-------------|
+| `408` | Request Timeout |
+| `429` | Too Many Requests |
+| `500` | Internal Server Error |
+| `502` | Bad Gateway |
+| `503` | Service Unavailable |
+| `504` | Gateway Timeout |
+
+## Customizing Retry Behavior
+
+### Disable Retries
+
+```typescript
+const client = new BigshipClient({
+  // ...
+  maxRetries: 0,
+});
+```
+
+### Retry on Additional Status Codes
+
+```typescript
+const client = new BigshipClient({
+  // ...
+  retryOnStatusCodes: [408, 429, 500, 502, 503, 504, 409],
+});
+```
+
+### Increase Retry Delay
+
+```typescript
+const client = new BigshipClient({
+  // ...
+  retryDelay: 2000,     // 2 second base delay
+  maxRetryDelay: 60000, // 1 minute max delay
+});
+```
+
+## Tracking Retries with Hooks
+
+Use the `onRetry` hook to log or monitor retry attempts.
+
+```typescript
+const client = new BigshipClient({
+  // ...
+  onRetry: (attempt, error, ctx) => {
+    console.warn(`Retry attempt ${attempt} for ${ctx.endpoint}: ${error.message}`);
+  },
+});
+```

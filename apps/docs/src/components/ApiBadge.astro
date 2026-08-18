@@ -1,0 +1,22 @@
+---
+interface Props {
+  type: 'stable' | 'experimental' | 'deprecated' | 'internal';
+}
+
+const { type } = Astro.props;
+
+const colors: Record<string, { bg: string; text: string }> = {
+  stable: { bg: '#22c55e', text: '#fff' },
+  experimental: { bg: '#f59e0b', text: '#fff' },
+  deprecated: { bg: '#ef4444', text: '#fff' },
+  internal: { bg: '#6b7280', text: '#fff' },
+};
+
+const { bg, text } = colors[type];
+---
+
+<span
+  style={`display: inline-block; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: ${bg}; color: ${text}; text-transform: uppercase; letter-spacing: 0.05em;`}
+>
+  {type}
+</span>

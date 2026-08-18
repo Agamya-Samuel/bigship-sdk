@@ -1,0 +1,77 @@
+---
+title: Rate Limits
+description: Troubleshoot HTTP 429 rate limit responses, configure retries with exponential backoff, and use the isRateLimitError type guard.
+---
+
+# Rate Limits
+
+## HTTP 429 Responses
+
+The Bigship API returns HTTP 429 when you exceed the rate limit. The SDK surfaces these as errors.
+
+## `isRateLimitError()` Type Guard
+
+Use the `isRateLimitError()` helper to identify rate limit responses:
+
+```ts
+import { isRateLimitError } from "bigship-sdk";
+
+try {
+  await client.createOrder(orderPayload);
+} catch (err) {
+  if (isRateLimitError(err)) {
+    console.error(`Rate limited. Retry after ${err.retryAfterSeconds}s`);
+  }
+}
+```
+
+## SDK Does NOT Auto-Retry 429 by Default
+
+By default, the SDK retries on status codes `502`, `503`, and `504` but **not** `429`. Add 429 to `retryOnStatusCodes` to enable automatic retries:
+
+```ts
+const client = new BigshipClient({
+  clientId: process.env.BIGSHIP_CLIENT_ID,
+  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  retryOnStatusCodes: [429, 502, 503, 504],
+});
+```
+
+## Recommended: Add 429 to `retryOnStatusCodes`
+
+For most production workloads, adding 429 to the retry list is recommended:
+
+```ts
+const client = new BigshipClient({
+  clientId: process.env.BIGSHIP_CLIENT_ID,
+  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  retryOnStatusCodes: [429, 502, 503, 504],
+  maxRetries: 3,
+  retryDelayMs: 1000,
+  retryBackoffMultiplier: 2,
+});
+```
+
+## Exponential Backoff Configuration
+
+Configure exponential backoff to space out retries:
+
+| Option                  | Default | Description                                      |
+| ----------------------- | ------- | ------------------------------------------------ |
+| `maxRetries`            | `3`     | Maximum number of retry attempts                 |
+| `retryDelayMs`          | `1000`  | Initial delay before the first retry (ms)        |
+| `retryBackoffMultiplier`| `2`     | Multiplier applied to delay after each retry     |
+
+With the defaults, retry delays are: 1s → 2s → 4s.
+
+```ts
+const client = new BigshipClient({
+  clientId: process.env.BIGSHIP_CLIENT_ID,
+  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  retryOnStatusCodes: [429, 502, 503, 504],
+  maxRetries: 5,
+  retryDelayMs: 500,
+  retryBackoffMultiplier: 2,
+});
+// Delays: 500ms → 1s → 2s → 4s → 8s
+```

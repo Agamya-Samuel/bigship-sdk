@@ -1,0 +1,156 @@
+---
+title: Next.js Integration
+description: Use the Bigship SDK with Next.js Route Handlers and Server Actions
+---
+
+The Bigship SDK is a server-side package. In Next.js, use it in **Route Handlers** or **Server Actions** — never in `"use client"` components.
+
+## Setup
+
+Add the SDK to `transpilePackages` in your `next.config.js`:
+
+```javascript
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  transpilePackages: ['@agamya/bigship-sdk'],
+};
+
+module.exports = nextConfig;
+```
+
+## Route Handler — Create Order
+
+```typescript
+// app/api/orders/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { BigshipClient, isFailedResponse } from '@agamya/bigship-sdk';
+
+const client = new BigshipClient({
+  baseURL: process.env.BIGSHIP_BASE_URL!,
+  userName: process.env.BIGSHIP_USER_NAME!,
+  password: process.env.BIGSHIP_PASSWORD!,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY!,
+});
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+
+  const order = await client.addSingleOrder({
+    shipment_category: 'b2c',
+    warehouse_detail: {
+      pickup_location_id: body.pickup_location_id,
+      return_location_id: body.pickup_location_id,
+    },
+    consignee_detail: body.consignee_detail,
+    order_detail: {
+      invoice_date: new Date().toISOString(),
+      invoice_id: `INV-${Date.now()}`,
+      payment_type: body.payment_type,
+      total_collectable_amount: body.total_collectable_amount,
+      shipment_invoice_amount: body.shipment_invoice_amount,
+      box_details: body.box_details,
+      document_detail: body.document_detail,
+    },
+  });
+
+  if (isFailedResponse(order)) {
+    return NextResponse.json({ error: order.message }, { status: 400 });
+  }
+
+  return NextResponse.json({ orderId: order.data });
+}
+```
+
+## Route Handler — Track Shipment
+
+```typescript
+// app/api/shipments/[id]/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { BigshipClient, isFailedResponse } from '@agamya/bigship-sdk';
+
+const client = new BigshipClient({
+  baseURL: process.env.BIGSHIP_BASE_URL!,
+  userName: process.env.BIGSHIP_USER_NAME!,
+  password: process.env.BIGSHIP_PASSWORD!,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY!,
+});
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const tracking = await client.trackShipment(id, 'awb');
+
+  if (isFailedResponse(tracking)) {
+    return NextResponse.json({ error: tracking.message }, { status: 404 });
+  }
+
+  return NextResponse.json({ status: tracking.data });
+}
+```
+
+## Server Action — Track Shipment
+
+```typescript
+// app/actions/tracking.ts
+'use server';
+
+import { BigshipClient, isFailedResponse } from '@agamya/bigship-sdk';
+
+const client = new BigshipClient({
+  baseURL: process.env.BIGSHIP_BASE_URL!,
+  userName: process.env.BIGSHIP_USER_NAME!,
+  password: process.env.BIGSHIP_PASSWORD!,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY!,
+});
+
+export async function trackByAwb(awb: string) {
+  const tracking = await client.trackShipment(awb, 'awb');
+
+  if (isFailedResponse(tracking)) {
+    return { error: tracking.message };
+  }
+
+  return { data: tracking.data };
+}
+```
+
+Use the Server Action in a client component:
+
+```tsx
+// app/components/TrackingForm.tsx
+'use client';
+
+import { useState } from 'react';
+import { trackByAwb } from '@/app/actions/tracking';
+
+export function TrackingForm() {
+  const [awb, setAwb] = useState('');
+  const [result, setResult] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const response = await trackByAwb(awb);
+    if (response.error) {
+      setResult(`Error: ${response.error}`);
+    } else {
+      setResult(JSON.stringify(response.data, null, 2));
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input value={awb} onChange={(e) => setAwb(e.target.value)} placeholder="Enter AWB" />
+      <button type="submit">Track</button>
+      {result && <pre>{result}</pre>}
+    </form>
+  );
+}
+```
+
+## Important
+
+- **Never** use the SDK in `"use client"` components — it requires server-side Node.js APIs
+- Always initialize `BigshipClient` outside request handlers to reuse the instance and benefit from token caching
+- Use environment variables for credentials — never hardcode them

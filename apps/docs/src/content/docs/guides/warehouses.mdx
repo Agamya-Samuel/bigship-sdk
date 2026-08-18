@@ -1,0 +1,73 @@
+---
+title: Warehouses
+description: Add and list warehouses for shipment pickup locations
+---
+
+Warehouses represent your pickup and return locations. You need at least one warehouse before creating orders.
+
+## Imports
+
+```typescript
+import {
+  BigshipClient,
+  isSuccessResponse,
+} from '@agamya/bigship-sdk';
+```
+
+## Add Warehouse — `addWarehouse`
+
+Register a new warehouse for shipment pickups.
+
+```typescript
+const warehouse = await client.addWarehouse({
+  warehouse_name: 'Mumbai Warehouse',
+  contact_person: 'Amit Kumar',
+  contact_number: '9876543210',
+  address: {
+    address_line1: '12 Industrial Area Phase 2',
+    address_line2: 'Andheri East',
+    pincode: '400069',
+    city: 'Mumbai',
+    state: 'Maharashtra',
+  },
+});
+
+if (isSuccessResponse(warehouse)) {
+  console.log('Warehouse ID:', warehouse.data);
+}
+```
+
+## List Warehouses — `getWarehouseList`
+
+Retrieve your warehouses with pagination.
+
+```typescript
+const warehouses = await client.getWarehouseList(1, 10);
+if (isSuccessResponse(warehouses)) {
+  for (const w of warehouses.data) {
+    console.log(`ID: ${w.pickup_location_id} — ${w.warehouse_name}`);
+  }
+}
+```
+
+### Pagination Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `page` | `number` | Page number (1-indexed) |
+| `size` | `number` | Number of results per page |
+
+## Using Warehouses in Orders
+
+The `pickup_location_id` and `return_location_id` in order payloads correspond to warehouse IDs returned by `addWarehouse` or `getWarehouseList`.
+
+```typescript
+const order = await client.addSingleOrder({
+  // ...
+  warehouse_detail: {
+    pickup_location_id: 123456,  // from addWarehouse or getWarehouseList
+    return_location_id: 123456,
+  },
+  // ...
+});
+```

@@ -1,0 +1,132 @@
+---
+title: Error Handling
+description: Structured error handling with type guards and error hierarchy
+---
+
+The SDK provides a structured error hierarchy with type guards for precise error handling.
+
+## Error Hierarchy
+
+```
+BigshipError
+  └── BigshipApiError
+        ├── BigshipDuplicateInvoiceError  (HTTP 409)
+        ├── BigshipValidationError        (client-side Zod failure)
+        ├── BigshipAuthError              (HTTP 401/403)
+        └── BigshipNetworkError           (network/timeout)
+```
+
+## Type Guards
+
+Use type guards to identify specific error types in catch blocks.
+
+```typescript
+import {
+  BigshipClient,
+  isBigshipDuplicateInvoiceError,
+  isBigshipValidationError,
+  isBigshipAuthError,
+  isBigshipNetworkError,
+  isBigshipApiError,
+} from '@agamya/bigship-sdk';
+
+try {
+  await client.addSingleOrder(orderData);
+} catch (error) {
+  if (isBigshipDuplicateInvoiceError(error)) {
+    console.error('Duplicate invoice:', error.invoiceId);
+  } else if (isBigshipValidationError(error)) {
+    console.error('Validation errors:', error.validationErrors);
+  } else if (isBigshipAuthError(error)) {
+    console.error('Authentication failed');
+  } else if (isBigshipNetworkError(error)) {
+    console.error('Network error');
+  } else if (isBigshipApiError(error)) {
+    console.error('API error:', error.message, error.requestId);
+  }
+}
+```
+
+## Error Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `statusCode` | `number` | HTTP status code |
+| `code` | `string?` | Error code (e.g. `'NULL_DATA'`) |
+| `message` | `string` | Human-readable message |
+| `requestId` | `string?` | API request trace ID |
+| `endpoint` | `string?` | API endpoint that failed |
+| `validationErrors` | `Record<string, string[]>?` | Field-level validation errors |
+| `invoiceId` | `string?` | Duplicate invoice ID |
+
+## Helper Methods
+
+Error instances provide convenience methods for common status checks.
+
+```typescript
+try {
+  await client.addSingleOrder(orderData);
+} catch (error) {
+  if (isBigshipApiError(error)) {
+    if (error.isRateLimitError()) {
+      console.error('Rate limited — retry later');
+    } else if (error.isAuthError()) {
+      console.error('Check credentials');
+    } else if (error.isValidationError()) {
+      console.error('Invalid payload');
+    }
+  }
+}
+```
+
+## Response-Level Error Handling
+
+Not all errors throw exceptions. The SDK returns `ApiResponse<T>` for all methods, which can indicate errors without throwing.
+
+```typescript
+import { isFailedResponse } from '@agamya/bigship-sdk';
+
+const order = await client.addSingleOrder(orderData);
+if (isFailedResponse(order)) {
+  console.error('Order failed:', order.message);
+}
+```
+
+## Handling Duplicate Invoices
+
+```typescript
+try {
+  await client.addSingleOrder(orderData);
+} catch (error) {
+  if (isBigshipDuplicateInvoiceError(error)) {
+    console.error(`Invoice ${error.invoiceId} already exists`);
+    // Use a new invoice_id and retry
+  }
+}
+```
+
+## Handling Validation Errors
+
+```typescript
+try {
+  await client.addSingleOrder(orderData);
+} catch (error) {
+  if (isBigshipValidationError(error)) {
+    for (const [field, messages] of Object.entries(error.validationErrors)) {
+      console.error(`${field}: ${messages.join(', ')}`);
+    }
+  }
+}
+```
+
+## Handling Network Errors
+
+```typescript
+try {
+  await client.addSingleOrder(orderData);
+} catch (error) {
+  if (isBigshipNetworkError(error)) {
+    console.error('Network error — check connectivity or timeout settings');
+  }
+}
+```

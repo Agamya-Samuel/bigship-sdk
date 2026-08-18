@@ -1,0 +1,47 @@
+---
+interface Props {
+  code: string;
+  lang?: string;
+  title?: string;
+  playgroundExample?: string;
+}
+
+const { code, lang = 'typescript', title, playgroundExample } = Astro.props;
+---
+
+<div class="code-example" style="margin: 1rem 0;">
+  {title && (
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: var(--sl-color-gray-6); border-radius: 0.375rem 0.375rem 0 0; font-size: 0.8rem; font-weight: 600; color: var(--sl-color-gray-2);">
+      <span>{title}</span>
+      {playgroundExample && (
+        <a href={`/playground?example=${playgroundExample}`} style="color: var(--sl-color-accent); text-decoration: none; font-size: 0.75rem;">
+          Open in Playground →
+        </a>
+      )}
+    </div>
+  )}
+  <div style="position: relative;">
+    <pre style={`margin: 0; ${title ? 'border-radius: 0 0 0.375rem 0.375rem;' : 'border-radius: 0.375rem;'}`}><code class={`language-${lang}`}>{code}</code></pre>
+    <button
+      class="copy-btn"
+      style="position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.25rem 0.5rem; background: var(--sl-color-gray-5); color: var(--sl-color-gray-2); border: none; border-radius: 0.25rem; cursor: pointer; font-size: 0.75rem;"
+      data-code={code}
+    >
+      Copy
+    </button>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const code = btn.getAttribute('data-code');
+      if (code) {
+        navigator.clipboard.writeText(code).then(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+        });
+      }
+    });
+  });
+</script>

@@ -1,0 +1,21 @@
+{
+  "entryPoints": ["../../packages/sdk/src/index.ts"],
+  "out": "../../apps/docs/src/content/docs/api",
+  "tsconfig": "../../packages/sdk/tsconfig.json",
+  "plugin": ["typedoc-plugin-markdown"],
+  "entryPointStrategy": "resolve",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "exclude": ["**/__tests__/**", "**/__integration__/**", "**/__e2e__/**"],
+  "skipErrorChecking": true,
+  "outputFileStrategy": "modules",
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "hidePageTitle": false,
+  "expandObjects": true,
+  "expandParameters": true,
+  "useCodeBlocks": true,
+  "propertiesFormat": "table",
+  "enumMembersFormat": "table",
+  "typeDeclarationFormat": "table"
+}

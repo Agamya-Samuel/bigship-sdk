@@ -1,0 +1,32 @@
+---
+title: Introduction
+description: TypeScript SDK for the Bigship.in External Outbound API
+---
+
+The `@agamya/bigship-sdk` is a TypeScript SDK for the [Bigship.in](https://bigship.in) External Outbound API. It provides type-safe access to shipping, orders, rates, tracking, and more.
+
+## Features
+
+- **Type-Safe** — Zod schemas for runtime validation, full TypeScript inference
+- **Auto-Authentication** — Login once, token cached automatically
+- **Retry with Backoff** — Exponential backoff with full jitter, configurable
+- **Event Hooks** — `onBeforeRequest`, `onResponse`, `onError`, `onRetry`
+- **Pluggable Logger** — Bring your own Winston, pino, or console logger
+- **Full API Coverage** — All 16 Bigship API endpoints
+- **Convenience Methods** — `manifestAndGetAWB`, `getShipmentDetails`, `createAndFinalizeShipment`
+- **Workflow Builder** — Fluent `create → withCourier → manifest → finalize` API
+
+## Requirements
+
+- Node.js >= 18
+- Bigship.in API credentials (user name, password, access key)
+
+## Quick Links
+
+- [Installation](/getting-started/installation)
+- [Authentication](/getting-started/authentication)
+- [First Request](/getting-started/first-request)
+- [B2C Shipment Guide](/guides/b2c-shipment)
+- [API Reference](/api/)
+
+> **Disclaimer:** Community project based on publicly available Bigship API documentation. Not officially affiliated with Bigship.in.

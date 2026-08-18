@@ -1,0 +1,191 @@
+---
+title: Orders
+description: Create B2C and B2B orders with the Bigship SDK
+---
+
+The SDK provides two methods for creating orders depending on the shipment category.
+
+## Imports
+
+```typescript
+import {
+  BigshipClient,
+  isSuccessResponse,
+  isFailedResponse,
+} from '@agamya/bigship-sdk';
+```
+
+## B2C Orders — `addSingleOrder`
+
+Use `addSingleOrder` for Business to Consumer shipments. B2C orders must have exactly `box_count: 1`.
+
+```typescript
+const order = await client.addSingleOrder({
+  shipment_category: 'b2c',
+  warehouse_detail: {
+    pickup_location_id: 123456,
+    return_location_id: 123456,
+  },
+  consignee_detail: {
+    first_name: 'Rahul',
+    last_name: 'Sharma',
+    contact_number_primary: '9876543210',
+    consignee_address: {
+      address_line1: '42 MG Road Koramangala',
+      address_line2: 'Near Forum Mall',
+      address_landmark: 'Opposite HDFC Bank',
+      pincode: '560034',
+    },
+  },
+  order_detail: {
+    invoice_date: new Date().toISOString(),
+    invoice_id: `INV-${Date.now()}`,
+    payment_type: 'Prepaid',
+    total_collectable_amount: 0,
+    shipment_invoice_amount: 2500,
+    box_details: [{
+      each_box_dead_weight: 0.5,
+      each_box_length: 20,
+      each_box_width: 15,
+      each_box_height: 10,
+      each_box_invoice_amount: 2500,
+      each_box_collectable_amount: 0,
+      box_count: 1,
+      product_details: [{
+        product_category: 'Electronics',
+        product_name: 'Wireless Earbuds',
+        product_quantity: 1,
+        each_product_invoice_amount: 2500,
+        each_product_collectable_amount: 0,
+      }],
+    }],
+    document_detail: {
+      invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
+    },
+  },
+});
+
+if (isFailedResponse(order)) {
+  console.error('Failed:', order.message);
+} else {
+  console.log('Order ID:', order.data);
+}
+```
+
+## B2B Orders — `addHeavyOrder`
+
+Use `addHeavyOrder` for Business to Business shipments. B2B orders require `ewaybill_number` and `ewaybill_document_file`, and can have multiple boxes.
+
+```typescript
+const order = await client.addHeavyOrder({
+  shipment_category: 'b2b',
+  warehouse_detail: {
+    pickup_location_id: 123456,
+    return_location_id: 123456,
+  },
+  consignee_detail: {
+    first_name: 'Priya',
+    last_name: 'Patel',
+    company_name: 'TechCorp India Pvt Ltd',
+    contact_number_primary: '9123456789',
+    consignee_address: {
+      address_line1: 'Tower B 5th Floor DLF Cyber City',
+      pincode: '122002',
+    },
+  },
+  order_detail: {
+    invoice_date: new Date().toISOString(),
+    invoice_id: `B2B-${Date.now()}`,
+    payment_type: 'Prepaid',
+    total_collectable_amount: 0,
+    shipment_invoice_amount: 50000,
+    ewaybill_number: '281012345678',
+    box_details: [
+      {
+        each_box_dead_weight: 5,
+        each_box_length: 40,
+        each_box_width: 30,
+        each_box_height: 25,
+        each_box_invoice_amount: 25000,
+        each_box_collectable_amount: 0,
+        box_count: 1,
+        product_details: [{
+          product_category: 'Electronics',
+          product_name: 'Server Motherboard',
+          product_quantity: 1,
+          each_product_invoice_amount: 25000,
+          each_product_collectable_amount: 0,
+        }],
+      },
+      {
+        each_box_dead_weight: 3,
+        each_box_length: 30,
+        each_box_width: 20,
+        each_box_height: 15,
+        each_box_invoice_amount: 25000,
+        each_box_collectable_amount: 0,
+        box_count: 1,
+        product_details: [{
+          product_category: 'Electronics',
+          product_name: 'Network Switch',
+          product_quantity: 2,
+          each_product_invoice_amount: 12500,
+          each_product_collectable_amount: 0,
+        }],
+      },
+    ],
+    document_detail: {
+      invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
+      ewaybill_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
+    },
+  },
+});
+```
+
+## Required Fields
+
+Both order types require three top-level sections:
+
+| Section | Description |
+|---------|-------------|
+| `warehouse_detail` | Pickup and return location IDs |
+| `consignee_detail` | Recipient name, phone, and address |
+| `order_detail` | Invoice info, payment type, box details, and documents |
+
+## `invoice_id` Must Be Unique
+
+The `invoice_id` field must be unique across all orders. Duplicate invoice IDs will result in a `BigshipDuplicateInvoiceError` (HTTP 409).
+
+```typescript
+// Good: unique per order
+invoice_id: `INV-${Date.now()}`
+
+// Bad: hardcoded — will fail on second order
+invoice_id: 'INV-001'
+```
+
+## Payment Types
+
+| Type | `payment_type` | `total_collectable_amount` | `each_box_collectable_amount` |
+|------|----------------|---------------------------|-------------------------------|
+| Prepaid | `'Prepaid'` | `0` | `0` |
+| COD | `'COD'` | Amount to collect | Amount to collect per box |
+
+### COD Example
+
+```typescript
+const order = await client.addSingleOrder({
+  // ...
+  order_detail: {
+    // ...
+    payment_type: 'COD',
+    total_collectable_amount: 2500,
+    shipment_invoice_amount: 2500,
+    box_details: [{
+      // ...
+      each_box_collectable_amount: 2500,
+      // ...
+    }],
+  },
+});
+```

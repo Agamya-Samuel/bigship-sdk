@@ -1,0 +1,107 @@
+---
+title: Network Errors
+description: Troubleshoot BigshipNetworkError, configure timeouts, cancel requests with AbortController, resolve DNS issues, and set up proxy configuration.
+---
+
+# Network Errors
+
+## `BigshipNetworkError` (statusCode: -1)
+
+A `BigshipNetworkError` with `statusCode: -1` indicates the request never reached the server — a connection-level failure:
+
+```ts
+import { BigshipNetworkError } from "bigship-sdk";
+
+try {
+  await client.createOrder(orderPayload);
+} catch (err) {
+  if (err instanceof BigshipNetworkError) {
+    console.error("Network error:", err.message);
+    console.error("Status code:", err.statusCode); // -1 for connection failures
+  }
+}
+```
+
+Common causes: DNS failure, connection refused, TLS handshake error, network unreachable.
+
+## Timeout Configuration
+
+The default request timeout is 30 seconds. Adjust it via the `timeout` option:
+
+```ts
+const client = new BigshipClient({
+  clientId: process.env.BIGSHIP_CLIENT_ID,
+  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  timeout: 60000, // 60 seconds
+});
+```
+
+Set a higher timeout for bulk operations or slow networks. Set a lower timeout for latency-sensitive paths.
+
+## AbortController for Request Cancellation
+
+Cancel in-flight requests using `AbortController`:
+
+```ts
+const controller = new AbortController();
+
+// Cancel after 5 seconds
+setTimeout(() => controller.abort(), 5000);
+
+try {
+  await client.createOrder(orderPayload, { signal: controller.signal });
+} catch (err) {
+  if (err.name === "AbortError") {
+    console.error("Request was cancelled");
+  }
+}
+```
+
+This is useful for implementing user-facing cancel buttons or enforcing strict SLAs.
+
+## DNS Resolution Issues
+
+If you see `getaddrinfo ENOTFOUND` or similar DNS errors:
+
+1. Verify the `baseURL` is correct for your region.
+2. Check that your DNS resolver can resolve `*.bigship.in` domains:
+   ```bash
+   nslookup apiv2.bigship.in
+   ```
+3. In containerized environments (Docker, Kubernetes), ensure DNS is configured correctly.
+4. If using a custom DNS server, verify it is reachable.
+
+## Proxy Configuration
+
+If your network requires a proxy to reach external services, configure it via environment variables:
+
+```bash
+export HTTPS_PROXY=http://proxy.example.com:8080
+export HTTP_PROXY=http://proxy.example.com:8080
+```
+
+The SDK respects standard `HTTP_PROXY` / `HTTPS_PROXY` environment variables. For authenticated proxies:
+
+```bash
+export HTTPS_PROXY=http://user:password@proxy.example.com:8080
+```
+
+If the proxy uses a custom CA certificate, set:
+
+```bash
+export NODE_EXTRA_CA_CERTS=/path/to/ca-cert.pem
+```
+
+For programmatic proxy configuration, pass a custom `fetch` implementation to the client:
+
+```ts
+import { ProxyAgent } from "undici";
+
+const proxyAgent = new ProxyAgent("http://proxy.example.com:8080");
+
+const client = new BigshipClient({
+  clientId: process.env.BIGSHIP_CLIENT_ID,
+  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  dispatcher: proxyAgent,
+});
+```

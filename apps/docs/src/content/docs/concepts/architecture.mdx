@@ -1,0 +1,60 @@
+---
+title: Architecture
+description: How the Bigship SDK is structured internally
+---
+
+## Component Overview
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                     BigshipClient                        │
+│                                                          │
+│  Public API Methods (18 methods)                         │
+│  ┌─────────────────────────────────────────────────────┐ │
+│  │ getWalletBalance, getCourierList, addSingleOrder,   │ │
+│  │ manifestSingle, getShipmentData, trackShipment,     │ │
+│  │ manifestAndGetAWB, createAndFinalizeShipment, ...   │ │
+│  └──────────────────────┬──────────────────────────────┘ │
+│                         │                                │
+│  ┌──────────────────────▼──────────────────────────────┐ │
+│  │              executeApiCall<T>                      │ │
+│  │  token → request → validate → dispatch → return     │ │
+│  └──────────┬──────────┬──────────┬──────────┬─────────┘ │
+│             │          │          │          │           │
+│  ┌──────────▼──┐ ┌─────▼──────┐ ┌▼────────┐ ┌▼────────┐  │
+│  │TokenManager │ │RetryManager│ │EventDisp│ │ Logger  │  │
+│  │(auto-login) │ │(backoff)   │ │(hooks)  │ │(plugg.) │  │
+│  └─────────────┘ └────────────┘ └─────────┘ └─────────┘  │
+│                         │                                │
+│  ┌──────────────────────▼──────────────────────────────┐ │
+│  │                  Axios HTTP Client                  │ │
+│  └──────────────────────┬──────────────────────────────┘ │
+└─────────────────────────┼────────────────────────────────┘
+                          │
+                          ▼
+                   Bigship API
+```
+
+## Component Responsibilities
+
+| Component | Role |
+|-----------|------|
+| **BigshipClient** | Public API. 18 methods for all Bigship endpoints + 3 convenience helpers + workflow builder |
+| **executeApiCall\<T\>** | Shared ceremony: authenticate → make request → validate response → dispatch hooks → return |
+| **TokenManager** | Auto-login on first request, caches token for `tokenTtlMs` (default 55 min), deduplicates concurrent refreshes |
+| **RetryManager** | Exponential backoff with full jitter, configurable `maxRetries`, `retryDelay`, `maxRetryDelay`, `retryOnStatusCodes` |
+| **EventDispatcher** | Fires `onBeforeRequest` (re-throws), `onResponse`/`onError`/`onRetry` (fire-and-forget) |
+| **Logger** | Pluggable via `LoggerAdapter` interface. Default: console with header/key/string sanitization |
+| **Axios HTTP Client** | HTTP transport with auth header injection via interceptor |
+
+## Request Lifecycle
+
+Every API call follows the same pattern:
+
+1. **Token** — `TokenManager` provides a valid token (refreshing if needed)
+2. **Request** — Axios sends the HTTP request with auth headers
+3. **Validate** — `ResponseValidator` checks the response shape with Zod
+4. **Dispatch** — `EventDispatcher` fires hooks (`onResponse` or `onError`)
+5. **Return** — Typed `ApiResponse<T>` returned to caller
+
+If the request fails with a retryable status code, `RetryManager` handles exponential backoff before step 2.
