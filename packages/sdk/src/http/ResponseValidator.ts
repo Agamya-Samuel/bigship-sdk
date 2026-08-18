@@ -3,6 +3,7 @@ import {
   ApiResponseSchema,
   type RequestContext,
 } from '../core/types';
+import { formatZodErrors } from '../utils';
 import {
   BigshipApiError,
   BigshipDuplicateInvoiceError,
@@ -134,29 +135,8 @@ export class ResponseValidator {
    * Format Zod errors into a readable format
    */
   public static formatZodErrors(zodErrors: z.ZodIssue[]): Record<string, string[]> {
-    const formatted: Record<string, string[]> = {};
-
-    for (const error of zodErrors) {
-      const path = error.path.join('.');
-      if (!formatted[path]) {
-        formatted[path] = [];
-      }
-      formatted[path].push(error.message);
-    }
-
-    return formatted;
+    return formatZodErrors(zodErrors);
   }
 }
 
-/**
- * Helper function to format Zod errors into a readable format
- *
- * @example
- * ```ts
- * const errors = formatZodErrors(zodError.issues);
- * // { 'order_detail.invoice_id': ['Invalid format'] }
- * ```
- */
-export function formatZodErrors(zodErrors: z.ZodIssue[]): Record<string, string[]> {
-  return ResponseValidator.formatZodErrors(zodErrors);
-}
+export { formatZodErrors } from '../utils';

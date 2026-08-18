@@ -1,4 +1,5 @@
 import type { z } from 'zod';
+import type { ZodIssue } from 'zod';
 import type { OrderDetailB2CSchema, OrderDetailB2BSchema } from '../core/types';
 
 type OrderDetailB2C = z.infer<typeof OrderDetailB2CSchema>;
@@ -65,6 +66,28 @@ export const BigshipUtils = {
   isValidBase64DataURI,
   calculateCollectableAmount,
   validateOrderDetail,
+  formatZodErrors,
 } as const;
 
 export type BigshipUtilsType = typeof BigshipUtils;
+
+/**
+ * Helper function to format Zod errors into a readable format
+ *
+ * @example
+ * ```ts
+ * const errors = formatZodErrors(zodError.issues);
+ * // { 'order_detail.invoice_id': ['Invalid format'] }
+ * ```
+ */
+export function formatZodErrors(zodErrors: ZodIssue[]): Record<string, string[]> {
+  const formatted: Record<string, string[]> = {};
+  for (const error of zodErrors) {
+    const path = error.path.join('.');
+    if (!formatted[path]) {
+      formatted[path] = [];
+    }
+    formatted[path].push(error.message);
+  }
+  return formatted;
+}
