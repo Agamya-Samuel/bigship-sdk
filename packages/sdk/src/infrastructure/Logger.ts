@@ -1,17 +1,7 @@
 import type { AxiosRequestConfig } from 'axios';
-import type { ApiResponse, BigshipError } from '../core/types';
+import type { ApiResponse, LoggerAdapter } from '../core/types';
+import type { BigshipError } from '../errors/BigshipError';
 import { BigshipApiError } from '../errors';
-
-/**
- * Logger interface for pluggable logging.
- * Implement this interface to integrate with Winston, pino, etc.
- */
-export interface LoggerAdapter {
-  debug?(message: string, data?: unknown): void;
-  info?(message: string, data?: unknown): void;
-  warn?(message: string, data?: unknown): void;
-  error?(message: string, data?: unknown): void;
-}
 
 /**
  * Default console logger with sanitization.

@@ -26,6 +26,17 @@ export interface BigshipConfig {
 }
 
 /**
+ * Logger interface for pluggable logging.
+ * Implement this interface to integrate with Winston, pino, etc.
+ */
+export interface LoggerAdapter {
+  debug?(message: string, data?: unknown): void;
+  info?(message: string, data?: unknown): void;
+  warn?(message: string, data?: unknown): void;
+  error?(message: string, data?: unknown): void;
+}
+
+/**
  * Request context for event hooks
  * Provides information about the current request for logging and debugging
  */
@@ -218,11 +229,6 @@ export const WarehouseAddRequestSchema = z.object({
 });
 
 export type WarehouseAddRequest = z.infer<typeof WarehouseAddRequestSchema>;
-
-// ==================== ERROR ====================
-// BigshipError is defined in ../errors/BigshipError.ts and re-exported here for backward compatibility.
-// Prefer importing from '@agamya/bigship-sdk/errors' in new code.
-export { BigshipError, type BigshipErrorData } from '../errors/BigshipError';
 
 // ==================== REQUEST SCHEMAS ====================
 

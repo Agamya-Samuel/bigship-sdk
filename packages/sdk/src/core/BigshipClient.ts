@@ -41,12 +41,13 @@ import {
   type CalculateRateResponse,
   type TrackingResponse,
   type RequestContext,
+  type LoggerAdapter,
 } from './types';
 import { ResponseValidator } from '../http/ResponseValidator';
 import { EventDispatcher } from '../infrastructure/EventDispatcher';
 import { TokenManager } from '../auth/TokenManager';
 import { RetryManager } from '../http/RetryManager';
-import { Logger, type LoggerAdapter } from '../infrastructure/Logger';
+import { Logger } from '../infrastructure/Logger';
 import {
   BigshipApiError,
   BigshipAuthError,

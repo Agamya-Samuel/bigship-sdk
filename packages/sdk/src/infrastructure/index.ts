@@ -1,2 +1,3 @@
 export { EventDispatcher } from './EventDispatcher';
-export { Logger, type LoggerAdapter } from './Logger';
+export { Logger } from './Logger';
+export type { LoggerAdapter } from '../core/types';
