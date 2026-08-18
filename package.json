@@ -1,4 +1,13 @@
 {
   "private": true,
-  "workspaces": ["packages/*"]
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "build": "npm run build -w packages/sdk && npm run build -w apps/playground",
+    "build:sdk": "npm run build -w packages/sdk",
+    "build:playground": "npm run build -w apps/playground",
+    "test": "npm test -w packages/sdk",
+    "test:integration": "npm run test:integration -w packages/sdk",
+    "typecheck": "npx tsc --noEmit -p packages/sdk/tsconfig.json",
+    "docs:generate": "typedoc --options tooling/typedoc/typedoc.json && rm -f apps/docs/src/content/docs/api/README.md && rm -rf apps/docs/src/content/docs/api/_media"
+  }
 }

@@ -3,6 +3,9 @@ node_modules/
 
 # Build output
 dist/
+.next/
+.astro/
+*.tsbuildinfo
 
 # Environment files
 .env
@@ -32,3 +35,4 @@ coverage/
 # Misc
 *.tgz
 .kilo/
+.playwright-mcp/
