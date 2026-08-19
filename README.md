@@ -55,6 +55,8 @@ bigship-sdk/
 
 | Resource | Description |
 |----------|-------------|
+| [BigShip SDK Docs](https://bigship-sdk.pages.dev) | Documentation site |
+| [BigShip SDK Playground](https://bigship-sdk.vercel.app) | Interactive playground |
 | [Guide](https://bigship-sdk.agamya.dev) | Architecture, B2C/B2B walkthroughs, error handling, configuration |
 | [Examples](./examples/) | 10 runnable code examples covering every SDK feature |
 | [CHANGELOG](./packages/sdk/CHANGELOG.md) | Breaking changes, new features, migration checklist |
