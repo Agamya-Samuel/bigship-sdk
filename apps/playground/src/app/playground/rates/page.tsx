@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Play, IndianRupee, Plus } from 'lucide-react';
-import { SAMPLE_RATE_CALC } from '@/lib/sample-data';
+import { SAMPLE_RATE_CALC_B2C } from '@/lib/sample-data';
 import type { HookEvent } from '@/lib/execute-stream';
 
 export default function RatesPage() {
@@ -23,26 +23,25 @@ export default function RatesPage() {
   const [duration, setDuration] = useState(0);
   const [hooks, setHooks] = useState<HookEvent[]>([]);
 
-  const [shipmentCategory, setShipmentCategory] = useState(SAMPLE_RATE_CALC.shipment_category);
-  const [paymentType, setPaymentType] = useState(SAMPLE_RATE_CALC.payment_type);
-  const [pickupPincode, setPickupPincode] = useState(SAMPLE_RATE_CALC.pickup_pincode);
-  const [destinationPincode, setDestinationPincode] = useState(SAMPLE_RATE_CALC.destination_pincode);
-  const [invoiceAmount, setInvoiceAmount] = useState(String(SAMPLE_RATE_CALC.shipment_invoice_amount));
-  const [weight, setWeight] = useState(String(SAMPLE_RATE_CALC.box_details[0].each_box_dead_weight));
-  const [length, setLength] = useState(String(SAMPLE_RATE_CALC.box_details[0].each_box_length));
-  const [width, setWidth] = useState(String(SAMPLE_RATE_CALC.box_details[0].each_box_width));
-  const [height, setHeight] = useState(String(SAMPLE_RATE_CALC.box_details[0].each_box_height));
-  const [boxCount, setBoxCount] = useState(String(SAMPLE_RATE_CALC.box_details[0].box_count));
+  const [segmentType, setSegmentType] = useState(SAMPLE_RATE_CALC_B2C.segment_type);
+  const [paymentModeId, setPaymentModeId] = useState(String(SAMPLE_RATE_CALC_B2C.paymentModeId));
+  const [sourcePincode, setSourcePincode] = useState(SAMPLE_RATE_CALC_B2C.sourcePincode);
+  const [destPincode, setDestPincode] = useState(SAMPLE_RATE_CALC_B2C.destPincode);
+  const [invoiceValue, setInvoiceValue] = useState(String(SAMPLE_RATE_CALC_B2C.invoiceValue));
+  const [riskTypeId, setRiskTypeId] = useState(String(SAMPLE_RATE_CALC_B2C.riskTypeId));
+  const [weight, setWeight] = useState(String(SAMPLE_RATE_CALC_B2C.boxes[0].box_dead_weight));
+  const [length, setLength] = useState(String(SAMPLE_RATE_CALC_B2C.boxes[0].box_length));
+  const [width, setWidth] = useState(String(SAMPLE_RATE_CALC_B2C.boxes[0].box_width));
+  const [height, setHeight] = useState(String(SAMPLE_RATE_CALC_B2C.boxes[0].box_height));
+  const [noOfBox, setNoOfBox] = useState(String(SAMPLE_RATE_CALC_B2C.boxes[0].no_of_box));
 
-  const [shippingOrderId, setShippingOrderId] = useState('');
-  const [shippingCategory, setShippingCategory] = useState('b2c');
-  const [riskType, setRiskType] = useState('safe');
+  const [serviceableOrderId, setServiceableOrderId] = useState('');
 
   useEffect(() => {
-    if (results.orderIds.length > 0 && !shippingOrderId) {
-      setShippingOrderId(results.orderIds[results.orderIds.length - 1]);
+    if (results.orderIds.length > 0 && !serviceableOrderId) {
+      setServiceableOrderId(results.orderIds[results.orderIds.length - 1]);
     }
-  }, [results.orderIds, shippingOrderId]);
+  }, [results.orderIds, serviceableOrderId]);
 
   const run = async (method: string, params: unknown[]) => {
     setResponse(null); setError(null);
@@ -53,17 +52,18 @@ export default function RatesPage() {
 
   const handleCalculateRate = () => {
     const payload = {
-      shipment_category: shipmentCategory,
-      payment_type: paymentType,
-      pickup_pincode: pickupPincode,
-      destination_pincode: destinationPincode,
-      shipment_invoice_amount: Number(invoiceAmount),
-      box_details: [{
-        each_box_dead_weight: Number(weight),
-        each_box_length: Number(length),
-        each_box_width: Number(width),
-        each_box_height: Number(height),
-        box_count: Number(boxCount),
+      segment_type: segmentType,
+      sourcePincode: sourcePincode,
+      destPincode: destPincode,
+      invoiceValue: Number(invoiceValue),
+      paymentModeId: Number(paymentModeId),
+      riskTypeId: Number(riskTypeId),
+      boxes: [{
+        box_dead_weight: Number(weight),
+        box_length: Number(length),
+        box_width: Number(width),
+        box_height: Number(height),
+        no_of_box: Number(noOfBox),
       }],
     };
     run('calculateRate', [payload]);
@@ -82,7 +82,7 @@ export default function RatesPage() {
       <Tabs defaultValue="calculate">
         <TabsList>
           <TabsTrigger value="calculate">calculateRate</TabsTrigger>
-          <TabsTrigger value="shipping">getShippingRates</TabsTrigger>
+          <TabsTrigger value="serviceable">getServiceableCouriers</TabsTrigger>
         </TabsList>
 
         <TabsContent value="calculate" className="space-y-4">
@@ -91,16 +91,17 @@ export default function RatesPage() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">Rate Calculator</CardTitle>
                 <Button variant="outline" size="sm" onClick={() => {
-                  setShipmentCategory(SAMPLE_RATE_CALC.shipment_category);
-                  setPaymentType(SAMPLE_RATE_CALC.payment_type);
-                  setPickupPincode(SAMPLE_RATE_CALC.pickup_pincode);
-                  setDestinationPincode(SAMPLE_RATE_CALC.destination_pincode);
-                  setInvoiceAmount(String(SAMPLE_RATE_CALC.shipment_invoice_amount));
-                  setWeight(String(SAMPLE_RATE_CALC.box_details[0].each_box_dead_weight));
-                  setLength(String(SAMPLE_RATE_CALC.box_details[0].each_box_length));
-                  setWidth(String(SAMPLE_RATE_CALC.box_details[0].each_box_width));
-                  setHeight(String(SAMPLE_RATE_CALC.box_details[0].each_box_height));
-                  setBoxCount(String(SAMPLE_RATE_CALC.box_details[0].box_count));
+                  setSegmentType(SAMPLE_RATE_CALC_B2C.segment_type);
+                  setPaymentModeId(String(SAMPLE_RATE_CALC_B2C.paymentModeId));
+                  setSourcePincode(SAMPLE_RATE_CALC_B2C.sourcePincode);
+                  setDestPincode(SAMPLE_RATE_CALC_B2C.destPincode);
+                  setInvoiceValue(String(SAMPLE_RATE_CALC_B2C.invoiceValue));
+                  setRiskTypeId(String(SAMPLE_RATE_CALC_B2C.riskTypeId));
+                  setWeight(String(SAMPLE_RATE_CALC_B2C.boxes[0].box_dead_weight));
+                  setLength(String(SAMPLE_RATE_CALC_B2C.boxes[0].box_length));
+                  setWidth(String(SAMPLE_RATE_CALC_B2C.boxes[0].box_width));
+                  setHeight(String(SAMPLE_RATE_CALC_B2C.boxes[0].box_height));
+                  setNoOfBox(String(SAMPLE_RATE_CALC_B2C.boxes[0].no_of_box));
                 }}>
                   <Plus className="h-3.5 w-3.5 mr-1" />
                   Fill Sample
@@ -111,39 +112,53 @@ export default function RatesPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label>Shipment Category</Label>
-                    <Select value={shipmentCategory} onValueChange={(v) => v && setShipmentCategory(v as any)}>
+                    <Label>Segment Type</Label>
+                    <Select value={segmentType} onValueChange={(v) => v && setSegmentType(v)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="B2C">B2C</SelectItem>
-                        <SelectItem value="B2B">B2B</SelectItem>
+                        <SelectItem value="domestic_b2c">B2C</SelectItem>
+                        <SelectItem value="domestic_b2b">B2B</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-1.5">
-                    <Label>Payment Type</Label>
-                    <Select value={paymentType} onValueChange={(v) => v && setPaymentType(v as any)}>
+                    <Label>Payment Mode</Label>
+                    <Select value={paymentModeId} onValueChange={(v) => v && setPaymentModeId(v)}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Prepaid">Prepaid</SelectItem>
-                        <SelectItem value="COD">COD</SelectItem>
+                        <SelectItem value="1">Prepaid</SelectItem>
+                        <SelectItem value="2">COD</SelectItem>
+                        <SelectItem value="3">ToPay</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label>Pickup Pincode</Label>
-                    <Input value={pickupPincode} onChange={e => setPickupPincode(e.target.value)} placeholder="110001" />
+                    <Label>Risk Type</Label>
+                    <Select value={riskTypeId} onValueChange={(v) => v && setRiskTypeId(v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Third Party Insurance</SelectItem>
+                        <SelectItem value="2">Owner Risk</SelectItem>
+                        <SelectItem value="3">Carrier Risk</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Invoice Value</Label>
+                    <Input type="number" value={invoiceValue} onChange={e => setInvoiceValue(e.target.value)} placeholder="1000" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>Source Pincode</Label>
+                    <Input value={sourcePincode} onChange={e => setSourcePincode(e.target.value)} placeholder="110001" />
                   </div>
                   <div className="space-y-1.5">
                     <Label>Destination Pincode</Label>
-                    <Input value={destinationPincode} onChange={e => setDestinationPincode(e.target.value)} placeholder="400001" />
+                    <Input value={destPincode} onChange={e => setDestPincode(e.target.value)} placeholder="400001" />
                   </div>
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Shipment Invoice Amount</Label>
-                  <Input type="number" value={invoiceAmount} onChange={e => setInvoiceAmount(e.target.value)} placeholder="2500" />
                 </div>
 
                 <div className="border rounded-lg p-4 space-y-4">
@@ -151,11 +166,11 @@ export default function RatesPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <Label>Weight (kg)</Label>
-                      <Input type="number" value={weight} onChange={e => setWeight(e.target.value)} placeholder="0.5" />
+                      <Input type="number" value={weight} onChange={e => setWeight(e.target.value)} placeholder="1" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label>Box Count</Label>
-                      <Input type="number" value={boxCount} onChange={e => setBoxCount(e.target.value)} placeholder="1" />
+                      <Label>No. of Boxes</Label>
+                      <Input type="number" value={noOfBox} onChange={e => setNoOfBox(e.target.value)} placeholder="1" />
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
@@ -183,47 +198,23 @@ export default function RatesPage() {
           </Button>
         </TabsContent>
 
-        <TabsContent value="shipping" className="space-y-4">
+        <TabsContent value="serviceable" className="space-y-4">
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-base">Parameters</CardTitle></CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label>Order ID</Label>
-                  <Input value={shippingOrderId} onChange={e => setShippingOrderId(e.target.value)} placeholder="Enter order ID" />
-                  {results.orderIds.length > 0 && (
-                    <p className="text-xs text-muted-foreground">Auto-filled from last created order</p>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label>Category</Label>
-                    <Select value={shippingCategory} onValueChange={(v) => v && setShippingCategory(v as any)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="b2c">B2C</SelectItem>
-                        <SelectItem value="b2b">B2B</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label>Risk Type</Label>
-                    <Select value={riskType} onValueChange={(v) => v && setRiskType(v as any)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="safe">Safe</SelectItem>
-                        <SelectItem value="risky">Risky</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+              <div className="space-y-1.5">
+                <Label>Custom Global Order ID</Label>
+                <Input value={serviceableOrderId} onChange={e => setServiceableOrderId(e.target.value)} placeholder="Enter order ID" />
+                {results.orderIds.length > 0 && (
+                  <p className="text-xs text-muted-foreground">Auto-filled from last created order</p>
+                )}
               </div>
             </CardContent>
           </Card>
 
-          <Button onClick={() => run('getShippingRates', [shippingOrderId, shippingCategory, riskType])} disabled={isLoading} className="w-full" size="lg">
+          <Button onClick={() => run('getServiceableCouriers', [serviceableOrderId])} disabled={isLoading} className="w-full" size="lg">
             {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
-            Execute getShippingRates
+            Execute getServiceableCouriers
           </Button>
         </TabsContent>
       </Tabs>

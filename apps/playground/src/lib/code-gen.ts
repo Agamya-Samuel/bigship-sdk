@@ -1,30 +1,37 @@
 const METHODS_WITH_PARAMS: Record<string, { paramNames: string[]; returnsData: boolean; needsTypeGuard: boolean }> = {
-  getWalletBalance:          { paramNames: [], returnsData: true, needsTypeGuard: true },
-  getCourierList:            { paramNames: ['shipmentCategory'], returnsData: true, needsTypeGuard: true },
-  getCourierTransporterList: { paramNames: ['courierId'], returnsData: true, needsTypeGuard: true },
-  getPaymentCategory:        { paramNames: ['shipmentCategory'], returnsData: true, needsTypeGuard: true },
-  addWarehouse:              { paramNames: ['payload'], returnsData: true, needsTypeGuard: true },
-  getWarehouseList:          { paramNames: ['pageIndex', 'pageSize'], returnsData: true, needsTypeGuard: true },
-  addSingleOrder:            { paramNames: ['payload'], returnsData: true, needsTypeGuard: true },
-  addHeavyOrder:             { paramNames: ['payload'], returnsData: true, needsTypeGuard: true },
-  manifestSingle:            { paramNames: ['payload'], returnsData: true, needsTypeGuard: true },
-  manifestHeavy:             { paramNames: ['payload'], returnsData: true, needsTypeGuard: true },
-  getShippingRates:          { paramNames: ['orderId', 'category', 'riskType'], returnsData: true, needsTypeGuard: true },
-  cancelShipments:           { paramNames: ['awbs'], returnsData: true, needsTypeGuard: true },
-  calculateRate:             { paramNames: ['payload'], returnsData: true, needsTypeGuard: true },
-  getAWB:                    { paramNames: ['orderId'], returnsData: true, needsTypeGuard: true },
-  getShipmentFile:           { paramNames: ['shipmentDataId', 'orderId'], returnsData: true, needsTypeGuard: true },
-  getShipmentData:           { paramNames: ['shipmentDataId', 'orderId'], returnsData: true, needsTypeGuard: true },
-  trackShipment:             { paramNames: ['trackingId', 'trackingType'], returnsData: true, needsTypeGuard: true },
-  manifestAndGetAWB:         { paramNames: ['orderId', 'courierId'], returnsData: true, needsTypeGuard: false },
-  getShipmentDetails:        { paramNames: ['orderId'], returnsData: true, needsTypeGuard: false },
-  createAndFinalizeShipment: { paramNames: ['config'], returnsData: true, needsTypeGuard: false },
+  // Profile
+  getProfile:                  { paramNames: [], returnsData: true, needsTypeGuard: true },
+
+  // Wallet
+  getWalletBalance:           { paramNames: [], returnsData: true, needsTypeGuard: true },
+
+  // Warehouse
+  saveWarehouse:              { paramNames: ['payload'], returnsData: true, needsTypeGuard: true },
+  getWarehouseList:           { paramNames: ['params'], returnsData: true, needsTypeGuard: true },
+  updateWarehouse:            { paramNames: ['payload'], returnsData: true, needsTypeGuard: true },
+
+  // Reference Data
+  getPackageTypes:            { paramNames: [], returnsData: true, needsTypeGuard: true },
+  getPaymentModes:            { paramNames: ['segmentType'], returnsData: true, needsTypeGuard: true },
+  getRiskTypes:               { paramNames: [], returnsData: true, needsTypeGuard: true },
+
+  // Rate Calculator
+  calculateRate:              { paramNames: ['payload'], returnsData: true, needsTypeGuard: true },
+
+  // Order Lifecycle
+  createOrder:                { paramNames: ['payload'], returnsData: true, needsTypeGuard: true },
+  getServiceableCouriers:     { paramNames: ['orderId'], returnsData: true, needsTypeGuard: true },
+  placeOrder:                 { paramNames: ['payload'], returnsData: true, needsTypeGuard: true },
+  cancelOrder:                { paramNames: ['orderId'], returnsData: true, needsTypeGuard: true },
+
+  // Tracking & Details
+  trackOrder:                 { paramNames: ['orderId'], returnsData: true, needsTypeGuard: true },
+  getOrderDetail:             { paramNames: ['orderId'], returnsData: true, needsTypeGuard: true },
+  downloadDocument:           { paramNames: ['orderId', 'documentType'], returnsData: true, needsTypeGuard: true },
 };
 
 const METHODS_NEEDING_SPECIAL_IMPORTS: Record<string, string[]> = {
-  addSingleOrder: ['isFailedResponse'],
-  addHeavyOrder: ['isFailedResponse'],
-  getShipmentData: ['ShipmentDataType'],
+  createOrder: ['isFailedResponse'],
 };
 
 function formatValue(value: unknown, depth: number): string {
@@ -80,7 +87,7 @@ export function generateCode(method: string, params: unknown[]): string {
 
   // Client
   lines.push('const client = new BigshipClient({');
-  lines.push("  baseURL: 'https://api.bigship.in',");
+  lines.push("  baseURL: 'https://api.bigship.direct',");
   lines.push("  userName: 'your-email@example.com',");
   lines.push("  password: 'your-password',");
   lines.push("  accessKey: 'your-access-key',");

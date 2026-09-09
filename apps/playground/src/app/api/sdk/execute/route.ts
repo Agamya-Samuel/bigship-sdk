@@ -21,26 +21,35 @@ const ExecuteRequestSchema = z.object({
 });
 
 const METHOD_MAP: Record<string, (c: BigshipClient, p: unknown[]) => Promise<unknown>> = {
-  getWalletBalance:          (c) => c.getWalletBalance(),
-  getCourierList:            (c, p) => c.getCourierList(p[0] as 'b2c' | 'b2b'),
-  getCourierTransporterList: (c, p) => c.getCourierTransporterList(p[0] as number),
-  getPaymentCategory:        (c, p) => c.getPaymentCategory(p[0] as 'b2c' | 'b2b'),
-  addWarehouse:              (c, p) => c.addWarehouse(p[0] as any),
-  getWarehouseList:          (c, p) => c.getWarehouseList(p[0] as number, p[1] as number),
-  addSingleOrder:            (c, p) => c.addSingleOrder(p[0] as any),
-  addHeavyOrder:             (c, p) => c.addHeavyOrder(p[0] as any),
-  manifestSingle:            (c, p) => c.manifestSingle(p[0] as any),
-  manifestHeavy:             (c, p) => c.manifestHeavy(p[0] as any),
-  getShippingRates:          (c, p) => c.getShippingRates(p[0] as string, p[1] as any, p[2] as string),
-  cancelShipments:           (c, p) => c.cancelShipments(p[0] as string[]),
-  calculateRate:             (c, p) => c.calculateRate(p[0] as any),
-  getAWB:                    (c, p) => c.getAWB(p[0] as string),
-  getShipmentFile:           (c, p) => c.getShipmentFile(p[0] as 2 | 3, p[1] as string),
-  getShipmentData:           (c, p) => c.getShipmentData(p[0] as any, p[1] as string),
-  trackShipment:             (c, p) => c.trackShipment(p[0] as string, p[1] as 'awb' | 'lrn'),
-  manifestAndGetAWB:         (c, p) => c.manifestAndGetAWB(p[0] as string, p[1] as number),
-  getShipmentDetails:        (c, p) => c.getShipmentDetails(p[0] as string),
-  createAndFinalizeShipment: (c, p) => c.createAndFinalizeShipment(p[0] as any),
+  // Profile
+  getProfile:                  (c) => c.getProfile(),
+
+  // Wallet
+  getWalletBalance:           (c) => c.getWalletBalance(),
+
+  // Warehouse
+  saveWarehouse:              (c, p) => c.saveWarehouse(p[0] as any),
+  getWarehouseList:           (c, p) => c.getWarehouseList(p[0] as any),
+  updateWarehouse:            (c, p) => c.updateWarehouse(p[0] as any),
+
+  // Reference Data
+  getPackageTypes:            (c) => c.getPackageTypes(),
+  getPaymentModes:            (c, p) => c.getPaymentModes(p[0] as 'hyperlocal' | 'domestic_b2c' | 'domestic_b2b'),
+  getRiskTypes:               (c) => c.getRiskTypes(),
+
+  // Rate Calculator
+  calculateRate:              (c, p) => c.calculateRate(p[0] as any),
+
+  // Order Lifecycle
+  createOrder:                (c, p) => c.createOrder(p[0] as any),
+  getServiceableCouriers:     (c, p) => c.getServiceableCouriers(p[0] as string),
+  placeOrder:                 (c, p) => c.placeOrder(p[0] as any),
+  cancelOrder:                (c, p) => c.cancelOrder(p[0] as string),
+
+  // Tracking & Details
+  trackOrder:                 (c, p) => c.trackOrder(p[0] as string),
+  getOrderDetail:             (c, p) => c.getOrderDetail(p[0] as string),
+  downloadDocument:           (c, p) => c.downloadDocument(p[0] as string, p[1] as any),
 };
 
 function serializeError(err: unknown): Record<string, unknown> {
@@ -53,7 +62,6 @@ function serializeError(err: unknown): Record<string, unknown> {
     if (e.statusCode !== undefined) obj.statusCode = e.statusCode;
     if (e.code !== undefined) obj.code = e.code;
     if (e.validationErrors !== undefined) obj.validationErrors = e.validationErrors;
-    if (e.invoiceId !== undefined) obj.invoiceId = e.invoiceId;
     if (e.requestId !== undefined) obj.requestId = e.requestId;
     if (e.endpoint !== undefined) obj.endpoint = e.endpoint;
     if (e.responseBody !== undefined) obj.responseBody = e.responseBody;
@@ -69,7 +77,7 @@ export async function POST(req: NextRequest) {
     body = ExecuteRequestSchema.parse(raw);
   } catch (err) {
     return NextResponse.json(
-      { success: false, error: 'Invalid request body' },
+      { status: false, error: 'Invalid request body' },
       { status: 400 }
     );
   }
@@ -78,7 +86,7 @@ export async function POST(req: NextRequest) {
   const rateLimit = checkRateLimit(ip);
   if (!rateLimit.allowed) {
     return NextResponse.json(
-      { success: false, error: 'Rate limit exceeded', retryAfter: rateLimit.resetAt },
+      { status: false, error: 'Rate limit exceeded', retryAfter: rateLimit.resetAt },
       {
         status: 429,
         headers: {
@@ -94,7 +102,7 @@ export async function POST(req: NextRequest) {
 
   if (!(method in METHOD_MAP)) {
     return NextResponse.json(
-      { success: false, error: `Unknown method: ${method}` },
+      { status: false, error: `Unknown method: ${method}` },
       { status: 400 }
     );
   }
@@ -159,7 +167,7 @@ export async function POST(req: NextRequest) {
         send('hook', { type: 'flush', hooks, timestamp: Date.now() });
 
         send('result', {
-          success: true,
+          status: true,
           result,
           codeSnippet: generateCode(method, params),
           duration,
@@ -172,7 +180,7 @@ export async function POST(req: NextRequest) {
         send('hook', { type: 'flush', hooks, timestamp: Date.now() });
 
         send('error', {
-          success: false,
+          status: false,
           error: errorData,
           codeSnippet: generateCode(method, params),
           duration,

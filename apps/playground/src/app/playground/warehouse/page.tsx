@@ -11,8 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Play, Warehouse, Plus } from 'lucide-react';
-import { SAMPLE_WAREHOUSE } from '@/lib/sample-data';
+import { SAMPLE_WAREHOUSE, SAMPLE_WAREHOUSE_LIST } from '@/lib/sample-data';
 import type { HookEvent } from '@/lib/execute-stream';
 
 export default function WarehousePage() {
@@ -23,14 +24,22 @@ export default function WarehousePage() {
   const [duration, setDuration] = useState(0);
   const [hooks, setHooks] = useState<HookEvent[]>([]);
 
-  const [pageIndex, setPageIndex] = useState('1');
-  const [pageSize, setPageSize] = useState('10');
+  const [segmentType, setSegmentType] = useState<'hyperlocal' | 'local'>('hyperlocal');
+  const [page, setPage] = useState('1');
+  const [perPage, setPerPage] = useState('10');
 
-  const [addressLine1, setAddressLine1] = useState('');
-  const [addressLine2, setAddressLine2] = useState('');
-  const [addressLandmark, setAddressLandmark] = useState('');
-  const [addressPincode, setAddressPincode] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
+  const [warehouseContactPerson, setWarehouseContactPerson] = useState('');
+  const [warehouseAddressPhone, setWarehouseAddressPhone] = useState('');
+  const [warehouseCountry, setWarehouseCountry] = useState('India');
+  const [warehouseState, setWarehouseState] = useState('');
+  const [warehouseCity, setWarehouseCity] = useState('');
+  const [warehousePinCode, setWarehousePinCode] = useState('');
+  const [warehouseAddressLine1, setWarehouseAddressLine1] = useState('');
+  const [warehouseAddressLine2, setWarehouseAddressLine2] = useState('');
+  const [warehouseAddressLandMark, setWarehouseAddressLandMark] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [addressType, setAddressType] = useState<'Home' | 'Office' | 'Shop' | 'Factory' | 'Hotel' | 'Other'>('Home');
 
   const run = async (method: string, params: unknown[]) => {
     setResponse(null); setError(null);
@@ -40,22 +49,37 @@ export default function WarehousePage() {
   };
 
   const fillSample = () => {
-    setAddressLine1(SAMPLE_WAREHOUSE.address_line1);
-    setAddressLine2(SAMPLE_WAREHOUSE.address_line2 ?? '');
-    setAddressLandmark(SAMPLE_WAREHOUSE.address_landmark ?? '');
-    setAddressPincode(SAMPLE_WAREHOUSE.address_pincode);
-    setContactNumber(SAMPLE_WAREHOUSE.contact_number_primary);
+    setWarehouseContactPerson(SAMPLE_WAREHOUSE.warehouseContactPerson);
+    setWarehouseAddressPhone(SAMPLE_WAREHOUSE.warehouseAddressPhone);
+    setWarehouseCountry(SAMPLE_WAREHOUSE.warehouseCountry);
+    setWarehouseState(SAMPLE_WAREHOUSE.warehouseState);
+    setWarehouseCity(SAMPLE_WAREHOUSE.warehouseCity);
+    setWarehousePinCode(SAMPLE_WAREHOUSE.warehousePinCode);
+    setWarehouseAddressLine1(SAMPLE_WAREHOUSE.warehouseAddressLine1);
+    setWarehouseAddressLine2(SAMPLE_WAREHOUSE.warehouseAddressLine2 || '');
+    setWarehouseAddressLandMark(SAMPLE_WAREHOUSE.warehouseAddressLandMark);
+    setLatitude(SAMPLE_WAREHOUSE.latitude || '');
+    setLongitude(SAMPLE_WAREHOUSE.longitude || '');
+    setAddressType(SAMPLE_WAREHOUSE.address_type || 'Home');
   };
 
-  const handleAddWarehouse = () => {
+  const handleSaveWarehouse = () => {
     const payload = {
-      address_line1: addressLine1,
-      address_line2: addressLine2,
-      address_landmark: addressLandmark,
-      address_pincode: addressPincode,
-      contact_number_primary: contactNumber,
+      segment_type: segmentType,
+      warehouseContactPerson,
+      warehouseAddressPhone,
+      warehouseCountry,
+      warehouseState,
+      warehouseCity,
+      warehousePinCode,
+      warehouseAddressLine1,
+      warehouseAddressLine2: warehouseAddressLine2 || undefined,
+      warehouseAddressLandMark,
+      latitude: segmentType === 'hyperlocal' ? latitude : undefined,
+      longitude: segmentType === 'hyperlocal' ? longitude : undefined,
+      address_type: segmentType === 'hyperlocal' ? addressType : undefined,
     };
-    run('addWarehouse', [payload]);
+    run('saveWarehouse', [payload]);
   };
 
   return (
@@ -71,26 +95,36 @@ export default function WarehousePage() {
       <Tabs defaultValue="list">
         <TabsList>
           <TabsTrigger value="list">getWarehouseList</TabsTrigger>
-          <TabsTrigger value="add">addWarehouse</TabsTrigger>
+          <TabsTrigger value="add">saveWarehouse</TabsTrigger>
         </TabsList>
 
         <TabsContent value="list" className="space-y-4">
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-base">Parameters</CardTitle></CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <Label>Page Index</Label>
-                  <Input type="number" value={pageIndex} onChange={e => setPageIndex(e.target.value)} placeholder="1" />
+                  <Label>Segment Type</Label>
+                  <Select value={segmentType} onValueChange={(v) => setSegmentType(v as any)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hyperlocal">Hyperlocal</SelectItem>
+                      <SelectItem value="local">Local</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Page Size</Label>
-                  <Input type="number" value={pageSize} onChange={e => setPageSize(e.target.value)} placeholder="10" />
+                  <Label>Page</Label>
+                  <Input type="number" value={page} onChange={e => setPage(e.target.value)} placeholder="1" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Per Page</Label>
+                  <Input type="number" value={perPage} onChange={e => setPerPage(e.target.value)} placeholder="10" />
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Button onClick={() => run('getWarehouseList', [Number(pageIndex), Number(pageSize)])} disabled={isLoading} className="w-full" size="lg">
+          <Button onClick={() => run('getWarehouseList', [{ page, perPage, segment_type: segmentType }])} disabled={isLoading} className="w-full" size="lg">
             {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
             Execute getWarehouseList
           </Button>
@@ -113,33 +147,91 @@ export default function WarehousePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label>Address Line 1</Label>
-                  <Input value={addressLine1} onChange={e => setAddressLine1(e.target.value)} placeholder="42 Industrial Area Phase 2" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>Segment Type</Label>
+                    <Select value={segmentType} onValueChange={(v) => setSegmentType(v as any)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="hyperlocal">Hyperlocal</SelectItem>
+                        <SelectItem value="local">Local</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Contact Person</Label>
+                    <Input value={warehouseContactPerson} onChange={e => setWarehouseContactPerson(e.target.value)} placeholder="John Doe" />
+                  </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Address Line 2</Label>
-                  <Input value={addressLine2} onChange={e => setAddressLine2(e.target.value)} placeholder="Near Metro Station" />
+                  <Label>Phone</Label>
+                  <Input value={warehouseAddressPhone} onChange={e => setWarehouseAddressPhone(e.target.value)} placeholder="9876543210" />
                 </div>
-                <div className="space-y-1.5">
-                  <Label>Landmark</Label>
-                  <Input value={addressLandmark} onChange={e => setAddressLandmark(e.target.value)} placeholder="Behind SBI Branch" />
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>Country</Label>
+                    <Input value={warehouseCountry} onChange={e => setWarehouseCountry(e.target.value)} placeholder="India" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>State</Label>
+                    <Input value={warehouseState} onChange={e => setWarehouseState(e.target.value)} placeholder="Karnataka" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>City</Label>
+                    <Input value={warehouseCity} onChange={e => setWarehouseCity(e.target.value)} placeholder="Bangalore" />
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <Label>Pincode</Label>
-                  <Input value={addressPincode} onChange={e => setAddressPincode(e.target.value)} placeholder="110020" />
+                  <Input value={warehousePinCode} onChange={e => setWarehousePinCode(e.target.value)} placeholder="560113" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Contact Number</Label>
-                  <Input value={contactNumber} onChange={e => setContactNumber(e.target.value)} placeholder="9876543210" />
+                  <Label>Address Line 1</Label>
+                  <Input value={warehouseAddressLine1} onChange={e => setWarehouseAddressLine1(e.target.value)} placeholder="Sector 29" />
                 </div>
+                <div className="space-y-1.5">
+                  <Label>Address Line 2</Label>
+                  <Input value={warehouseAddressLine2} onChange={e => setWarehouseAddressLine2(e.target.value)} placeholder="Near City Centre" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Landmark</Label>
+                  <Input value={warehouseAddressLandMark} onChange={e => setWarehouseAddressLandMark(e.target.value)} placeholder="Hudda City Centre" />
+                </div>
+                {segmentType === 'hyperlocal' && (
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label>Latitude</Label>
+                        <Input value={latitude} onChange={e => setLatitude(e.target.value)} placeholder="12.947146" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Longitude</Label>
+                        <Input value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="77.621029" />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Address Type</Label>
+                      <Select value={addressType} onValueChange={(v) => setAddressType(v as any)}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Home">Home</SelectItem>
+                          <SelectItem value="Office">Office</SelectItem>
+                          <SelectItem value="Shop">Shop</SelectItem>
+                          <SelectItem value="Factory">Factory</SelectItem>
+                          <SelectItem value="Hotel">Hotel</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
 
-          <Button onClick={handleAddWarehouse} disabled={isLoading} className="w-full" size="lg">
+          <Button onClick={handleSaveWarehouse} disabled={isLoading} className="w-full" size="lg">
             {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
-            Execute addWarehouse
+            Execute saveWarehouse
           </Button>
         </TabsContent>
       </Tabs>

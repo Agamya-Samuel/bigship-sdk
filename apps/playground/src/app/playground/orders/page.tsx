@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Play, Wand2 } from 'lucide-react';
 import { introspect } from '@/lib/schema-introspect';
 import { SAMPLE_B2C_ORDER, SAMPLE_B2B_ORDER } from '@/lib/sample-data';
-import { AddSingleOrderRequestSchema, AddHeavyOrderRequestSchema } from '@agamya/bigship-sdk';
+import { DomesticB2COrderRequestSchema, DomesticB2BOrderRequestSchema } from '@agamya/bigship-sdk';
 import type { HookEvent } from '@/lib/execute-stream';
 
 function getDefaultForShape(shape: Record<string, any>): Record<string, unknown> {
@@ -41,12 +41,12 @@ export default function OrdersPage() {
   const [hooks, setHooks] = useState<HookEvent[]>([]);
 
   const b2cShape = useMemo(() => {
-    const def = introspect(AddSingleOrderRequestSchema);
+    const def = introspect(DomesticB2COrderRequestSchema);
     return def.kind === 'object' ? def.shape : {};
   }, []);
 
   const b2bShape = useMemo(() => {
-    const def = introspect(AddHeavyOrderRequestSchema);
+    const def = introspect(DomesticB2BOrderRequestSchema);
     return def.kind === 'object' ? def.shape : {};
   }, []);
 
@@ -61,7 +61,7 @@ export default function OrdersPage() {
 
     if (r.result) {
       const res = r.result as any;
-      const orderId = res?.data ?? res?.system_order_id ?? res?.orderId ?? res?.order_id;
+      const orderId = res?.data?.CustomGlobalOrderId ?? res?.data ?? res?.system_order_id ?? res?.orderId ?? res?.order_id;
       if (orderId && typeof orderId === 'string') addResult('orderId', orderId);
     }
   };
@@ -73,24 +73,24 @@ export default function OrdersPage() {
           <Play className="h-5 w-5" />
           Orders
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">Create B2C (single) or B2B (heavy) orders on BigShip.</p>
+        <p className="text-sm text-muted-foreground mt-1">Create B2C or B2B draft orders on BigShip.</p>
       </div>
 
       <Tabs defaultValue="b2c">
         <TabsList>
-          <TabsTrigger value="b2c">addSingleOrder (B2C)</TabsTrigger>
-          <TabsTrigger value="b2b">addHeavyOrder (B2B)</TabsTrigger>
+          <TabsTrigger value="b2c">B2C Order</TabsTrigger>
+          <TabsTrigger value="b2b">B2B Order</TabsTrigger>
         </TabsList>
 
         <TabsContent value="b2c" className="space-y-4">
           <RiskBanner level="warning">
-            This will create a real order on your BigShip account. Proceed with caution.
+            This will create a real draft order on your BigShip account. Proceed with caution.
           </RiskBanner>
 
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Order Details</CardTitle>
+                <CardTitle className="text-base">B2C Order Details</CardTitle>
                 <Button variant="outline" size="sm" onClick={() => setB2cValues(SAMPLE_B2C_ORDER as unknown as Record<string, unknown>)}>
                   <Wand2 className="h-3.5 w-3.5 mr-1" />
                   Fill Sample
@@ -102,21 +102,21 @@ export default function OrdersPage() {
             </CardContent>
           </Card>
 
-          <Button onClick={() => run('addSingleOrder', [b2cValues])} disabled={isLoading} className="w-full" size="lg">
+          <Button onClick={() => run('createOrder', [b2cValues])} disabled={isLoading} className="w-full" size="lg">
             {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
-            Execute addSingleOrder
+            Execute createOrder
           </Button>
         </TabsContent>
 
         <TabsContent value="b2b" className="space-y-4">
           <RiskBanner level="warning">
-            This will create a real heavy/B2B order on your BigShip account. Proceed with caution.
+            This will create a real draft heavy/B2B order on your BigShip account. Proceed with caution.
           </RiskBanner>
 
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Heavy Order Details</CardTitle>
+                <CardTitle className="text-base">B2B Order Details</CardTitle>
                 <Button variant="outline" size="sm" onClick={() => setB2bValues(SAMPLE_B2B_ORDER as unknown as Record<string, unknown>)}>
                   <Wand2 className="h-3.5 w-3.5 mr-1" />
                   Fill Sample
@@ -128,9 +128,9 @@ export default function OrdersPage() {
             </CardContent>
           </Card>
 
-          <Button onClick={() => run('addHeavyOrder', [b2bValues])} disabled={isLoading} className="w-full" size="lg">
+          <Button onClick={() => run('createOrder', [b2bValues])} disabled={isLoading} className="w-full" size="lg">
             {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
-            Execute addHeavyOrder
+            Execute createOrder
           </Button>
         </TabsContent>
       </Tabs>

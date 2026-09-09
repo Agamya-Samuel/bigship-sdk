@@ -14,16 +14,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Play, GitBranch, CheckCircle2, Circle, ArrowRight, AlertCircle, Wand2 } from 'lucide-react';
 import { introspect } from '@/lib/schema-introspect';
-import { SAMPLE_B2C_ORDER } from '@/lib/sample-data';
-import { AddSingleOrderRequestSchema } from '@agamya/bigship-sdk';
+import { SAMPLE_B2C_ORDER, SAMPLE_SERVICEABLE_COURIERS, SAMPLE_PLACE_ORDER } from '@/lib/sample-data';
+import { DomesticB2COrderRequestSchema } from '@agamya/bigship-sdk';
 import type { HookEvent } from '@/lib/execute-stream';
 
-type WorkflowState = 'idle' | 'created' | 'manifested' | 'finalized';
+type WorkflowState = 'idle' | 'created' | 'placed' | 'finalized';
 
 const STEPS: { key: WorkflowState; label: string }[] = [
   { key: 'idle', label: 'Idle' },
   { key: 'created', label: 'Created' },
-  { key: 'manifested', label: 'Manifested' },
+  { key: 'placed', label: 'Placed' },
   { key: 'finalized', label: 'Finalized' },
 ];
 
@@ -53,10 +53,9 @@ export default function WorkflowPage() {
   const [duration, setDuration] = useState(0);
   const [hooks, setHooks] = useState<HookEvent[]>([]);
   const [storedOrderId, setStoredOrderId] = useState('');
-  const [courierId, setCourierId] = useState('5');
 
   const orderShape = useMemo(() => {
-    const def = introspect(AddSingleOrderRequestSchema);
+    const def = introspect(DomesticB2COrderRequestSchema);
     return def.kind === 'object' ? def.shape : {};
   }, []);
 
@@ -73,10 +72,10 @@ export default function WorkflowPage() {
   };
 
   const handleCreateOrder = async () => {
-    const r = await run('addSingleOrder', [formValues]);
+    const r = await run('createOrder', [formValues]);
     if (r.result) {
       const res = r.result as any;
-      const orderId = res?.data ?? res?.orderId ?? res?.order_id;
+      const orderId = res?.data?.CustomGlobalOrderId ?? res?.data ?? res?.orderId;
       if (orderId && typeof orderId === 'string') {
         setStoredOrderId(orderId);
         setWorkflowState('created');
@@ -88,21 +87,30 @@ export default function WorkflowPage() {
     }
   };
 
-  const handleManifest = async () => {
-    const r = await run('manifestSingle', [{ system_order_id: storedOrderId, courier_id: Number(courierId) }]);
+  const handleGetCouriers = async () => {
+    const r = await run('getServiceableCouriers', [storedOrderId]);
     if (r.result) {
-      setWorkflowState('manifested');
+      setWorkflowState('placed');
     } else {
-      setErrorState('Failed to manifest shipment.');
+      setErrorState('Failed to get serviceable couriers.');
+    }
+  };
+
+  const handlePlaceOrder = async () => {
+    const r = await run('placeOrder', [{ MasterCustomOrderId: storedOrderId, courierId: 1, riskTypeId: '2' }]);
+    if (r.result) {
+      setWorkflowState('placed');
+    } else {
+      setErrorState('Failed to place order.');
     }
   };
 
   const handleFinalize = async () => {
-    const r = await run('getShipmentDetails', [storedOrderId]);
+    const r = await run('getOrderDetail', [storedOrderId]);
     if (r.result) {
       setWorkflowState('finalized');
     } else {
-      setErrorState('Failed to finalize shipment.');
+      setErrorState('Failed to get order details.');
     }
   };
 
@@ -132,7 +140,7 @@ export default function WorkflowPage() {
           Workflow
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Step through the shipment lifecycle: Create → Manifest → Finalize.
+          Step through the shipment lifecycle: Create → Place → Finalize.
         </p>
       </div>
 
@@ -174,7 +182,7 @@ export default function WorkflowPage() {
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Step 1: Create Order</CardTitle>
+                <CardTitle className="text-base">Step 1: Create Draft Order</CardTitle>
                 <Button variant="outline" size="sm" onClick={() => setFormValues(SAMPLE_B2C_ORDER as unknown as Record<string, unknown>)}>
                   <Wand2 className="h-3.5 w-3.5 mr-1" />
                   Fill Sample
@@ -188,7 +196,7 @@ export default function WorkflowPage() {
 
           <Button onClick={handleCreateOrder} disabled={isLoading} className="w-full" size="lg">
             {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
-            Create Order
+            Create Draft Order
           </Button>
         </div>
       )}
@@ -196,43 +204,37 @@ export default function WorkflowPage() {
       {workflowState === 'created' && (
         <div className="space-y-4">
           <RiskBanner level="warning">
-            Order created with ID: <code className="font-mono text-sm">{storedOrderId}</code>. Now manifest it with a courier.
+            Draft order created with ID: <code className="font-mono text-sm">{storedOrderId}</code>. Now place it with a courier.
           </RiskBanner>
 
           <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-base">Step 2: Manifest Shipment</CardTitle></CardHeader>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Step 2: Place Order</CardTitle></CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label>System Order ID</Label>
-                  <Input value={storedOrderId} onChange={e => setStoredOrderId(e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Courier ID</Label>
-                  <Input type="number" value={courierId} onChange={e => setCourierId(e.target.value)} placeholder="5" />
-                </div>
+              <div className="space-y-1.5">
+                <Label>Custom Global Order ID</Label>
+                <Input value={storedOrderId} onChange={e => setStoredOrderId(e.target.value)} />
               </div>
             </CardContent>
           </Card>
 
-          <Button onClick={handleManifest} disabled={isLoading} className="w-full" size="lg">
+          <Button onClick={handlePlaceOrder} disabled={isLoading} className="w-full" size="lg">
             {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
-            Manifest
+            Place Order
           </Button>
         </div>
       )}
 
-      {workflowState === 'manifested' && (
+      {workflowState === 'placed' && (
         <div className="space-y-4">
           <RiskBanner level="warning">
-            Shipment manifested. Finalize by fetching shipment details.
+            Order placed. Finalize by fetching order details.
           </RiskBanner>
 
           <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-base">Step 3: Finalize Shipment</CardTitle></CardHeader>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Step 3: Finalize</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-1.5">
-                <Label>System Order ID</Label>
+                <Label>Custom Global Order ID</Label>
                 <Input value={storedOrderId} onChange={e => setStoredOrderId(e.target.value)} />
               </div>
             </CardContent>
@@ -248,7 +250,7 @@ export default function WorkflowPage() {
       {workflowState === 'finalized' && (
         <div className="space-y-4">
           <RiskBanner level="safe" title="Workflow Complete">
-            Shipment has been created, manifested, and finalized successfully.
+            Order has been created, placed, and finalized successfully.
           </RiskBanner>
 
           <Button onClick={handleReset} variant="outline" className="w-full" size="lg">
