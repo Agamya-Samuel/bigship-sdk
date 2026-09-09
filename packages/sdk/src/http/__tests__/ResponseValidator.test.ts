@@ -1,20 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
 import { ResponseValidator, formatZodErrors } from '../ResponseValidator';
-import { BigshipDuplicateInvoiceError, BigshipValidationError, BigshipApiError } from '../../errors';
+import { BigshipValidationError, BigshipApiError } from '../../errors';
 import type { RequestContext } from '../../core/types';
 
 const ctx: RequestContext = { endpoint: '/api/test', method: 'POST', startTime: Date.now() };
 
 describe('ResponseValidator.validate', () => {
   it('returns data on success with non-null data', () => {
-    const response = { success: true, message: 'ok', responseCode: 200, data: 'ORDER-123' };
+    const response = { status: true, message: 'ok', status_code: 200, data: 'ORDER-123' };
     const result = ResponseValidator.validate(response, z.string(), ctx);
     expect(result).toBe('ORDER-123');
   });
 
   it('returns data on success with array data', () => {
-    const response = { success: true, message: 'ok', responseCode: 200, data: [{ id: 1 }] };
+    const response = { status: true, message: 'ok', status_code: 200, data: [{ id: 1 }] };
     const schema = z.array(z.object({ id: z.number() }));
     const result = ResponseValidator.validate(response, schema, ctx);
     expect(result).toEqual([{ id: 1 }]);
@@ -25,8 +25,8 @@ describe('ResponseValidator.validate', () => {
     expect(() => ResponseValidator.validate(response, z.string(), ctx)).toThrow(BigshipValidationError);
   });
 
-  it('throws BigshipApiError when success is false', () => {
-    const response = { success: false, message: 'Invalid pincode', responseCode: 400, data: null };
+  it('throws BigshipApiError when status is false', () => {
+    const response = { status: false, message: 'Invalid pincode', status_code: 400, data: null };
     try {
       ResponseValidator.validate(response, z.string(), ctx);
       expect.fail('should have thrown');
@@ -37,36 +37,20 @@ describe('ResponseValidator.validate', () => {
     }
   });
 
-  it('throws BigshipDuplicateInvoiceError when duplicate invoice detected', () => {
-    const response = {
-      success: false,
-      message: 'Duplicate order',
-      responseCode: 409,
-      data: null,
-      errors: { invoice_id: ['Invoice ID INV-001 already exists'] },
-    };
-    expect(() => ResponseValidator.validate(response, z.string(), ctx)).toThrow(BigshipDuplicateInvoiceError);
-    try {
-      ResponseValidator.validate(response, z.string(), ctx);
-    } catch (err) {
-      expect((err as BigshipDuplicateInvoiceError).invoiceId).toBe('Invoice ID INV-001 already exists');
-    }
-  });
-
   it('throws BigshipApiError when data is null on success', () => {
-    const response = { success: true, message: 'ok', responseCode: 200, data: null };
+    const response = { status: true, message: 'ok', status_code: 200, data: null };
     expect(() => ResponseValidator.validate(response, z.string(), ctx)).toThrow(BigshipApiError);
   });
 
   it('allows null data when allowNullData option is set', () => {
-    const response = { success: true, message: 'ok', responseCode: 200, data: null };
+    const response = { status: true, message: 'ok', status_code: 200, data: null };
     const result = ResponseValidator.validate(response, z.null(), ctx, { allowNullData: true });
     expect(result).toBeNull();
   });
 
   it('includes requestId and endpoint in error when available', () => {
     const ctxWithId: RequestContext = { endpoint: '/api/order', method: 'POST', startTime: Date.now(), requestId: 'req-123' };
-    const response = { success: false, message: 'fail', responseCode: 500, data: null };
+    const response = { status: false, message: 'fail', status_code: 500, data: null };
     try {
       ResponseValidator.validate(response, z.string(), ctxWithId);
     } catch (err) {
@@ -75,30 +59,16 @@ describe('ResponseValidator.validate', () => {
     }
   });
 
-  it('detects duplicate invoice by "duplicate" in message with invoice_id errors', () => {
-    const response = {
-      success: false,
-      message: 'duplicate entry found',
-      responseCode: 409,
-      data: null,
-      errors: { invoice_id: ['some error'] },
-    };
-    expect(() => ResponseValidator.validate(response, z.string(), ctx)).toThrow(BigshipDuplicateInvoiceError);
+  it('validates response with array data', () => {
+    const response = { status: true, message: 'ok', status_code: 200, data: [1, 2, 3] };
+    const result = ResponseValidator.validate(response, z.array(z.number()), ctx);
+    expect(result).toEqual([1, 2, 3]);
   });
 
-  it('does NOT trigger duplicate detection on "duplicate" in message without invoice_id errors', () => {
-    const response = {
-      success: false,
-      message: 'duplicate entry found',
-      responseCode: 400,
-      data: null,
-    };
-    expect(() => ResponseValidator.validate(response, z.string(), ctx)).toThrow(BigshipApiError);
-    try {
-      ResponseValidator.validate(response, z.string(), ctx);
-    } catch (err) {
-      expect(err).not.toBeInstanceOf(BigshipDuplicateInvoiceError);
-    }
+  it('validates response with null data and allowNullData', () => {
+    const response = { status: true, message: 'ok', status_code: 200, data: null };
+    const result = ResponseValidator.validate(response, z.string(), ctx, { allowNullData: true });
+    expect(result).toBeNull();
   });
 });
 
@@ -145,49 +115,5 @@ describe('formatZodErrors', () => {
     const issues = [{ path: [], message: 'Expected object' } as z.ZodIssue];
     const formatted = formatZodErrors(issues);
     expect(formatted['']).toEqual(['Expected object']);
-  });
-
-  it('validates response with array data', () => {
-    const response = { success: true, message: 'ok', responseCode: 200, data: [1, 2, 3] };
-    const result = ResponseValidator.validate(response, z.array(z.number()), ctx);
-    expect(result).toEqual([1, 2, 3]);
-  });
-
-  it('validates response with null data and allowNullData', () => {
-    const response = { success: true, message: 'ok', responseCode: 200, data: null };
-    const result = ResponseValidator.validate(response, z.string(), ctx, { allowNullData: true });
-    expect(result).toBeNull();
-  });
-
-  it('does NOT detect duplicate invoice when message says duplicate but no errors.invoice_id', () => {
-    const response = {
-      success: false,
-      message: 'duplicate entry found',
-      responseCode: 400,
-      data: null,
-      errors: { some_field: ['error'] },
-    };
-    try {
-      ResponseValidator.validate(response, z.string(), ctx);
-      expect.fail('should have thrown');
-    } catch (err) {
-      expect(err).toBeInstanceOf(BigshipApiError);
-      expect(err).not.toBeInstanceOf(BigshipDuplicateInvoiceError);
-    }
-  });
-
-  it('handles non-object response for duplicate check', () => {
-    const response = {
-      success: false,
-      message: 'fail',
-      responseCode: 400,
-      data: null,
-    };
-    try {
-      ResponseValidator.validate(response, z.string(), ctx);
-    } catch (err) {
-      expect(err).toBeInstanceOf(BigshipApiError);
-      expect((err as BigshipApiError).statusCode).toBe(400);
-    }
   });
 });

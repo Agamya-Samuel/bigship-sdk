@@ -19,7 +19,7 @@ describe('Logger', () => {
   it('does nothing when disabled', () => {
     const logger = new Logger(false);
     logger.logRequest({ method: 'GET', url: '/test' });
-    logger.logResponse({ success: true, message: 'ok', responseCode: 200, data: null });
+    logger.logResponse({ status: true, message: 'ok', status_code: 200, data: null });
     logger.logError(new BigshipApiError('fail', 400));
     expect(consoleLogSpy).not.toHaveBeenCalled();
     expect(consoleErrorSpy).not.toHaveBeenCalled();
@@ -105,10 +105,10 @@ describe('Logger', () => {
 
   it('logs response', () => {
     const logger = new Logger(true);
-    logger.logResponse({ success: true, message: 'ok', responseCode: 200, data: 'data' });
+    logger.logResponse({ status: true, message: 'ok', status_code: 200, data: 'data' });
     expect(consoleLogSpy).toHaveBeenCalledWith(
       '[Bigship SDK Response]',
-      expect.objectContaining({ success: true, hasData: true })
+      expect.objectContaining({ status: true, hasData: true })
     );
   });
 
@@ -161,7 +161,7 @@ describe('Logger', () => {
     };
     const logger = new Logger(true, adapter);
     logger.logRequest({ method: 'GET', url: '/test' });
-    logger.logResponse({ success: true, message: 'ok', responseCode: 200, data: null });
+    logger.logResponse({ status: true, message: 'ok', status_code: 200, data: null });
     logger.logError(new BigshipApiError('fail', 400));
     logger.warn('test');
     expect(adapter.debug).toHaveBeenCalled();
@@ -267,10 +267,10 @@ describe('Logger', () => {
 
   it('logs response with null data showing hasData: false', () => {
     const logger = new Logger(true);
-    logger.logResponse({ success: false, message: 'fail', responseCode: 400, data: null });
+    logger.logResponse({ status: false, message: 'fail', status_code: 400, data: null });
     expect(consoleLogSpy).toHaveBeenCalledWith(
       '[Bigship SDK Response]',
-      expect.objectContaining({ success: false, hasData: false })
+      expect.objectContaining({ status: false, hasData: false })
     );
   });
 });

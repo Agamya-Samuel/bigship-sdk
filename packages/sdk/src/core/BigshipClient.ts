@@ -2,44 +2,67 @@ import axios, { AxiosInstance, AxiosError, type AxiosRequestConfig } from 'axios
 import { z } from 'zod';
 import {
   type BigshipConfig,
-  AddSingleOrderRequestSchema,
-  AddHeavyOrderRequestSchema,
-  ManifestSingleRequestSchema,
-  ManifestHeavyRequestSchema,
-  WarehouseAddRequestSchema,
-  CancelRequestSchema,
-  RateCalculatorRequestSchema,
-  CourierItemSchema,
-  TransporterItemSchema,
-  PaymentCategoryItemSchema,
-  WarehouseListItemSchema,
+  // Auth
+  LoginDataSchema,
+  // Profile
+  ProfileDataSchema,
+  // Warehouse
+  SaveWarehouseRequestSchema,
+  SaveWarehouseDataSchema,
+  GetWarehouseListRequestSchema,
   WarehouseListDataSchema,
-  ShippingRateItemSchema,
-  ShipmentAWBDataSchema,
-  ShipmentFileDataSchema,
-  CalculatorRateItemSchema,
-  TrackingDataSchema,
-  CancelResponseSchema,
-  ShipmentDataType,
-  type WalletBalanceResponse,
-  type CourierListResponse,
-  type TransporterListResponse,
-  type PaymentCategoryResponse,
-  type WarehouseAddRequest,
-  type WarehouseAddResponse,
+  UpdateWarehouseRequestSchema,
+  UpdateWarehouseDataSchema,
+  // Reference Data
+  PackageTypeSchema,
+  PaymentModeSchema,
+  RiskTypeSchema,
+  // Rate Calculator
+  RateCalculatorRequestSchema,
+  RateCalculatorItemSchema,
+  // Order
+  CreateOrderRequestSchema,
+  CreateOrderDataSchema,
+  ServiceableCouriersRequestSchema,
+  ServiceableCouriersDataSchema,
+  PlaceOrderRequestSchema,
+  PlaceOrderDataSchema,
+  CancelOrderRequestSchema,
+  // Tracking & Details
+  TrackOrderRequestSchema,
+  TrackOrderDataSchema,
+  OrderDetailRequestSchema,
+  OrderDetailDataSchema,
+  DownloadDocumentRequestSchema,
+  DownloadDocumentDataSchema,
+  // Types
+  type SaveWarehouseRequest,
+  type SaveWarehouseResponse,
+  type GetWarehouseListRequest,
   type WarehouseListResponse,
-  type AddSingleOrderRequest,
-  type AddHeavyOrderRequest,
-  type AddOrderResponse,
-  type ManifestResponse,
-  type ShippingRatesResponse,
-  type CancelResponse,
-  type ShipmentAWBResponse,
-  type ShipmentFileResponse,
-  type ShipmentDataAnyResponse,
+  type UpdateWarehouseRequest,
+  type UpdateWarehouseResponse,
+  type PackageTypeResponse,
+  type PaymentModeResponse,
+  type RiskTypeResponse,
   type RateCalculatorRequest,
-  type CalculateRateResponse,
-  type TrackingResponse,
+  type RateCalculatorResponse,
+  type CreateOrderRequest,
+  type CreateOrderResponse,
+  type ServiceableCouriersRequest,
+  type ServiceableCouriersResponse,
+  type PlaceOrderRequest,
+  type PlaceOrderResponse,
+  type CancelOrderRequest,
+  type CancelOrderResponse,
+  type TrackOrderRequest,
+  type TrackOrderResponse,
+  type OrderDetailRequest,
+  type OrderDetailResponse,
+  type DownloadDocumentRequest,
+  type DownloadDocumentResponse,
+  type ProfileResponse,
+  type WalletBalanceResponse,
   type RequestContext,
   type LoggerAdapter,
 } from './types';
@@ -53,8 +76,6 @@ import {
   BigshipAuthError,
   BigshipValidationError,
 } from '../errors';
-import { fileToBase64DataURI, isValidBase64DataURI } from '../utils';
-import { ShipmentWorkflow } from '../workflow/ShipmentWorkflow';
 import { SDK_VERSION } from '../version';
 
 interface ResolvedConfig extends BigshipConfig {
@@ -224,18 +245,18 @@ export class BigshipClient {
     endpoint: string,
     method: string,
     apiCall: () => Promise<{ data: unknown }>,
-    schema: z.ZodType<T>,
+    dataSchema: z.ZodType<T>,
     message: string,
     validationOptions?: { allowNullData?: boolean }
-  ): Promise<{ success: true; message: string; responseCode: 200; data: T }> {
+  ): Promise<{ status: true; message: string; status_code: 200; data: T }> {
     const retryContext: RequestContext = { endpoint, method, startTime: Date.now() };
     return this.retryManager.executeWithRetry(async () => {
       await this.tokenManager.getToken();
       const startTime = Date.now();
       const res = await apiCall();
       const context: RequestContext = { endpoint, method, startTime, duration: Date.now() - startTime };
-      const data = ResponseValidator.validate(res.data, schema, context, validationOptions);
-      const response = { success: true as const, message, responseCode: 200 as const, data };
+      const data = ResponseValidator.validate(res.data, dataSchema, context, validationOptions);
+      const response = { status: true as const, message, status_code: 200 as const, data };
       await this.eventDispatcher.dispatchResponse(response, context);
       this.logger.logResponse(response);
       return response;
@@ -250,377 +271,213 @@ export class BigshipClient {
     return config;
   }
 
+  // ==================== PROFILE ====================
+
   /**
-   * @deprecated Token management is handled automatically by TokenManager
+   * Get the authenticated user's profile information.
+   * @throws {BigshipApiError} When API request fails
    */
-  async login(): Promise<string> {
-    return this.tokenManager.getToken();
+  async getProfile(options?: RequestOptions): Promise<ProfileResponse> {
+    return this.executeApiCall('api/outbound/profile', 'GET',
+      () => this.axios.get('api/outbound/profile', this.mergeAxiosConfig(options)),
+      ProfileDataSchema, 'User profile fetched successfully');
   }
 
   // ==================== WALLET ====================
 
-  /** @throws {BigshipApiError} When API request fails */
+  /**
+   * Get the current wallet balance.
+   * @throws {BigshipApiError} When API request fails
+   */
   async getWalletBalance(options?: RequestOptions): Promise<WalletBalanceResponse> {
-    return this.executeApiCall('/api/Wallet/balance/get', 'GET',
-      () => this.axios.get('/api/Wallet/balance/get', this.mergeAxiosConfig(options)),
+    return this.executeApiCall('api/outbound/wallet/balance', 'GET',
+      () => this.axios.get('api/outbound/wallet/balance', this.mergeAxiosConfig(options)),
       z.string(), 'Wallet balance retrieved successfully');
-  }
-
-  // ==================== COURIER ====================
-
-  /** @throws {BigshipApiError} When API request fails */
-  async getCourierList(shipmentCategory: 'b2b' | 'b2c' = 'b2c', options?: RequestOptions): Promise<CourierListResponse> {
-    return this.executeApiCall('/api/courier/get/all', 'GET',
-      () => this.axios.get('/api/courier/get/all', { params: { shipment_category: shipmentCategory }, ...this.mergeAxiosConfig(options) }),
-      z.array(CourierItemSchema), 'Courier list retrieved successfully');
-  }
-
-  /** @throws {BigshipApiError} When API request fails */
-  async getCourierTransporterList(courierId: number, options?: RequestOptions): Promise<TransporterListResponse> {
-    return this.executeApiCall('/api/courier/get/transport/list', 'GET',
-      () => this.axios.get('/api/courier/get/transport/list', { params: { courier_id: courierId }, ...this.mergeAxiosConfig(options) }),
-      z.array(TransporterItemSchema), 'Transporter list retrieved successfully');
-  }
-
-  // ==================== PAYMENT ====================
-
-  /** @throws {BigshipApiError} When API request fails */
-  async getPaymentCategory(shipmentCategory: 'b2b' | 'b2c' = 'b2c', options?: RequestOptions): Promise<PaymentCategoryResponse> {
-    return this.executeApiCall('/api/payment/category', 'GET',
-      () => this.axios.get('/api/payment/category', { params: { shipment_category: shipmentCategory }, ...this.mergeAxiosConfig(options) }),
-      z.array(PaymentCategoryItemSchema), 'Payment category retrieved successfully');
   }
 
   // ==================== WAREHOUSE ====================
 
-  /** @throws {BigshipValidationError} When request validation fails */
-  async addWarehouse(payload: WarehouseAddRequest, options?: RequestOptions): Promise<WarehouseAddResponse> {
-    const validated = this.parseRequest(WarehouseAddRequestSchema, payload, '/api/warehouse/add');
-    return this.executeApiCall('/api/warehouse/add', 'POST',
-      () => this.axios.post('/api/warehouse/add', validated, this.mergeAxiosConfig(options)),
-      WarehouseListItemSchema, 'Warehouse added successfully');
+  /**
+   * Save a new warehouse/pickup location.
+   * @throws {BigshipValidationError} When request validation fails
+   * @throws {BigshipApiError} When API request fails
+   */
+  async saveWarehouse(payload: SaveWarehouseRequest, options?: RequestOptions): Promise<SaveWarehouseResponse> {
+    const validated = this.parseRequest(SaveWarehouseRequestSchema, payload, 'api/outbound/save-warehouse-data');
+    return this.executeApiCall('api/outbound/save-warehouse-data', 'POST',
+      () => this.axios.post('api/outbound/save-warehouse-data', validated, this.mergeAxiosConfig(options)),
+      SaveWarehouseDataSchema, 'Warehouse added successfully');
   }
 
-  /** @throws {BigshipApiError} When API request fails */
-  async getWarehouseList(pageIndex = 1, pageSize = 10, options?: RequestOptions): Promise<WarehouseListResponse> {
-    if (pageSize > 200) {
-      throw new BigshipApiError('Maximum 200 Records can be fetched at a time', 400, {
-        code: 'INVALID_ARGUMENT',
-        endpoint: '/api/warehouse/get/list',
-      });
-    }
-    if (pageIndex < 1 || pageSize < 1) {
-      throw new BigshipApiError('PageIndex and Page Size should be greater than Zero.', 400, {
-        code: 'INVALID_ARGUMENT',
-        endpoint: '/api/warehouse/get/list',
-      });
-    }
-    return this.executeApiCall('/api/warehouse/get/list', 'GET',
-      () => this.axios.get('/api/warehouse/get/list', { params: { page_index: pageIndex, page_size: pageSize }, ...this.mergeAxiosConfig(options) }),
+  /**
+   * Get a list of warehouses with optional filtering.
+   * @throws {BigshipApiError} When API request fails
+   */
+  async getWarehouseList(params: GetWarehouseListRequest, options?: RequestOptions): Promise<WarehouseListResponse> {
+    const validated = this.parseRequest(GetWarehouseListRequestSchema, params, 'api/outbound/get-warehouse-list');
+    const response = await this.executeApiCall('api/outbound/get-warehouse-list', 'GET',
+      () => this.axios.get('api/outbound/get-warehouse-list', { params: validated, ...this.mergeAxiosConfig(options) }),
       WarehouseListDataSchema, 'Warehouse list retrieved successfully');
-  }
-
-  // ==================== HELPERS ====================
-
-  static async fileToBase64DataURI(file: File): Promise<string> {
-    return fileToBase64DataURI(file);
-  }
-
-  static isValidBase64DataURI(value: string): boolean {
-    return isValidBase64DataURI(value);
-  }
-
-  // ==================== ORDER ====================
-
-  /** @throws {BigshipValidationError} When request validation fails. @throws {BigshipDuplicateInvoiceError} When invoice ID already exists. @throws {BigshipApiError} When API request fails */
-  async addSingleOrder(payload: AddSingleOrderRequest, options?: RequestOptions): Promise<AddOrderResponse> {
-    const validated = this.parseRequest(AddSingleOrderRequestSchema, payload, '/api/order/add/single');
-    const response = await this.executeApiCall('/api/order/add/single', 'POST',
-      () => this.axios.post('/api/order/add/single', validated, this.mergeAxiosConfig(options)),
-      z.string(), 'Order added successfully');
-    return {
-      ...response,
-      data: (response.data as string).replace(/^system_order_id\s+is\s+/i, ''),
-    };
-  }
-
-  /** @throws {BigshipValidationError} When request validation fails. @throws {BigshipDuplicateInvoiceError} When invoice ID already exists. @throws {BigshipApiError} When API request fails */
-  async addHeavyOrder(payload: AddHeavyOrderRequest, options?: RequestOptions): Promise<AddOrderResponse> {
-    const validated = this.parseRequest(AddHeavyOrderRequestSchema, payload, '/api/order/add/heavy');
-    const response = await this.executeApiCall('/api/order/add/heavy', 'POST',
-      () => this.axios.post('/api/order/add/heavy', validated, this.mergeAxiosConfig(options)),
-      z.string(), 'Order added successfully');
-    return {
-      ...response,
-      data: (response.data as string).replace(/^system_order_id\s+is\s+/i, ''),
-    };
-  }
-
-  /** @throws {BigshipValidationError} When request validation fails. @throws {BigshipApiError} When API request fails */
-  async manifestSingle(payload: z.infer<typeof ManifestSingleRequestSchema>, options?: RequestOptions): Promise<ManifestResponse> {
-    const validated = this.parseRequest(ManifestSingleRequestSchema, payload, '/api/order/manifest/single');
-    return this.executeApiCall('/api/order/manifest/single', 'POST',
-      () => this.axios.post('/api/order/manifest/single', validated, this.mergeAxiosConfig(options)),
-      z.null(), 'Manifest created successfully', { allowNullData: true });
-  }
-
-  /** @throws {BigshipValidationError} When request validation fails. @throws {BigshipApiError} When API request fails */
-  async manifestHeavy(payload: z.infer<typeof ManifestHeavyRequestSchema>, options?: RequestOptions): Promise<ManifestResponse> {
-    const validated = this.parseRequest(ManifestHeavyRequestSchema, payload, '/api/order/manifest/heavy');
-    return this.executeApiCall('/api/order/manifest/heavy', 'POST',
-      () => this.axios.post('/api/order/manifest/heavy', validated, this.mergeAxiosConfig(options)),
-      z.null(), 'Manifest created successfully', { allowNullData: true });
-  }
-
-  /** @throws {BigshipApiError} When API request fails */
-  async getShippingRates(systemOrderId: string, shipmentCategory: 'B2C' | 'B2B' | 'b2c' | 'b2b' = 'B2C', riskType = '', options?: RequestOptions): Promise<ShippingRatesResponse> {
-    const normalizedCategory = typeof shipmentCategory === 'string' ? shipmentCategory.toLowerCase() : shipmentCategory;
-    return this.executeApiCall('/api/order/shipping/rates', 'GET',
-      () => this.axios.get('/api/order/shipping/rates', { params: { shipment_category: normalizedCategory, system_order_id: systemOrderId, risk_type: riskType }, ...this.mergeAxiosConfig(options) }),
-      z.array(ShippingRateItemSchema), 'Shipping rates retrieved successfully');
-  }
-
-  /** @throws {BigshipValidationError} When request validation fails. @throws {BigshipApiError} When API request fails */
-  async cancelShipments(awbs: string[], options?: RequestOptions): Promise<CancelResponse> {
-    const validated = this.parseRequest(CancelRequestSchema, awbs, '/api/order/cancel');
-    return this.executeApiCall('/api/order/cancel', 'PUT',
-      () => this.axios.put('/api/order/cancel', validated, this.mergeAxiosConfig(options)),
-      CancelResponseSchema.shape.data, 'Shipments cancelled successfully', { allowNullData: true });
-  }
-
-  // ==================== CALCULATOR ====================
-
-  /** @throws {BigshipValidationError} When request validation fails. @throws {BigshipApiError} When API request fails */
-  async calculateRate(payload: RateCalculatorRequest, options?: RequestOptions): Promise<CalculateRateResponse> {
-    const validated = this.parseRequest(RateCalculatorRequestSchema, payload, '/api/calculator');
-    if (!validated.risk_type) {
-      validated.risk_type = '';
+    // Normalize response: API returns empty array [] when no warehouses
+    if (Array.isArray(response.data)) {
+      return { ...response, data: { warehouse: [], total: 0 } };
     }
-    return this.executeApiCall('/api/calculator', 'POST',
-      () => this.axios.post('/api/calculator', validated, this.mergeAxiosConfig(options)),
-      z.array(CalculatorRateItemSchema), 'Rate calculated successfully');
-  }
-
-  // ==================== SHIPMENT ====================
-
-  /** @throws {BigshipApiError} When API request fails */
-  async getAWB(systemOrderId: string, options?: RequestOptions): Promise<ShipmentAWBResponse> {
-    return this.executeApiCall('/api/shipment/data', 'POST',
-      () => this.axios.post('/api/shipment/data', null, { params: { shipment_data_id: 1, system_order_id: systemOrderId }, ...this.mergeAxiosConfig(options) }),
-      ShipmentAWBDataSchema, 'Shipment AWB data retrieved successfully');
-  }
-
-  /** @throws {BigshipApiError} When API request fails or data is null */
-  async getShipmentFile(shipmentDataId: 2 | 3, systemOrderId: string, options?: RequestOptions): Promise<ShipmentFileResponse> {
-    const response = await this.executeApiCall('/api/shipment/data', 'POST',
-      () => this.axios.post('/api/shipment/data', null, { params: { shipment_data_id: shipmentDataId, system_order_id: systemOrderId }, ...this.mergeAxiosConfig(options) }),
-      ShipmentFileDataSchema, 'Shipment file retrieved successfully', { allowNullData: true });
-
-    let fileData: string | null = null;
-    if (typeof response.data === 'string') {
-      fileData = response.data;
-    } else if (response.data && typeof response.data === 'object' && 'res_FileContent' in response.data) {
-      const obj = response.data as { res_FileContent: string; res_MediaType?: string };
-      const mediaType = obj.res_MediaType || 'application/pdf';
-      fileData = `data:${mediaType};base64,${obj.res_FileContent}`;
-    }
-
-    return { ...response, data: fileData };
-  }
-
-  /** @throws {BigshipApiError} When API request fails or invalid shipmentDataId */
-  async getShipmentData(shipmentDataId: 1, systemOrderId: string, options?: RequestOptions): Promise<ShipmentAWBResponse>;
-  async getShipmentData(shipmentDataId: 2 | 3, systemOrderId: string, options?: RequestOptions): Promise<ShipmentFileResponse>;
-  async getShipmentData(shipmentDataId: number, systemOrderId: string, options?: RequestOptions): Promise<ShipmentDataAnyResponse>;
-  async getShipmentData(shipmentDataId: number, systemOrderId: string, options?: RequestOptions): Promise<ShipmentDataAnyResponse> {
-    if (shipmentDataId !== 1 && shipmentDataId !== 2 && shipmentDataId !== 3) {
-      throw new BigshipApiError(
-        `Invalid shipmentDataId: ${shipmentDataId}. Must be 1 (AWB), 2 (Label), or 3 (Manifest).`,
-        0,
-        { code: 'INVALID_ARGUMENT' }
-      );
-    }
-    if (shipmentDataId === 1) {
-      return this.getAWB(systemOrderId, options);
-    }
-    return this.getShipmentFile(shipmentDataId, systemOrderId, options);
-  }
-
-  /** @throws {BigshipApiError} When API request fails */
-  async trackShipment(trackingId: string, trackingType: 'awb' | 'lrn' = 'awb', options?: RequestOptions): Promise<TrackingResponse> {
-    try {
-      const response = await this.executeApiCall('/api/tracking', 'GET',
-        () => this.axios.get('/api/tracking', { params: { tracking_type: trackingType, tracking_id: trackingId }, ...this.mergeAxiosConfig(options) }),
-        TrackingDataSchema, 'Tracking data retrieved successfully');
-
-      const orderDetail = (response.data as any).order_detail;
-      return {
-        ...response,
-        data: {
-          tracking_id: orderDetail.tracking_id,
-          tracking_type: orderDetail.tracking_type,
-          current_status: orderDetail.current_tracking_status,
-          tracking_events: (response.data as any).scan_histories,
-        },
-      } as unknown as TrackingResponse;
-    } catch (err) {
-      if (err instanceof BigshipApiError && err.statusCode === 200 && err.responseBody) {
-        const body = err.responseBody as { data: { order_detail: any; scan_histories: any[] } };
-        const orderDetail = body.data?.order_detail;
-        return {
-          success: false as const,
-          message: err.message,
-          responseCode: 200 as const,
-          data: {
-            tracking_id: orderDetail?.tracking_id || trackingId,
-            tracking_type: orderDetail?.tracking_type || trackingType,
-            current_status: orderDetail?.current_tracking_status,
-            tracking_events: body.data?.scan_histories || [],
-          },
-        } as unknown as TrackingResponse;
-      }
-      throw err;
-    }
-  }
-
-  // ========== CONVENIENCE METHODS ==========
-
-  /**
-   * @throws {BigshipApiError} When AWB data is not available after manifest
-   */
-  async manifestAndGetAWB(
-    orderId: string,
-    courierId: number,
-    options?: RequestOptions
-  ): Promise<{ awb: string; courierName: string }> {
-    await this.manifestSingle({ system_order_id: orderId, courier_id: courierId }, options);
-    const awbResponse = await this.getShipmentData(ShipmentDataType.AWB, orderId, options);
-    if (!awbResponse.data || typeof awbResponse.data === 'string') {
-      throw new BigshipApiError('AWB data not available after manifest', 500, {
-        code: 'NULL_DATA',
-        endpoint: '/api/shipment/data',
-      });
-    }
-    return {
-      awb: awbResponse.data.master_awb,
-      courierName: awbResponse.data.courier_name,
-    };
+    return response as unknown as WarehouseListResponse;
   }
 
   /**
-   * @throws {BigshipApiError} When AWB, label, or manifest data is not available
+   * Update an existing warehouse/pickup location.
+   * @throws {BigshipValidationError} When request validation fails
+   * @throws {BigshipApiError} When API request fails
    */
-  async getShipmentDetails(orderId: string, options?: RequestOptions): Promise<{
-    awb: string;
-    courierName: string;
-    courierId: string;
-    labelData: string;
-    manifestData: string;
-  }> {
-    const [awbResponse, labelResponse, manifestResponse] = await Promise.all([
-      this.getShipmentData(ShipmentDataType.AWB, orderId, options),
-      this.getShipmentData(ShipmentDataType.LABEL, orderId, options),
-      this.getShipmentData(ShipmentDataType.MANIFEST, orderId, options),
-    ]);
+  async updateWarehouse(payload: UpdateWarehouseRequest, options?: RequestOptions): Promise<UpdateWarehouseResponse> {
+    const validated = this.parseRequest(UpdateWarehouseRequestSchema, payload, 'api/outbound/edit-warehouse-data');
+    return this.executeApiCall('api/outbound/edit-warehouse-data', 'POST',
+      () => this.axios.post('api/outbound/edit-warehouse-data', validated, this.mergeAxiosConfig(options)),
+      UpdateWarehouseDataSchema, 'Warehouse updated successfully');
+  }
 
-    if (!awbResponse.data || typeof awbResponse.data === 'string') {
-      throw new BigshipApiError('AWB data not available', 500, {
-        code: 'NULL_DATA',
-        endpoint: '/api/shipment/data',
-      });
-    }
+  // ==================== REFERENCE DATA ====================
 
-    return {
-      awb: awbResponse.data.master_awb,
-      courierName: awbResponse.data.courier_name,
-      courierId: awbResponse.data.courier_id,
-      labelData: typeof labelResponse.data === 'string' ? labelResponse.data : '',
-      manifestData: typeof manifestResponse.data === 'string' ? manifestResponse.data : '',
-    };
+  /**
+   * Get the list of package types for hyperlocal shipments.
+   * @throws {BigshipApiError} When API request fails
+   */
+  async getPackageTypes(options?: RequestOptions): Promise<PackageTypeResponse> {
+    return this.executeApiCall('api/outbound/hyperlocal/get-packages-list', 'GET',
+      () => this.axios.get('api/outbound/hyperlocal/get-packages-list', this.mergeAxiosConfig(options)),
+      z.array(PackageTypeSchema), 'Package types retrieved successfully');
   }
 
   /**
-   * @throws {BigshipApiError} When order creation or AWB polling fails
+   * Get the list of payment modes for a segment type.
+   * @param segmentType - The shipment segment type: 'hyperlocal', 'domestic_b2c', or 'domestic_b2b'
+   * @throws {BigshipApiError} When API request fails
    */
-  async createAndFinalizeShipment(config: {
-    order: AddSingleOrderRequest | AddHeavyOrderRequest;
-    courierId: number;
-    /** Max attempts to poll for AWB availability after manifest (default: 5) */
-    awbPollMaxAttempts?: number;
-    /** Delay between AWB poll attempts in ms (default: 2000) */
-    awbPollDelay?: number;
-    options?: RequestOptions;
-  }): Promise<{
-    orderId: string;
-    awb: string;
-    courierName: string;
-    labelData: string;
-    manifestData: string;
-  }> {
-    let orderResponse;
-    if (config.order.shipment_category === 'b2b') {
-      orderResponse = await this.addHeavyOrder(config.order as AddHeavyOrderRequest, config.options);
-    } else {
-      orderResponse = await this.addSingleOrder(config.order as AddSingleOrderRequest, config.options);
-    }
-
-    const orderId = orderResponse.data;
-    if (orderId === null || orderId === undefined) {
-      throw new BigshipApiError('Order creation failed: no order ID returned', 500, {
-        code: 'NULL_DATA',
-        endpoint: '/api/order/add/single',
-      });
-    }
-
-    await this.manifestSingle({ system_order_id: orderId, courier_id: config.courierId }, config.options);
-
-    const maxAttempts = config.awbPollMaxAttempts ?? 5;
-    const pollDelay = config.awbPollDelay ?? 2000;
-
-    // Poll only for AWB (single API call per attempt, not 3 parallel)
-    let awbData: ShipmentAWBResponse['data'] | undefined;
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      try {
-        const awbResponse = await this.getAWB(orderId, config.options);
-        if (awbResponse.data && typeof awbResponse.data !== 'string') {
-          awbData = awbResponse.data;
-          break;
-        }
-      } catch (err) {
-        if (err instanceof BigshipApiError && err.code === 'NULL_DATA') {
-          // AWB not available yet, retry
-        } else {
-          throw err;
-        }
-      }
-      if (attempt < maxAttempts - 1) {
-        await new Promise(resolve => setTimeout(resolve, pollDelay));
-      }
-    }
-
-    if (!awbData) {
-      throw new BigshipApiError('AWB data not available after manifest (polling exhausted)', 500, {
-        code: 'NULL_DATA',
-        endpoint: '/api/shipment/data',
-      });
-    }
-
-    // Fetch label and manifest once AWB is confirmed
-    const [labelResponse, manifestResponse] = await Promise.all([
-      this.getShipmentData(ShipmentDataType.LABEL, orderId, config.options),
-      this.getShipmentData(ShipmentDataType.MANIFEST, orderId, config.options),
-    ]);
-
-    return {
-      orderId,
-      awb: awbData.master_awb,
-      courierName: awbData.courier_name,
-      labelData: typeof labelResponse.data === 'string' ? labelResponse.data : '',
-      manifestData: typeof manifestResponse.data === 'string' ? manifestResponse.data : '',
-    };
+  async getPaymentModes(segmentType: 'hyperlocal' | 'domestic_b2c' | 'domestic_b2b', options?: RequestOptions): Promise<PaymentModeResponse> {
+    return this.executeApiCall('api/outbound/get-payment-mode', 'GET',
+      () => this.axios.get('api/outbound/get-payment-mode', { params: { segment_type: segmentType }, ...this.mergeAxiosConfig(options) }),
+      z.array(PaymentModeSchema), 'Payment modes retrieved successfully');
   }
 
-  workflow(): ShipmentWorkflow {
-    return new ShipmentWorkflow(this);
+  /**
+   * Get the list of risk types (insurance options).
+   * @throws {BigshipApiError} When API request fails
+   */
+  async getRiskTypes(options?: RequestOptions): Promise<RiskTypeResponse> {
+    return this.executeApiCall('api/outbound/domestic/risk-types', 'GET',
+      () => this.axios.get('api/outbound/domestic/risk-types', this.mergeAxiosConfig(options)),
+      z.array(RiskTypeSchema), 'Risk types retrieved successfully');
+  }
+
+  // ==================== RATE CALCULATOR ====================
+
+  /**
+   * Calculate shipping rates without creating an order.
+   * @throws {BigshipValidationError} When request validation fails
+   * @throws {BigshipApiError} When API request fails
+   */
+  async calculateRate(payload: RateCalculatorRequest, options?: RequestOptions): Promise<RateCalculatorResponse> {
+    const validated = this.parseRequest(RateCalculatorRequestSchema, payload, 'api/outbound/user-rate-calculator');
+    return this.executeApiCall('api/outbound/user-rate-calculator', 'POST',
+      () => this.axios.post('api/outbound/user-rate-calculator', validated, this.mergeAxiosConfig(options)),
+      z.array(RateCalculatorItemSchema), 'Rate calculated successfully');
+  }
+
+  // ==================== ORDER LIFECYCLE ====================
+
+  /**
+   * Create a new order in draft mode.
+   * Supports hyperlocal, domestic_b2b, and domestic_b2c segment types.
+   * @throws {BigshipValidationError} When request validation fails
+   * @throws {BigshipApiError} When API request fails
+   */
+  async createOrder(payload: CreateOrderRequest, options?: RequestOptions): Promise<CreateOrderResponse> {
+    const validated = this.parseRequest(CreateOrderRequestSchema, payload, 'api/outbound/create-order');
+    return this.executeApiCall('api/outbound/create-order', 'POST',
+      () => this.axios.post('api/outbound/create-order', validated, this.mergeAxiosConfig(options)),
+      CreateOrderDataSchema, 'Order created successfully');
+  }
+
+  /**
+   * Get serviceable couriers and rate quotations for a draft order.
+   * Must be called after createOrder() and before placeOrder().
+   * @param orderId - The CustomGlobalOrderId returned from createOrder()
+   * @throws {BigshipValidationError} When request validation fails
+   * @throws {BigshipApiError} When API request fails
+   */
+  async getServiceableCouriers(orderId: string, options?: RequestOptions): Promise<ServiceableCouriersResponse> {
+    const validated = this.parseRequest(ServiceableCouriersRequestSchema, { MasterCustomOrderId: orderId }, 'api/outbound/courier-wise-shipment-cost');
+    return this.executeApiCall('api/outbound/courier-wise-shipment-cost', 'POST',
+      () => this.axios.post('api/outbound/courier-wise-shipment-cost', validated, this.mergeAxiosConfig(options)),
+      ServiceableCouriersDataSchema, 'Serviceable couriers retrieved successfully');
+  }
+
+  /**
+   * Place/manifest an order with a selected courier.
+   * Must be called after getServiceableCouriers().
+   * @throws {BigshipValidationError} When request validation fails
+   * @throws {BigshipApiError} When API request fails
+   */
+  async placeOrder(payload: PlaceOrderRequest, options?: RequestOptions): Promise<PlaceOrderResponse> {
+    const validated = this.parseRequest(PlaceOrderRequestSchema, payload, 'api/outbound/place-order');
+    return this.executeApiCall('api/outbound/place-order', 'POST',
+      () => this.axios.post('api/outbound/place-order', validated, this.mergeAxiosConfig(options)),
+      PlaceOrderDataSchema, 'Order placed successfully');
+  }
+
+  /**
+   * Cancel an order by its CustomGlobalOrderId.
+   * @param orderId - The CustomGlobalOrderId of the order to cancel
+   * @throws {BigshipValidationError} When request validation fails
+   * @throws {BigshipApiError} When API request fails
+   */
+  async cancelOrder(orderId: string, options?: RequestOptions): Promise<CancelOrderResponse> {
+    const validated = this.parseRequest(CancelOrderRequestSchema, { CustomGlobalOrderId: orderId }, 'api/outbound/cancel-order');
+    return this.executeApiCall('api/outbound/cancel-order', 'POST',
+      () => this.axios.post('api/outbound/cancel-order', validated, this.mergeAxiosConfig(options)),
+      z.array(z.unknown()), 'Order cancelled successfully');
+  }
+
+  // ==================== TRACKING & DETAILS ====================
+
+  /**
+   * Track an order by its CustomGlobalOrderId.
+   * @param orderId - The CustomGlobalOrderId of the order to track
+   * @throws {BigshipValidationError} When request validation fails
+   * @throws {BigshipApiError} When API request fails
+   */
+  async trackOrder(orderId: string, options?: RequestOptions): Promise<TrackOrderResponse> {
+    const validated = this.parseRequest(TrackOrderRequestSchema, { CustomGlobalOrderId: orderId }, 'api/outbound/track-order');
+    return this.executeApiCall('api/outbound/track-order', 'GET',
+      () => this.axios.get('api/outbound/track-order', { params: validated, ...this.mergeAxiosConfig(options) }),
+      TrackOrderDataSchema, 'Tracking data retrieved successfully');
+  }
+
+  /**
+   * Get detailed information about an order.
+   * @param orderId - The MasterCustomOrderId of the order
+   * @throws {BigshipValidationError} When request validation fails
+   * @throws {BigshipApiError} When API request fails
+   */
+  async getOrderDetail(orderId: string, options?: RequestOptions): Promise<OrderDetailResponse> {
+    const validated = this.parseRequest(OrderDetailRequestSchema, { MasterCustomOrderId: orderId }, 'api/outbound/order-shipment-details');
+    return this.executeApiCall('api/outbound/order-shipment-details', 'GET',
+      () => this.axios.get('api/outbound/order-shipment-details', { params: validated, ...this.mergeAxiosConfig(options) }),
+      OrderDetailDataSchema, 'Order details retrieved successfully');
+  }
+
+  /**
+   * Download a shipment document (invoice, label, ewaybill, or manifest).
+   * @param orderId - The CustomGlobalOrderId of the order
+   * @param documentType - The type of document to download
+   * @throws {BigshipValidationError} When request validation fails
+   * @throws {BigshipApiError} When API request fails
+   */
+  async downloadDocument(orderId: string, documentType: 'invoice' | 'label' | 'ewaybill' | 'manifest', options?: RequestOptions): Promise<DownloadDocumentResponse> {
+    const validated = this.parseRequest(DownloadDocumentRequestSchema, { CustomGlobalOrderId: orderId, document_type: documentType }, 'api/outbound/download-shipment-documents');
+    return this.executeApiCall('api/outbound/download-shipment-documents', 'GET',
+      () => this.axios.get('api/outbound/download-shipment-documents', { params: validated, ...this.mergeAxiosConfig(options) }),
+      DownloadDocumentDataSchema, 'Document downloaded successfully');
   }
 }

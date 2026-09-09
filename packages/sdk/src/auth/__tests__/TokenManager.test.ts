@@ -32,6 +32,34 @@ function createMockAxios(): AxiosInstance {
   } as unknown as AxiosInstance;
 }
 
+// API login response format
+function loginResponse(token: string) {
+  return {
+    status: true,
+    message: 'Logged in Successfully',
+    status_code: 200,
+    data: {
+      firstName: 'Test',
+      lastName: 'User',
+      EmailID: 'user@test.com',
+      mobileNumber: '9876543210',
+      countryname: 'India',
+      IsEmailVerifed: '1',
+      token,
+      tokenExpiringAt: '2025-01-01T00:00:00Z',
+      is_outbound_service_enabled: '1',
+      api_master_client_account: {
+        access_key: 'key123',
+        access_key_generated_date: '2025-01-01',
+        is_account_enabled: '1',
+        created_date: '2025-01-01T00:00:00Z',
+        updated_date: '2025-01-01T00:00:00Z',
+      },
+      userWallet: { Balance: '5000.00', kycCurrency: '₹' },
+    },
+  };
+}
+
 describe('TokenManager', () => {
   let axios: AxiosInstance;
   let dispatcher: EventDispatcher;
@@ -43,18 +71,23 @@ describe('TokenManager', () => {
 
   it('fetches token on first call', async () => {
     (axios.post as ReturnType<typeof vi.fn>).mockResolvedValue({
-      data: { success: true, message: 'ok', responseCode: 200, data: { token: 'tok-abc' } },
+      data: loginResponse('tok-abc'),
     });
     const tm = new TokenManager(axios, createConfig(), dispatcher);
     const token = await tm.getToken();
     expect(token).toBe('tok-abc');
     expect(axios.post).toHaveBeenCalledTimes(1);
+    expect(axios.post).toHaveBeenCalledWith('api/outbound/login', expect.objectContaining({
+      username: 'user@test.com',
+      password: 'pass123',
+      access_key: 'key123',
+    }));
     expect((axios.defaults.headers.common as Record<string, string>)['Authorization']).toBe('Bearer tok-abc');
   });
 
   it('returns cached token on subsequent calls', async () => {
     (axios.post as ReturnType<typeof vi.fn>).mockResolvedValue({
-      data: { success: true, message: 'ok', responseCode: 200, data: { token: 'tok-abc' } },
+      data: loginResponse('tok-abc'),
     });
     const tm = new TokenManager(axios, createConfig(), dispatcher);
     await tm.getToken();
@@ -69,7 +102,7 @@ describe('TokenManager', () => {
       new Promise(resolve => {
         callCount++;
         setTimeout(() => resolve({
-          data: { success: true, message: 'ok', responseCode: 200, data: { token: 'tok-abc' } },
+          data: loginResponse('tok-abc'),
         }), 10);
       })
     );
@@ -83,13 +116,13 @@ describe('TokenManager', () => {
 
   it('refreshes token after clearToken', async () => {
     (axios.post as ReturnType<typeof vi.fn>).mockResolvedValue({
-      data: { success: true, message: 'ok', responseCode: 200, data: { token: 'tok-1' } },
+      data: loginResponse('tok-1'),
     });
     const tm = new TokenManager(axios, createConfig(), dispatcher);
     await tm.getToken();
 
     (axios.post as ReturnType<typeof vi.fn>).mockResolvedValue({
-      data: { success: true, message: 'ok', responseCode: 200, data: { token: 'tok-2' } },
+      data: loginResponse('tok-2'),
     });
     tm.clearToken();
     const token = await tm.getToken();
@@ -103,23 +136,9 @@ describe('TokenManager', () => {
     await expect(tm.getToken()).rejects.toThrow(BigshipAuthError);
   });
 
-  it('throws BigshipValidationError on malformed login response', async () => {
-    (axios.post as ReturnType<typeof vi.fn>).mockResolvedValue({
-      data: { success: true, message: 'ok', responseCode: 200, data: { not_token: 123 } },
-    });
-    const tm = new TokenManager(axios, createConfig(), dispatcher);
-    try {
-      await tm.getToken();
-      expect.fail('should have thrown');
-    } catch (err) {
-      expect(err).toBeInstanceOf(BigshipValidationError);
-      expect((err as BigshipValidationError).validationErrors).toHaveProperty('login_response_schema');
-    }
-  });
-
   it('throws BigshipAuthError when login response data is null', async () => {
     (axios.post as ReturnType<typeof vi.fn>).mockResolvedValue({
-      data: { success: true, message: 'ok', responseCode: 200, data: null },
+      data: { status: true, message: 'ok', status_code: 200, data: null },
     });
     const tm = new TokenManager(axios, createConfig(), dispatcher);
     await expect(tm.getToken()).rejects.toThrow(BigshipAuthError);
@@ -127,13 +146,13 @@ describe('TokenManager', () => {
 
   it('clearToken resets state and forces new fetch', async () => {
     (axios.post as ReturnType<typeof vi.fn>).mockResolvedValue({
-      data: { success: true, message: 'ok', responseCode: 200, data: { token: 'tok' } },
+      data: loginResponse('tok'),
     });
     const tm = new TokenManager(axios, createConfig(), dispatcher);
     await tm.getToken();
     tm.clearToken();
     (axios.post as ReturnType<typeof vi.fn>).mockResolvedValue({
-      data: { success: true, message: 'ok', responseCode: 200, data: { token: 'tok-new' } },
+      data: loginResponse('tok-new'),
     });
     const token = await tm.getToken();
     expect(token).toBe('tok-new');

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { isValidBase64DataURI, calculateCollectableAmount, validateOrderDetail, fileToBase64DataURI, BigshipUtils } from '../index';
+import { describe, it, expect } from 'vitest';
+import { isValidBase64DataURI, calculateCollectableAmount, fileToBase64DataURI, BigshipUtils } from '../index';
 
 describe('fileToBase64DataURI', () => {
   it('throws when file is falsy', async () => {
@@ -30,11 +30,25 @@ describe('BigshipUtils', () => {
     expect(typeof BigshipUtils.fileToBase64DataURI).toBe('function');
     expect(typeof BigshipUtils.isValidBase64DataURI).toBe('function');
     expect(typeof BigshipUtils.calculateCollectableAmount).toBe('function');
-    expect(typeof BigshipUtils.validateOrderDetail).toBe('function');
+    expect(typeof BigshipUtils.formatZodErrors).toBe('function');
   });
 
   it('isValidBase64DataURI works through BigshipUtils', () => {
     expect(BigshipUtils.isValidBase64DataURI('data:application/pdf;base64,JVBERi0x')).toBe(true);
+  });
+
+  it('calculateCollectableAmount works through BigshipUtils', () => {
+    expect(BigshipUtils.calculateCollectableAmount('Prepaid', 500)).toBe(0);
+    expect(BigshipUtils.calculateCollectableAmount('COD', 500)).toBe(500);
+  });
+
+  it('formatZodErrors works through BigshipUtils', async () => {
+    const { z } = await import('zod');
+    const result = z.object({ name: z.string() }).safeParse({ name: 123 });
+    if (!result.success) {
+      const errors = BigshipUtils.formatZodErrors(result.error.issues);
+      expect(errors['name']).toBeDefined();
+    }
   });
 });
 
@@ -100,54 +114,5 @@ describe('calculateCollectableAmount', () => {
 
   it('returns 0 for COD with 0', () => {
     expect(calculateCollectableAmount('COD', 0)).toBe(0);
-  });
-});
-
-describe('validateOrderDetail', () => {
-  it('throws when invoice_document_file is missing', () => {
-    expect(() => validateOrderDetail({}, 'b2c')).toThrow('invoice_document_file is required');
-  });
-
-  it('throws when document_detail is missing', () => {
-    expect(() => validateOrderDetail({ payment_type: 'COD' }, 'b2c')).toThrow('invoice_document_file is required');
-  });
-
-  it('throws for B2B when ewaybill_number is missing', () => {
-    expect(() =>
-      validateOrderDetail({
-        document_detail: { invoice_document_file: 'data:application/pdf;base64,abc' },
-      }, 'b2b')
-    ).toThrow('ewaybill_number is required');
-  });
-
-  it('throws for Prepaid with non-zero collectable', () => {
-    expect(() =>
-      validateOrderDetail({
-        document_detail: { invoice_document_file: 'data:application/pdf;base64,abc' },
-        payment_type: 'Prepaid',
-        total_collectable_amount: 100,
-      }, 'b2c')
-    ).toThrow('total_collectable_amount must be 0');
-  });
-
-  it('does not throw for valid B2C Prepaid order', () => {
-    expect(() =>
-      validateOrderDetail({
-        document_detail: { invoice_document_file: 'data:application/pdf;base64,abc' },
-        payment_type: 'Prepaid',
-        total_collectable_amount: 0,
-      }, 'b2c')
-    ).not.toThrow();
-  });
-
-  it('does not throw for valid B2B COD order', () => {
-    expect(() =>
-      validateOrderDetail({
-        document_detail: { invoice_document_file: 'data:application/pdf;base64,abc' },
-        ewaybill_number: 'EWB123',
-        payment_type: 'COD',
-        total_collectable_amount: 500,
-      }, 'b2b')
-    ).not.toThrow();
   });
 });

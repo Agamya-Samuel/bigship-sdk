@@ -1,9 +1,4 @@
-import type { z } from 'zod';
 import type { ZodIssue } from 'zod';
-import type { OrderDetailB2CSchema, OrderDetailB2BSchema } from '../core/types';
-
-type OrderDetailB2C = z.infer<typeof OrderDetailB2CSchema>;
-type OrderDetailB2B = z.infer<typeof OrderDetailB2BSchema>;
 
 const allowedFileTypes = ['application/pdf', 'image/jpeg', 'image/jpg'] as const;
 
@@ -42,30 +37,10 @@ export function calculateCollectableAmount(
   return Math.max(0, codAmount);
 }
 
-export function validateOrderDetail(
-  orderDetail: OrderDetailB2C | OrderDetailB2B,
-  shipmentCategory: 'b2c' | 'b2b'
-): void {
-  if (!orderDetail.document_detail?.invoice_document_file) {
-    throw new Error(
-      `invoice_document_file is required in document_detail for ${shipmentCategory.toUpperCase()} orders`
-    );
-  }
-
-  if (shipmentCategory === 'b2b' && !(orderDetail as OrderDetailB2B).ewaybill_number) {
-    throw new Error('ewaybill_number is required for B2B orders');
-  }
-
-  if (orderDetail.payment_type === 'Prepaid' && orderDetail.total_collectable_amount !== 0) {
-    throw new Error('total_collectable_amount must be 0 for Prepaid orders');
-  }
-}
-
 export const BigshipUtils = {
   fileToBase64DataURI,
   isValidBase64DataURI,
   calculateCollectableAmount,
-  validateOrderDetail,
   formatZodErrors,
 } as const;
 

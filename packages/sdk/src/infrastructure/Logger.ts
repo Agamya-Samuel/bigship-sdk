@@ -49,9 +49,9 @@ class Logger {
     if (!this.enabled) return;
 
     this.adapter.debug('[Bigship SDK Response]', {
-      success: response.success,
+      status: response.status,
       message: response.message,
-      responseCode: response.responseCode,
+      status_code: response.status_code,
       hasData: response.data !== null
     });
   }

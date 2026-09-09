@@ -6,9 +6,7 @@ import {
 import { formatZodErrors } from '../utils';
 import {
   BigshipApiError,
-  BigshipDuplicateInvoiceError,
   BigshipValidationError,
-  type BigshipApiErrorOptions,
 } from '../errors';
 
 /**
@@ -26,8 +24,7 @@ export class ResponseValidator {
    * @param schema - Zod schema to validate the data against
    * @param context - Request context for error reporting
    * @returns The validated data from the response
-   * @throws {BigshipDuplicateInvoiceError} When invoice already exists
-   * @throws {BigshipApiError} When success: false
+   * @throws {BigshipApiError} When status: false
    * @throws {BigshipValidationError} When response structure is invalid
    *
    * @example
@@ -35,7 +32,7 @@ export class ResponseValidator {
    * const data = ResponseValidator.validate(
    *   res.data,
    *   z.string(),
-   *   { endpoint: '/api/order/add/single', method: 'POST', startTime: Date.now() }
+   *   { endpoint: 'api/outbound/login', method: 'POST', startTime: Date.now() }
    * );
    * ```
    */
@@ -61,22 +58,14 @@ export class ResponseValidator {
 
     const validated = apiResponse.data;
 
-    if (validated.success === false) {
+    if (validated.status === false) {
       const rawResponse = (response && typeof response === 'object' && !Array.isArray(response)
         ? response
         : {}) as Record<string, unknown>;
-      if (ResponseValidator.isDuplicateInvoiceError(rawResponse)) {
-        const invoiceId = ResponseValidator.extractInvoiceId(rawResponse);
-        throw new BigshipDuplicateInvoiceError(invoiceId, {
-          requestId: context.requestId,
-          endpoint: context.endpoint,
-          responseBody: validated
-        });
-      }
 
       throw new BigshipApiError(
         validated.message || 'API request failed',
-        validated.responseCode,
+        validated.status_code,
         {
           code: 'API_ERROR',
           requestId: context.requestId,
@@ -92,7 +81,7 @@ export class ResponseValidator {
 
     if (!options?.allowNullData && (validated.data === null || validated.data === undefined)) {
       throw new BigshipApiError(
-        `API returned success=true but data is null for endpoint: ${context.endpoint}`,
+        `API returned status=true but data is null for endpoint: ${context.endpoint}`,
         500,
         {
           code: 'NULL_DATA',
@@ -104,31 +93,6 @@ export class ResponseValidator {
     }
 
     return validated.data as T;
-  }
-
-  /**
-   * Check if the response indicates a duplicate invoice error
-   */
-  private static isDuplicateInvoiceError(response: Record<string, unknown>): boolean {
-    const errors = response.errors as Record<string, string[]> | undefined;
-    const message = response.message as string | undefined;
-    const hasInvoiceIdErrors = !!errors?.invoice_id;
-    return !!(
-      errors?.invoice_id?.some((msg: string) =>
-        msg.toLowerCase().includes('already exists')
-      ) ||
-      (message?.toLowerCase().includes('duplicate') && hasInvoiceIdErrors) ||
-      message?.toLowerCase().includes('already exists')
-    );
-  }
-
-  private static extractInvoiceId(response: Record<string, unknown>): string {
-    const errors = response.errors as Record<string, string[]> | undefined;
-    if (errors?.invoice_id?.[0]) return errors.invoice_id[0];
-    const message = response.message as string | undefined;
-    const match = message?.match(/invoice\s+id[:\s]+([^\s]+)/i);
-    if (match) return match[1];
-    return 'unknown';
   }
 
   /**

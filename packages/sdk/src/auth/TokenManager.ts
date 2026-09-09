@@ -87,14 +87,14 @@ export class TokenManager {
    */
   private async refreshToken(): Promise<string> {
     const payload: LoginRequest = {
-      user_name: this.config.userName,
+      username: this.config.userName,
       password: this.config.password,
       access_key: this.config.accessKey,
     };
 
     try {
       const validated = LoginRequestSchema.parse(payload);
-      const res = await this.axios.post('/api/login/user', validated);
+      const res = await this.axios.post('api/outbound/login', validated);
 
       const parsed = LoginResponseSchema.parse(res.data);
       if (!parsed.data) {

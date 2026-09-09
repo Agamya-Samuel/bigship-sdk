@@ -1,17 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import {
   LoginRequestSchema,
-  AddSingleOrderRequestSchema,
-  AddHeavyOrderRequestSchema,
-  WarehouseAddRequestSchema,
-  ConsigneeAddressSchema,
-  ConsigneeDetailSchema,
-  ProductDetailSchema,
-  BoxDetailB2CSchema,
-  BoxDetailB2BSchema,
+  SaveWarehouseRequestSchema,
+  GetWarehouseListRequestSchema,
+  UpdateWarehouseRequestSchema,
   RateCalculatorRequestSchema,
-  ManifestSingleRequestSchema,
-  CancelRequestSchema,
+  CreateOrderRequestSchema,
+  HyperlocalOrderRequestSchema,
+  DomesticB2BOrderRequestSchema,
+  DomesticB2COrderRequestSchema,
+  ServiceableCouriersRequestSchema,
+  PlaceOrderRequestSchema,
+  CancelOrderRequestSchema,
+  TrackOrderRequestSchema,
+  OrderDetailRequestSchema,
+  DownloadDocumentRequestSchema,
   ApiResponseSchema,
   isSuccessResponse,
   isFailedResponse,
@@ -22,16 +25,16 @@ import { z } from 'zod';
 describe('LoginRequestSchema', () => {
   it('accepts valid login', () => {
     const result = LoginRequestSchema.safeParse({
-      user_name: 'user@test.com',
+      username: 'user@test.com',
       password: 'pass',
       access_key: 'key',
     });
     expect(result.success).toBe(true);
   });
 
-  it('rejects empty user_name', () => {
+  it('rejects empty username', () => {
     const result = LoginRequestSchema.safeParse({
-      user_name: '',
+      username: '',
       password: 'pass',
       access_key: 'key',
     });
@@ -40,7 +43,7 @@ describe('LoginRequestSchema', () => {
 
   it('accepts non-email username', () => {
     const result = LoginRequestSchema.safeParse({
-      user_name: 'admin',
+      username: 'admin',
       password: 'pass',
       access_key: 'key',
     });
@@ -48,150 +51,76 @@ describe('LoginRequestSchema', () => {
   });
 });
 
-describe('ConsigneeAddressSchema', () => {
-  const validAddress = {
-    address_line1: '123 Main Street',
-    pincode: '110001',
+describe('SaveWarehouseRequestSchema', () => {
+  const validWarehouse = {
+    segment_type: 'hyperlocal' as const,
+    warehouseContactPerson: 'Siddharth',
+    warehouseAddressPhone: '7854693258',
+    warehouseCountry: 'India',
+    warehouseState: 'Karnataka',
+    warehouseCity: 'BANGALORE',
+    warehousePinCode: '560113',
+    warehouseAddressLine1: 'Sector 29',
+    warehouseAddressLandMark: 'Hudda City Centre',
+    latitude: '12.947146336879577',
+    longitude: '77.62102993895199',
+    address_type: 'Home' as const,
   };
 
-  it('accepts valid address', () => {
-    expect(ConsigneeAddressSchema.safeParse(validAddress).success).toBe(true);
+  it('accepts valid warehouse', () => {
+    expect(SaveWarehouseRequestSchema.safeParse(validWarehouse).success).toBe(true);
   });
 
-  it('rejects short address_line1', () => {
-    expect(ConsigneeAddressSchema.safeParse({ ...validAddress, address_line1: 'short' }).success).toBe(false);
+  it('rejects invalid phone number', () => {
+    expect(SaveWarehouseRequestSchema.safeParse({ ...validWarehouse, warehouseAddressPhone: '123' }).success).toBe(false);
   });
 
   it('rejects invalid pincode', () => {
-    expect(ConsigneeAddressSchema.safeParse({ ...validAddress, pincode: '1234' }).success).toBe(false);
+    expect(SaveWarehouseRequestSchema.safeParse({ ...validWarehouse, warehousePinCode: 'abc' }).success).toBe(false);
   });
 
-  it('rejects empty optional address_line2 when provided', () => {
-    expect(ConsigneeAddressSchema.safeParse({ ...validAddress, address_line2: '' }).success).toBe(false);
-  });
-
-  it('rejects address_line1 longer than 50 characters', () => {
-    expect(ConsigneeAddressSchema.safeParse({ ...validAddress, address_line1: 'a'.repeat(51) }).success).toBe(false);
-  });
-
-  it('accepts absent optional address_line2', () => {
-    expect(ConsigneeAddressSchema.safeParse(validAddress).success).toBe(true);
+  it('rejects short address_line1', () => {
+    expect(SaveWarehouseRequestSchema.safeParse({ ...validWarehouse, warehouseAddressLine1: 'ab' }).success).toBe(false);
   });
 });
 
-describe('ConsigneeDetailSchema', () => {
-  const validDetail = {
-    first_name: 'Raj',
-    last_name: 'Kumar',
-    contact_number_primary: '9876543210',
-    consignee_address: {
-      address_line1: '123 Main Street',
-      pincode: '110001',
-    },
-  };
-
-  it('accepts valid consignee', () => {
-    expect(ConsigneeDetailSchema.safeParse(validDetail).success).toBe(true);
+describe('GetWarehouseListRequestSchema', () => {
+  it('accepts valid request', () => {
+    const result = GetWarehouseListRequestSchema.safeParse({
+      page: '1',
+      perPage: '10',
+      segment_type: 'hyperlocal',
+    });
+    expect(result.success).toBe(true);
   });
 
-  it('rejects empty company_name when provided', () => {
-    expect(ConsigneeDetailSchema.safeParse({ ...validDetail, company_name: '' }).success).toBe(false);
-  });
-
-  it('rejects short first_name', () => {
-    expect(ConsigneeDetailSchema.safeParse({ ...validDetail, first_name: '' }).success).toBe(false);
-  });
-
-  it('accepts single-char names', () => {
-    expect(ConsigneeDetailSchema.safeParse({ ...validDetail, first_name: 'A', last_name: 'B' }).success).toBe(true);
-  });
-});
-
-describe('ProductDetailSchema', () => {
-  const validProduct = {
-    product_category: 'Electronics',
-    product_name: 'Phone',
-    product_quantity: 1,
-    each_product_invoice_amount: 1000,
-    each_product_collectable_amount: 500,
-  };
-
-  it('accepts valid product', () => {
-    expect(ProductDetailSchema.safeParse(validProduct).success).toBe(true);
-  });
-
-  it('rejects empty product_category', () => {
-    expect(ProductDetailSchema.safeParse({ ...validProduct, product_category: '' }).success).toBe(false);
-  });
-
-  it('rejects zero quantity', () => {
-    expect(ProductDetailSchema.safeParse({ ...validProduct, product_quantity: 0 }).success).toBe(false);
-  });
-
-  it('accepts valid HSN', () => {
-    expect(ProductDetailSchema.safeParse({ ...validProduct, hsn: '123456' }).success).toBe(true);
-  });
-
-  it('rejects too-short HSN', () => {
-    expect(ProductDetailSchema.safeParse({ ...validProduct, hsn: '12345' }).success).toBe(false);
-  });
-
-  it('rejects empty optional sub_category when provided', () => {
-    expect(ProductDetailSchema.safeParse({ ...validProduct, product_sub_category: '' }).success).toBe(false);
-  });
-});
-
-describe('BoxDetailB2CSchema', () => {
-  it('enforces box_count === 1', () => {
-    expect(BoxDetailB2CSchema.safeParse({
-      each_box_dead_weight: 1, each_box_length: 10, each_box_width: 10, each_box_height: 10,
-      each_box_invoice_amount: 100, each_box_collectable_amount: 50,
-      box_count: 1,
-      product_details: [{ product_category: 'X', product_name: 'Y', product_quantity: 1, each_product_invoice_amount: 100, each_product_collectable_amount: 50 }],
-    }).success).toBe(true);
-
-    expect(BoxDetailB2CSchema.safeParse({
-      each_box_dead_weight: 1, each_box_length: 10, each_box_width: 10, each_box_height: 10,
-      each_box_invoice_amount: 100, each_box_collectable_amount: 50,
-      box_count: 2,
-      product_details: [{ product_category: 'X', product_name: 'Y', product_quantity: 1, each_product_invoice_amount: 100, each_product_collectable_amount: 50 }],
-    }).success).toBe(false);
-  });
-
-  it('rejects empty product_details array', () => {
-    expect(BoxDetailB2CSchema.safeParse({
-      each_box_dead_weight: 1, each_box_length: 10, each_box_width: 10, each_box_height: 10,
-      each_box_invoice_amount: 100, each_box_collectable_amount: 50,
-      box_count: 1,
-      product_details: [],
-    }).success).toBe(false);
-  });
-});
-
-describe('BoxDetailB2BSchema', () => {
-  it('allows box_count > 1', () => {
-    expect(BoxDetailB2BSchema.safeParse({
-      each_box_dead_weight: 1, each_box_length: 10, each_box_width: 10, each_box_height: 10,
-      each_box_invoice_amount: 100, each_box_collectable_amount: 50,
-      box_count: 5,
-      product_details: [{ product_category: 'X', product_name: 'Y', product_quantity: 1, each_product_invoice_amount: 100, each_product_collectable_amount: 50 }],
-    }).success).toBe(true);
+  it('accepts optional filters', () => {
+    const result = GetWarehouseListRequestSchema.safeParse({
+      page: '1',
+      perPage: '10',
+      segment_type: 'local',
+      status: '1',
+      filter_type: 'warehouse_name',
+      filter_value: 'Bigship',
+    });
+    expect(result.success).toBe(true);
   });
 });
 
 describe('RateCalculatorRequestSchema', () => {
   const validRequest = {
-    shipment_category: 'B2C' as const,
-    payment_type: 'COD' as const,
-    pickup_pincode: '110001',
-    destination_pincode: '400001',
-    shipment_invoice_amount: 5000,
-    box_details: [{
-      each_box_dead_weight: 1,
-      each_box_length: 20,
-      each_box_width: 15,
-      each_box_height: 10,
-      box_count: 1,
+    segment_type: 'domestic_b2c' as const,
+    sourcePincode: '110001',
+    destPincode: '400001',
+    invoiceValue: 5000,
+    paymentModeId: 1,
+    riskTypeId: 2,
+    boxes: [{
+      box_length: 20,
+      box_width: 15,
+      box_height: 10,
+      box_dead_weight: 1,
+      no_of_box: 1,
     }],
   };
 
@@ -199,85 +128,164 @@ describe('RateCalculatorRequestSchema', () => {
     expect(RateCalculatorRequestSchema.safeParse(validRequest).success).toBe(true);
   });
 
-  it('rejects invalid pickup_pincode', () => {
-    expect(RateCalculatorRequestSchema.safeParse({ ...validRequest, pickup_pincode: 'abc' }).success).toBe(false);
+  it('rejects invalid sourcePincode', () => {
+    expect(RateCalculatorRequestSchema.safeParse({ ...validRequest, sourcePincode: 'abc' }).success).toBe(false);
   });
 
-  it('rejects invalid destination_pincode', () => {
-    expect(RateCalculatorRequestSchema.safeParse({ ...validRequest, destination_pincode: '12345' }).success).toBe(false);
+  it('rejects invalid destPincode', () => {
+    expect(RateCalculatorRequestSchema.safeParse({ ...validRequest, destPincode: '12345' }).success).toBe(false);
+  });
+
+  it('rejects hyperlocal segment type', () => {
+    expect(RateCalculatorRequestSchema.safeParse({ ...validRequest, segment_type: 'hyperlocal' }).success).toBe(false);
   });
 });
 
-describe('WarehouseAddRequestSchema', () => {
-  const validWarehouse = {
-    address_line1: '123 Warehouse Street',
-    address_pincode: '110001',
-    contact_number_primary: '9876543210',
+describe('CreateOrderRequestSchema', () => {
+  const validB2COrder = {
+    segment_type: 'domestic_b2c' as const,
+    MasterOrderPickUpLocation: 258,
+    MasterOrderReturnLocation: 258,
+    MasterOrderDate: '2025-08-28 01:05:15',
+    MasterOrderPaymentMode: 1,
+    OrderInvoiceNo: '1234',
+    MasterOrderInvoiceAmount: 1000,
+    MasterOrderShippingEmail: 'test@gmail.com',
+    MasterOrderShippingName: 'test company',
+    MasterOrderShippingMobileNo: 8956231470,
+    MasterOrderShippingAddress: 'test',
+    MasterOrderShippingAddress2: '',
+    MasterOrderShippingLandmark: 'test',
+    MasterOrderShippingZipCode: '110011',
+    MasterOrderShippingCountry: 'India',
+    MasterOrderShippingState: 'DELHI',
+    MasterOrderShippingCity: 'DELHI',
+    totalNumOfBoxes: 1,
+    boxes: [{
+      weight_unit: 'kg' as const,
+      dimension_unit: 'cm' as const,
+      noOfBoxes: 1,
+      dimensions: [{ length: 101, breadth: 40, height: 40, weight: 20 }],
+      products: [{
+        productName: 'soap',
+        hsn: '1111',
+        qty: '1',
+        amount: '4000',
+        totalAmount: 4000,
+        collectableAmount: 4000,
+        categoryId: '1',
+      }],
+    }],
   };
 
-  it('accepts valid warehouse', () => {
-    expect(WarehouseAddRequestSchema.safeParse(validWarehouse).success).toBe(true);
+  it('accepts valid B2C order', () => {
+    expect(CreateOrderRequestSchema.safeParse(validB2COrder).success).toBe(true);
   });
 
-  it('accepts empty address_line2 when provided (optional)', () => {
-    expect(WarehouseAddRequestSchema.safeParse({ ...validWarehouse, address_line2: '' }).success).toBe(true);
+  it('rejects invalid segment type', () => {
+    expect(CreateOrderRequestSchema.safeParse({ ...validB2COrder, segment_type: 'invalid' }).success).toBe(false);
   });
 
   it('rejects invalid pincode', () => {
-    expect(WarehouseAddRequestSchema.safeParse({ ...validWarehouse, address_pincode: 'abc' }).success).toBe(false);
+    expect(CreateOrderRequestSchema.safeParse({ ...validB2COrder, MasterOrderShippingZipCode: 'abc' }).success).toBe(false);
   });
 });
 
-describe('CancelRequestSchema', () => {
-  it('accepts array of strings', () => {
-    expect(CancelRequestSchema.safeParse(['AWB001', 'AWB002']).success).toBe(true);
+describe('ServiceableCouriersRequestSchema', () => {
+  it('accepts valid request', () => {
+    const result = ServiceableCouriersRequestSchema.safeParse({
+      MasterCustomOrderId: '311276742',
+    });
+    expect(result.success).toBe(true);
   });
 
-  it('rejects non-string elements', () => {
-    expect(CancelRequestSchema.safeParse([123]).success).toBe(false);
+  it('rejects empty order ID', () => {
+    const result = ServiceableCouriersRequestSchema.safeParse({
+      MasterCustomOrderId: '',
+    });
+    expect(result.success).toBe(false);
   });
 });
 
-describe('ManifestSingleRequestSchema', () => {
-  it('accepts valid manifest', () => {
-    expect(ManifestSingleRequestSchema.safeParse({
-      system_order_id: 'ORDER-123',
-      courier_id: 1,
-    }).success).toBe(true);
+describe('PlaceOrderRequestSchema', () => {
+  it('accepts valid request', () => {
+    const result = PlaceOrderRequestSchema.safeParse({
+      MasterCustomOrderId: '311276742',
+      courierId: 25,
+      riskTypeId: '2',
+    });
+    expect(result.success).toBe(true);
   });
 
-  it('rejects zero courier_id', () => {
-    expect(ManifestSingleRequestSchema.safeParse({
-      system_order_id: 'ORDER-123',
-      courier_id: 0,
-    }).success).toBe(false);
+  it('rejects zero courier ID', () => {
+    const result = PlaceOrderRequestSchema.safeParse({
+      MasterCustomOrderId: '311276742',
+      courierId: 0,
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe('CancelOrderRequestSchema', () => {
+  it('accepts valid request', () => {
+    const result = CancelOrderRequestSchema.safeParse({
+      CustomGlobalOrderId: '311276742',
+    });
+    expect(result.success).toBe(true);
+  });
+});
+
+describe('TrackOrderRequestSchema', () => {
+  it('accepts valid request', () => {
+    const result = TrackOrderRequestSchema.safeParse({
+      CustomGlobalOrderId: '311276742',
+    });
+    expect(result.success).toBe(true);
+  });
+});
+
+describe('DownloadDocumentRequestSchema', () => {
+  it('accepts valid request', () => {
+    const result = DownloadDocumentRequestSchema.safeParse({
+      CustomGlobalOrderId: '664736461',
+      document_type: 'label',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects invalid document type', () => {
+    const result = DownloadDocumentRequestSchema.safeParse({
+      CustomGlobalOrderId: '664736461',
+      document_type: 'invalid',
+    });
+    expect(result.success).toBe(false);
   });
 });
 
 describe('ApiResponseSchema', () => {
   it('parses success response with string data', () => {
     const schema = ApiResponseSchema(z.string());
-    const result = schema.safeParse({ success: true, message: 'ok', responseCode: 200, data: 'hello' });
+    const result = schema.safeParse({ status: true, message: 'ok', status_code: 200, data: 'hello' });
     expect(result.success).toBe(true);
     if (result.success) expect(result.data.data).toBe('hello');
   });
 
   it('parses success response with null data', () => {
     const schema = ApiResponseSchema(z.string());
-    const result = schema.safeParse({ success: true, message: 'ok', responseCode: 200, data: null });
+    const result = schema.safeParse({ status: true, message: 'ok', status_code: 200, data: null });
     expect(result.success).toBe(true);
     if (result.success) expect(result.data.data).toBeNull();
   });
 
-  it('rejects missing success field', () => {
+  it('rejects missing status field', () => {
     const schema = ApiResponseSchema(z.string());
-    expect(schema.safeParse({ message: 'ok', responseCode: 200, data: 'x' }).success).toBe(false);
+    expect(schema.safeParse({ message: 'ok', status_code: 200, data: 'x' }).success).toBe(false);
   });
 });
 
 describe('Type guards', () => {
   it('isSuccessResponse narrows correctly', () => {
-    const response = { success: true, message: 'ok', responseCode: 200, data: 'ORDER-123' };
+    const response = { status: true, message: 'ok', status_code: 200, data: 'ORDER-123' };
     if (isSuccessResponse(response)) {
       expect(response.data).toBe('ORDER-123');
     } else {
@@ -286,12 +294,12 @@ describe('Type guards', () => {
   });
 
   it('isSuccessResponse rejects null data', () => {
-    const response = { success: true, message: 'ok', responseCode: 200, data: null };
+    const response = { status: true, message: 'ok', status_code: 200, data: null };
     expect(isSuccessResponse(response)).toBe(false);
   });
 
   it('isFailedResponse narrows correctly', () => {
-    const response = { success: false, message: 'fail', responseCode: 400, data: null };
+    const response = { status: false, message: 'fail', status_code: 400, data: null };
     if (isFailedResponse(response)) {
       expect(response.data).toBeNull();
     } else {
@@ -299,8 +307,8 @@ describe('Type guards', () => {
     }
   });
 
-  it('isFailedResponse rejects success: false with non-null data', () => {
-    const response = { success: false, message: 'fail', responseCode: 400, data: 'something' };
+  it('isFailedResponse rejects status: false with non-null data', () => {
+    const response = { status: false, message: 'fail', status_code: 400, data: 'something' };
     expect(isFailedResponse(response)).toBe(false);
   });
 });

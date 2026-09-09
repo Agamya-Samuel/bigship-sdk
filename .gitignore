@@ -27,6 +27,7 @@ pnpm-debug.log*
 *.swo
 .DS_Store
 Thumbs.db
+.commandcode/
 
 # Testing
 coverage/

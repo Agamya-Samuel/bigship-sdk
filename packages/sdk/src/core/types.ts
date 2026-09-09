@@ -49,543 +49,722 @@ export interface RequestContext {
   duration?: number;
 }
 
-// ==================== VALIDATION HELPERS ====================
+// ==================== API RESPONSE WRAPPER ====================
 
-const base64DataURI = () =>
-  z.string().regex(/^data:(application\/pdf|image\/(jpeg|jpg));base64,[A-Za-z0-9+/\-_]+=*$/i);
+/**
+ * Standard API response wrapper for Unified Outbound API
+ * Uses `status` and `status_code` fields
+ */
+export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    status: z.boolean(),
+    message: z.string(),
+    status_code: z.number(),
+    data: dataSchema.nullable(),
+  });
 
 // ==================== AUTH ====================
+
 export const LoginRequestSchema = z.object({
-  user_name: z.string().min(1),
+  username: z.string().min(1),
   password: z.string(),
   access_key: z.string(),
 });
 
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 
-// ==================== ORDER ====================
-export const WarehouseDetailSchema = z.object({
-  pickup_location_id: z.number(),
-  return_location_id: z.number(),
-});
-
-export const ConsigneeAddressSchema = z.object({
-  address_line1: z.string().min(10).max(50).regex(/^[a-zA-Z0-9 .,#':\/()-]+$/),
-  address_line2: z.string().min(1).max(50).regex(/^[a-zA-Z0-9 .,#':\/()-]+$/).optional(),
-  address_landmark: z.string().min(1).max(50).regex(/^[a-zA-Z0-9 .,#':\/()-]+$/).optional(),
-  pincode: z.string().regex(/^[0-9]{6}$/),
-});
-
-export const ConsigneeDetailSchema = z.object({
-  first_name: z.string().min(1).max(25).regex(/^[a-zA-Z. ]+$/),
-  last_name: z.string().min(1).max(25).regex(/^[a-zA-Z. ]+$/),
-  company_name: z.string().min(1).max(50).optional(),
-  contact_number_primary: z.string().regex(/^[0-9]{10}$/),
-  contact_number_secondary: z.string().regex(/^[0-9]{10}$/).optional(),
-  email_id: z.string().email().optional(),
-  consignee_address: ConsigneeAddressSchema,
-});
-
-export const ProductDetailSchema = z.object({
-  product_category: z.string().min(1),
-  product_sub_category: z.string().min(1).optional(),
-  product_name: z.string().min(1),
-  product_quantity: z.number().int().positive(),
-  each_product_invoice_amount: z.number().nonnegative().optional(),
-  each_product_collectable_amount: z.number().nonnegative().optional(),
-  hsn: z.string().min(6).max(15).regex(/^[a-zA-Z0-9]+$/).optional(),
-});
-
-// B2C Box Detail - exactly 1 box
-export const BoxDetailB2CSchema = z.object({
-  each_box_dead_weight: z.number().positive(),
-  each_box_length: z.number().positive(),
-  each_box_width: z.number().positive(),
-  each_box_height: z.number().positive(),
-  each_box_invoice_amount: z.number().nonnegative(),
-  each_box_collectable_amount: z.number().nonnegative(),
-  box_count: z.literal(1), // B2C must have exactly 1 box
-  product_details: z.array(ProductDetailSchema).min(1),
-});
-
-// B2B Box Detail - multiple boxes allowed
-export const BoxDetailB2BSchema = z.object({
-  each_box_dead_weight: z.number().positive(),
-  each_box_length: z.number().positive(),
-  each_box_width: z.number().positive(),
-  each_box_height: z.number().positive(),
-  each_box_invoice_amount: z.number().nonnegative().optional(),
-  each_box_collectable_amount: z.number().nonnegative().optional(),
-  box_count: z.number().int().positive(),
-  product_details: z.array(ProductDetailSchema).min(1),
-});
-
-// B2C Document Detail - invoice optional, ewaybill optional
-export const DocumentDetailB2CSchema = z.object({
-  invoice_document_file: base64DataURI().optional(),
-  ewaybill_document_file: base64DataURI().optional(),
-});
-
-// B2B Document Detail - invoice required, ewaybill optional
-export const DocumentDetailB2BSchema = z.object({
-  invoice_document_file: base64DataURI(),
-  ewaybill_document_file: base64DataURI().optional(),
-});
-
-/**
- * Document files for B2C orders
- * @property {string} invoice_document_file - REQUIRED. Base64 Data URI of invoice PDF/JPG
- * @property {string} [ewaybill_document_file] - Optional. Base64 Data URI of ewaybill PDF/JPG
- *
- * @example
- * ```ts
- * document_detail: {
- *   invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...'
- * }
- * ```
- */
-export type DocumentDetailB2C = z.infer<typeof DocumentDetailB2CSchema>;
-
-/**
- * Document files for B2B orders
- * @property {string} invoice_document_file - REQUIRED. Base64 Data URI of invoice PDF/JPG
- * @property {string} ewaybill_document_file - REQUIRED. Base64 Data URI of ewaybill PDF/JPG
- *
- * @example
- * ```ts
- * document_detail: {
- *   invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
- *   ewaybill_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...'
- * }
- * ```
- */
-export type DocumentDetailB2B = z.infer<typeof DocumentDetailB2BSchema>;
-
-// B2C Order Detail
-export const OrderDetailB2CSchema = z.object({
-  invoice_date: z.string().datetime(),
-  invoice_id: z.string(),
-  payment_type: z.enum(['Prepaid', 'COD']),
-  total_collectable_amount: z.number().nonnegative().optional(),
-  shipment_invoice_amount: z.number().positive(),
-  box_details: z.array(BoxDetailB2CSchema),
-  ewaybill_number: z.string().min(1).optional(),
-  document_detail: DocumentDetailB2CSchema,
-});
-
-// B2B Order Detail - ewaybill optional
-export const OrderDetailB2BSchema = z.object({
-  invoice_date: z.string().datetime(),
-  invoice_id: z.string(),
-  payment_type: z.enum(['Prepaid', 'COD', 'ToPay']),
-  total_collectable_amount: z.number().nonnegative().optional(),
-  shipment_invoice_amount: z.number().positive(),
-  box_details: z.array(BoxDetailB2BSchema),
-  ewaybill_number: z.string().optional(),
-  document_detail: DocumentDetailB2BSchema,
-});
-
-// Rate Calculator
-export const RateCalculatorBoxDetailSchema = z.object({
-  each_box_dead_weight: z.number().positive(),
-  each_box_length: z.number().positive(),
-  each_box_width: z.number().positive(),
-  each_box_height: z.number().positive(),
-  box_count: z.number().int().positive(),
-});
-
-export const RateCalculatorRequestSchema = z.object({
-  shipment_category: z.enum(['B2C', 'B2B', 'b2c', 'b2b']),
-  payment_type: z.enum(['COD', 'Prepaid', 'ToPay']),
-  pickup_pincode: z.string().regex(/^[0-9]{6}$/),
-  destination_pincode: z.string().regex(/^[0-9]{6}$/),
-  shipment_invoice_amount: z.number().nonnegative(),
-  risk_type: z.string().min(1).optional(),
-  box_details: z.array(RateCalculatorBoxDetailSchema),
-});
-
-export type RateCalculatorRequest = z.infer<typeof RateCalculatorRequestSchema>;
-
-// Manifest
-export const ManifestSingleRequestSchema = z.object({
-  system_order_id: z.string(),
-  courier_id: z.number().int().positive(),
-});
-
-export const ManifestHeavyRequestSchema = ManifestSingleRequestSchema.extend({
-  risk_type: z.string().min(1).optional(),
-});
-
-// Cancel
-export const CancelRequestSchema = z.array(z.string());
-
-// ==================== WAREHOUSE ====================
-export const WarehouseAddRequestSchema = z.object({
-  address_line1: z.string().min(10).max(50),
-  address_line2: z.string().max(50).optional(),
-  address_landmark: z.string().max(50).optional(),
-  address_pincode: z.string().regex(/^[0-9]{6}$/),
-  contact_number_primary: z.string().regex(/^[0-9]{10}$/),
-});
-
-export type WarehouseAddRequest = z.infer<typeof WarehouseAddRequestSchema>;
-
-// ==================== REQUEST SCHEMAS ====================
-
-// B2C Single Order
-export const AddSingleOrderRequestSchema = z.object({
-  shipment_category: z.literal('b2c'),
-  warehouse_detail: WarehouseDetailSchema,
-  consignee_detail: ConsigneeDetailSchema,
-  order_detail: OrderDetailB2CSchema,
-});
-
-export type AddSingleOrderRequest = z.infer<typeof AddSingleOrderRequestSchema>;
-
-// B2B Heavy Order
-export const AddHeavyOrderRequestSchema = z.object({
-  shipment_category: z.literal('b2b'),
-  warehouse_detail: WarehouseDetailSchema,
-  consignee_detail: ConsigneeDetailSchema,
-  order_detail: OrderDetailB2BSchema,
-});
-
-export type AddHeavyOrderRequest = z.infer<typeof AddHeavyOrderRequestSchema>;
-
-// ==================== RESPONSE SCHEMAS ====================
-
-// Standard API Response wrapper
-export const ApiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
-  z.object({
-    success: z.boolean(),
-    message: z.string(),
-    responseCode: z.number(),
-    data: dataSchema.nullable(),
-  });
-
-// Auth Response
 export const LoginDataSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  EmailID: z.string(),
+  mobileNumber: z.string(),
+  countryname: z.string(),
+  IsEmailVerifed: z.union([z.string(), z.boolean()]),
   token: z.string(),
+  tokenExpiringAt: z.string(),
+  is_outbound_service_enabled: z.union([z.string(), z.boolean()]),
+  api_master_client_account: z.object({
+    access_key: z.string(),
+    access_key_generated_date: z.string(),
+    is_account_enabled: z.union([z.string(), z.boolean()]),
+    created_date: z.string(),
+    updated_date: z.string(),
+  }),
+  userWallet: z.object({
+    Balance: z.union([z.string(), z.number()]),
+    kycCurrency: z.string(),
+  }),
 });
 
 export const LoginResponseSchema = ApiResponseSchema(LoginDataSchema);
 
-// Wallet Response
+// ==================== PROFILE ====================
+
+export const ProfileDataSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  EmailID: z.string(),
+  mobileNumber: z.string(),
+  countryname: z.string(),
+  IsEmailVerifed: z.string(),
+  is_outbound_service_enabled: z.string(),
+  api_master_client_account: z.object({
+    access_key: z.string(),
+    access_key_generated_date: z.string(),
+    is_account_enabled: z.string(),
+    created_date: z.string(),
+    updated_date: z.string(),
+  }),
+  userWallet: z.object({
+    Balance: z.union([z.string(), z.number()]),
+    kycCurrency: z.string(),
+  }),
+});
+
+export const ProfileResponseSchema = ApiResponseSchema(ProfileDataSchema);
+
+// ==================== WALLET ====================
+
 export const WalletBalanceResponseSchema = ApiResponseSchema(z.string());
 
-// Courier Response
-export const CourierItemSchema = z.object({
-  shipment_category: z.enum(['b2c', 'b2b']),
-  courier_id: z.number(),
-  courier_name: z.string(),
-  courier_type: z.enum(['Surface', 'Air']).optional(),
-  courier_status: z.boolean().optional(),
-  admin_status: z.boolean().optional(),
+// ==================== WAREHOUSE ====================
+
+export const SaveWarehouseRequestSchema = z.object({
+  segment_type: z.enum(['hyperlocal', 'local']),
+  warehouseContactPerson: z.string().min(1),
+  warehouseAddressPhone: z.string().regex(/^[0-9]{10}$/),
+  warehouseCountry: z.string().default('India'),
+  warehouseState: z.string().min(1),
+  warehouseCity: z.string().min(1),
+  warehousePinCode: z.string().regex(/^[0-9]{6}$/),
+  warehouseAddressLine1: z.string().min(3).max(75), // 3-75 words
+  warehouseAddressLine2: z.string().max(75).optional(),
+  warehouseAddressLandMark: z.string().min(3).max(50), // 3-50 words
+  latitude: z.string().optional(), // Required only when segment_type is hyperlocal
+  longitude: z.string().optional(), // Required only when segment_type is hyperlocal
+  address_type: z.enum(['Home', 'Office', 'Shop', 'Factory', 'Hotel', 'Other']).optional(), // Required only when segment_type is hyperlocal
 });
 
-export const CourierListResponseSchema = ApiResponseSchema(z.array(CourierItemSchema));
+export type SaveWarehouseRequest = z.infer<typeof SaveWarehouseRequestSchema>;
 
-export const TransporterItemSchema = z.object({
-  courier_id: z.number(),
-  courier_name: z.string(),
-  transport_id: z.string(),
+export const SaveWarehouseDataSchema = z.object({
+  warehouseId: z.number(),
+  is_phone_verified: z.number(),
+  phone_number: z.string(),
 });
 
-export const TransporterListResponseSchema = ApiResponseSchema(z.array(TransporterItemSchema));
+export const SaveWarehouseResponseSchema = ApiResponseSchema(SaveWarehouseDataSchema);
 
-// Payment Category Response
-export const PaymentCategoryItemSchema = z.object({
-  payment_category: z.enum(['COD', 'Prepaid', 'ToPay']),
-  status: z.boolean(),
+export const GetWarehouseListRequestSchema = z.object({
+  page: z.string(),
+  perPage: z.string(),
+  segment_type: z.enum(['hyperlocal', 'local']),
+  status: z.string().optional(),
+  filter_type: z.enum(['warehouse_name', 'warehouse_phone', 'warehouse_pin', 'warehouse_contact_person']).optional(),
+  filter_value: z.string().optional(),
 });
 
-export const PaymentCategoryResponseSchema = ApiResponseSchema(z.array(PaymentCategoryItemSchema));
+export type GetWarehouseListRequest = z.infer<typeof GetWarehouseListRequestSchema>;
 
-// Warehouse Response
+export const HyperlocalInfoSchema = z.object({
+  type: z.string(),
+  latitude: z.string(),
+  longitude: z.string(),
+  mapLocationId: z.string().nullable(),
+  addressType: z.string(),
+});
+
 export const WarehouseListItemSchema = z.object({
-  warehouse_id: z.number(),
-  warehouse_name: z.string(),
-  address_line1: z.string(),
-  address_line2: z.string().nullable(),
-  address_landmark: z.string().nullable(),
-  address_pincode: z.string(),
-  address_city: z.string(),
-  address_state: z.string(),
-  address_country: z.string().optional(),
-  address_email_id: z.string().optional(),
-  warehouse_contact_person: z.string(),
-  warehouse_contact_number_primary: z.string(),
-  create_date: z.string().optional(),
+  warehouseId: z.number(),
+  warehouseName: z.string(),
+  warehouseContactPerson: z.string(),
+  warehouseAddressLine1: z.string(),
+  warehouseAddressLine2: z.string(),
+  warehouseAddressLandMark: z.string(),
+  warehouseAddressPhone: z.string(),
+  isActive: z.string(),
+  isShipped: z.string(),
+  isEditable: z.union([z.number(), z.boolean()]),
+  country: z.string(),
+  state: z.string(),
+  city: z.string(),
+  pincode: z.string(),
+  is_location_enabled: z.string(),
+  addedOn: z.string(),
+  hyperlocal: HyperlocalInfoSchema.optional(),
 });
 
-export const WarehouseAddResponseSchema = ApiResponseSchema(WarehouseListItemSchema);
-
-export const WarehouseListDataSchema = z.object({
-  result_count: z.number(),
-  result_data: z.array(WarehouseListItemSchema),
-});
+// API returns empty array [] when no warehouses, or object { warehouse: [], total: n } when there are
+export const WarehouseListDataSchema = z.union([
+  z.object({
+    warehouse: z.array(WarehouseListItemSchema),
+    total: z.number(),
+  }),
+  z.array(z.unknown()).transform(() => ({ warehouse: [] as z.infer<typeof WarehouseListItemSchema>[], total: 0 })),
+]);
 
 export const WarehouseListResponseSchema = ApiResponseSchema(WarehouseListDataSchema);
 
-// Order Response - data is system_order_id as string directly
-/**
- * Response from addSingleOrder or addHeavyOrder
- * @property {boolean} success - true if order was created successfully
- * @property {string} message - Success or error message
- * @property {number} responseCode - HTTP status code
- * @property {string | null} data - The system_order_id as a string, or null on error
- *
- * @example
- * ```ts
- * // Success response
- * {
- *   success: true,
- *   message: "Order added successfully.",
- *   responseCode: 200,
- *   data: "1005202970"  // This is the system_order_id
- * }
- *
- * // Error response
- * {
- *   success: false,
- *   message: "Invalid pincode",
- *   responseCode: 400,
- *   data: null
- * }
- * ```
- */
-export const AddOrderResponseSchema = ApiResponseSchema(z.string());
-
-export const ManifestResponseSchema = ApiResponseSchema(z.null());
-
-export const CancelResponseSchema = ApiResponseSchema(
-  z.array(z.object({
-    courier_id: z.number(),
-    master_awb: z.string(),
-    cancel_response: z.string(),
-  })).nullable()
-);
-
-// Shipping Rates Response
-/**
- * Additional charges breakdown for shipping rates
- * @property {number} [risk_type_charge] - Risk type surcharge
- * @property {number} [lr_cost] - LR (Lorry Receipt) cost
- * @property {number} [green_tax] - Environmental/green tax
- * @property {number} [handling_charge] - Handling charges
- * @property {number} [pickup_charge] - Pickup charges
- * @property {number} [state_tax] - State-level taxes
- * @property {number} [to_pay] - To-pay charges
- * @property {number} [oda] - ODA - Out of Delivery Area charges
- * @property {number} [warai_charge] - Warai charge
- * @property {number} [odc_charge] - ODC - Out of Delivery City charges
- * @property {number} [courier_charge] - Base courier charge
- */
-export const AdditionalChargesSchema = z.object({
-  risk_type_charge: z.number().optional(),
-  lr_cost: z.number().optional(),
-  green_tax: z.number().optional(),
-  handling_charge: z.number().optional(),
-  pickup_charge: z.number().optional(),
-  state_tax: z.number().optional(),
-  to_pay: z.number().optional(),
-  oda: z.number().optional(),
-  warai_charge: z.number().optional(),
-  odc_charge: z.number().optional(),
-  courier_charge: z.number().optional(),
+export const UpdateWarehouseRequestSchema = z.object({
+  warehouseId: z.string(),
+  warehouseName: z.string().min(1),
+  warehouseContactPerson: z.string().min(1),
+  warehouseAddressPhone: z.string().regex(/^[0-9]{10}$/),
+  warehouseCountry: z.string().default('India'),
+  warehouseState: z.string().min(1),
+  warehouseCity: z.string().min(1),
+  warehousePinCode: z.string().regex(/^[0-9]{6}$/),
+  warehouseAddressLine1: z.string().min(3).max(75),
+  warehouseAddressLine2: z.string().max(75).optional(),
+  warehouseAddressLandMark: z.string().min(3).max(50),
+  latitude: z.string().optional(),
+  longitude: z.string().optional(),
+  address_type: z.enum(['Home', 'Office', 'Shop', 'Factory', 'Hotel', 'Other']).optional(),
 });
 
-/**
- * Shipping rate quote from a courier
- * @property {number} [system_order_id] - Internal system order ID
- * @property {number} courier_id - Internal courier identifier
- * @property {string} courier_name - Name of the courier service
- * @property {string} [courier_type] - Transport type: "Surface" or "Air"
- * @property {string} [zone] - Delivery zone: "North", "South", "East", "West", etc.
- * @property {number} [tat] - Turnaround time in days
- * @property {number} [billable_weight] - Billable weight for shipping calculation
- * @property {string} [risk_type_name] - Risk type name (nullable)
- * @property {number} total_shipping_charges - FINAL total cost including all charges (INR)
- * @property {number} [freight_charge] - Base freight cost
- * @property {number} [cod_charge] - Cash on Delivery fee
- * @property {number} [courier_charge] - Base courier charge before additional fees
- * @property {AdditionalCharges} [other_additional_charges] - Breakdown of additional fees
- *
- * @example
- * ```ts
- * // Response from getShippingRates
- * {
- *   courier_id: 123,
- *   courier_name: "Delhivery",
- *   courier_type: "Surface",
- *   zone: "North",
- *   tat: 3,
- *   total_shipping_charges: 150.50,
- *   freight_charge: 100,
- *   cod_charge: 25,
- *   other_additional_charges: {
- *     oda: 15,
- *     handling_charge: 10.50
- *   }
- * }
- * ```
- */
-export const ShippingRateItemSchema = z.object({
-  system_order_id: z.number().optional(),
-  courier_id: z.number(),
-  courier_name: z.string(),
-  courier_type: z.string().optional(),
-  zone: z.string().optional(),
-  tat: z.number().optional(),
-  billable_weight: z.number().optional(),
-  risk_type_name: z.string().nullable().optional(),
-  total_shipping_charges: z.number(),
-  freight_charge: z.number().optional(),
-  cod_charge: z.number().optional(),
-  courier_charge: z.number().optional(),
-  other_additional_charges: AdditionalChargesSchema.nullable().optional(),
+export type UpdateWarehouseRequest = z.infer<typeof UpdateWarehouseRequestSchema>;
+
+export const UpdateWarehouseDataSchema = z.object({
+  is_phone_verified: z.number(),
+  phone_number: z.string(),
 });
 
-export const ShippingRatesResponseSchema = ApiResponseSchema(z.array(ShippingRateItemSchema));
+export const UpdateWarehouseResponseSchema = ApiResponseSchema(UpdateWarehouseDataSchema);
 
-// Shipment Data Response
+// ==================== PACKAGE TYPES ====================
 
-// AWB Response - structured data with courier info
-export const ShipmentAWBDataSchema = z.object({
-  courier_id: z.string(),
-  courier_name: z.string(),
-  lr_number: z.string().nullable(),
-  master_awb: z.string(),
+export const PackageTypeSchema = z.object({
+  HyperlocalPackageTypeId: z.number(),
+  PackageType: z.string(),
+  Description: z.string(),
+  IsEnabled: z.string(),
 });
 
-// Label/Manifest Response - base64 string, URL, or object from API
-export const ShipmentFileDataSchema = z.union([
-  z.string(),
-  z.object({
-    res_FileName: z.string().optional(),
-    res_FileContent: z.string(),
-    res_MediaType: z.string().optional(),
-    res_PrintFor: z.string().optional(),
+export const PackageTypeResponseSchema = ApiResponseSchema(z.array(PackageTypeSchema));
+
+// ==================== PAYMENT MODES ====================
+
+export const PaymentModeSchema = z.object({
+  paymentModeId: z.string(),
+  paymentModeName: z.string(),
+});
+
+export const PaymentModeResponseSchema = ApiResponseSchema(z.array(PaymentModeSchema));
+
+// ==================== RISK TYPES ====================
+
+export const RiskTypeSchema = z.object({
+  riskTypeId: z.number(),
+  riskName: z.string(),
+  slug: z.string(),
+});
+
+export const RiskTypeResponseSchema = ApiResponseSchema(z.array(RiskTypeSchema));
+
+// ==================== RATE CALCULATOR ====================
+
+export const RateCalculatorBoxSchema = z.object({
+  box_length: z.number().int().positive(),
+  box_width: z.number().int().positive(),
+  box_height: z.number().int().positive(),
+  box_dead_weight: z.number().int().positive(),
+  no_of_box: z.number().int().positive(),
+});
+
+export const RateCalculatorRequestSchema = z.object({
+  segment_type: z.enum(['domestic_b2b', 'domestic_b2c']),
+  sourcePincode: z.string().regex(/^[0-9]{6}$/),
+  destPincode: z.string().regex(/^[0-9]{6}$/),
+  invoiceValue: z.number().positive(),
+  paymentModeId: z.number(),
+  codAmount: z.string().optional(),
+  riskTypeId: z.number(),
+  boxes: z.array(RateCalculatorBoxSchema),
+});
+
+export type RateCalculatorRequest = z.infer<typeof RateCalculatorRequestSchema>;
+
+export const RateCalculatorItemSchema = z.object({
+  courierName: z.string(),
+  courierImage: z.string().nullable(),
+  courierType: z.string(),
+  riskTypeName: z.string(),
+  planName: z.string(),
+  courier_partner_id: z.number(),
+  courierCharge: z.number(),
+  tat: z.string(),
+  weight: z.union([z.number(), z.string()]),
+  zone: z.string(),
+  restricted_pincode_message: z.string().nullable(),
+  codCharges: z.number(),
+  riskType: z.string(),
+  lrCost: z.union([z.string(), z.number()]),
+  handlingCharge: z.string(),
+  greenTax: z.number(),
+  toPay: z.number(),
+  oda: z.string(),
+  warai_Charge: z.number(),
+  state_Tax: z.string(),
+  minimum_weight: z.string(),
+  pickup_Charge: z.number(),
+  whatsappNotificationCharge: z.number(),
+  emailNotificationCharge: z.number(),
+  smsNotificationCharge: z.number(),
+  totalCharge: z.number(),
+});
+
+export const RateCalculatorResponseSchema = ApiResponseSchema(z.array(RateCalculatorItemSchema));
+
+// ==================== ORDER CREATION ====================
+
+// Common fields for all segment types
+const OrderCommonFieldsSchema = z.object({
+  segment_type: z.enum(['hyperlocal', 'domestic_b2b', 'domestic_b2c']),
+  MasterOrderPickUpLocation: z.number(),
+  MasterOrderPaymentMode: z.number(),
+  MasterOrderShippingName: z.string().min(1),
+  MasterOrderShippingEmail: z.string().email().optional(),
+  MasterOrderShippingMobileNo: z.union([z.string(), z.number()]),
+  MasterOrderShippingZipCode: z.string().regex(/^[0-9]{6}$/),
+  MasterOrderShippingCity: z.string().min(1),
+  MasterOrderShippingState: z.string().min(1),
+  MasterOrderShippingCountry: z.string().default('India'),
+  MasterOrderShippingAddress: z.string().min(1),
+  MasterOrderShippingAddress2: z.string().optional(),
+  MasterOrderShippingLandmark: z.string().optional(),
+});
+
+// Hyperlocal specific fields
+const HyperlocalOrderFieldsSchema = z.object({
+  MasterOrderShippingLatitude: z.string(),
+  MasterOrderShippingLongitude: z.string(),
+  OrderInvoiceNo: z.string().optional(),
+  MasterOrderInvoiceAmount: z.number().positive(),
+  PackageTypeId: z.number().int().positive(),
+  pickup_instructions: z.string().optional(),
+  additional_comments: z.string().optional(),
+  boxes: z.object({
+    weight_unit: z.literal('kg'),
+    dimension_unit: z.literal('cm'),
+    dimensions: z.array(z.object({
+      length: z.number().optional(),
+      breadth: z.number().optional(),
+      height: z.number().optional(),
+      weight: z.number().positive(),
+    })),
   }),
-  z.null(),
+});
+
+// Domestic B2B specific fields
+const DomesticB2BOrderFieldsSchema = z.object({
+  MasterOrderReturnLocation: z.number(),
+  MasterOrderDate: z.string(), // UTC format: Y-m-d H:i:s
+  OrderInvoiceNo: z.string().min(1),
+  MasterOrderInvoiceAmount: z.number().positive(),
+  MasterOrderCollectableAmount: z.string().optional(),
+  ProductName: z.string().min(1),
+  totalNumOfBoxes: z.number(),
+  boxes: z.array(z.object({
+    weight_unit: z.literal('kg'),
+    dimension_unit: z.literal('cm'),
+    noOfBoxes: z.number(),
+    dimensions: z.array(z.object({
+      length: z.number().positive(),
+      breadth: z.number().positive(),
+      height: z.number().positive(),
+      weight: z.number().positive(),
+    })),
+  })),
+});
+
+// Domestic B2C specific fields
+const ProductItemSchema = z.object({
+  productName: z.string().min(1),
+  hsn: z.string().optional(),
+  qty: z.union([z.string(), z.number()]),
+  amount: z.union([z.string(), z.number()]),
+  totalAmount: z.union([z.string(), z.number()]),
+  collectableAmount: z.union([z.string(), z.number()]),
+  categoryId: z.string(),
+});
+
+const DomesticB2COrderFieldsSchema = z.object({
+  MasterOrderReturnLocation: z.number(),
+  MasterOrderDate: z.string(), // UTC format: Y-m-d H:i:s
+  OrderInvoiceNo: z.string().min(1),
+  MasterOrderInvoiceAmount: z.number().positive(),
+  totalNumOfBoxes: z.number(),
+  boxes: z.array(z.object({
+    weight_unit: z.literal('kg'),
+    dimension_unit: z.literal('cm'),
+    noOfBoxes: z.number(),
+    dimensions: z.array(z.object({
+      length: z.number().positive(),
+      breadth: z.number().positive(),
+      height: z.number().positive(),
+      weight: z.number().positive(),
+    })),
+    products: z.array(ProductItemSchema),
+  })),
+});
+
+// Combined schemas for each segment type
+export const HyperlocalOrderRequestSchema = OrderCommonFieldsSchema.extend({
+  segment_type: z.literal('hyperlocal'),
+}).merge(HyperlocalOrderFieldsSchema);
+
+export const DomesticB2BOrderRequestSchema = OrderCommonFieldsSchema.extend({
+  segment_type: z.literal('domestic_b2b'),
+}).merge(DomesticB2BOrderFieldsSchema);
+
+export const DomesticB2COrderRequestSchema = OrderCommonFieldsSchema.extend({
+  segment_type: z.literal('domestic_b2c'),
+}).merge(DomesticB2COrderFieldsSchema);
+
+// Union type for all order requests
+export const CreateOrderRequestSchema = z.discriminatedUnion('segment_type', [
+  HyperlocalOrderRequestSchema,
+  DomesticB2BOrderRequestSchema,
+  DomesticB2COrderRequestSchema,
 ]);
 
-// Response schemas for different shipment data types
-export const ShipmentAWBResponseSchema = ApiResponseSchema(ShipmentAWBDataSchema);
-export const ShipmentFileResponseSchema = ApiResponseSchema(ShipmentFileDataSchema);
+export type CreateOrderRequest = z.infer<typeof CreateOrderRequestSchema>;
+export type HyperlocalOrderRequest = z.infer<typeof HyperlocalOrderRequestSchema>;
+export type DomesticB2BOrderRequest = z.infer<typeof DomesticB2BOrderRequestSchema>;
+export type DomesticB2COrderRequest = z.infer<typeof DomesticB2COrderRequestSchema>;
 
-// Existing schema (for backward compatibility, aliased to AWB schema)
-export const ShipmentDataDataSchema = ShipmentAWBDataSchema;
-export const ShipmentDataResponseSchema = ShipmentAWBResponseSchema;
+export const CreateOrderDataSchema = z.object({
+  CustomGlobalOrderId: z.string(),
+});
 
-// Calculator Response
-export const CalculatorRateItemSchema = z.object({
-  courier_id: z.number(),
-  courier_name: z.string(),
-  courier_type: z.string(),
+export const CreateOrderResponseSchema = ApiResponseSchema(CreateOrderDataSchema);
+
+// ==================== SERVICEABLE COURIERS ====================
+
+export const ServiceableCouriersRequestSchema = z.object({
+  MasterCustomOrderId: z.string().min(1),
+});
+
+export type ServiceableCouriersRequest = z.infer<typeof ServiceableCouriersRequestSchema>;
+
+// Hyperlocal courier rate
+export const HyperlocalRateSchema = z.object({
+  courierId: z.number(),
+  courierName: z.string(),
+  courierImage: z.string(),
+  vehicle_type: z.string(),
+  capacity: z.string(),
+  planName: z.string(),
+  base_freight: z.number(),
+  gst_amount: z.number(),
+  total_freight: z.number(),
+  currency: z.string(),
+});
+
+// Domestic B2B/B2C courier rate
+export const DomesticRateSchema = z.object({
+  planName: z.string(),
+  courierName: z.string(),
+  courierId: z.string(),
+  pickup: z.string(),
+  destination: z.string(),
+  charged_weight: z.number(),
+  weight_unit: z.string(),
+  base_freight: z.number(),
+  riskTypeName: z.string(),
+  courierType: z.string(),
   zone: z.string(),
+  riskCharge: z.string(),
+  lrCost: z.string(),
+  handlingCharge: z.string(),
+  greenTax: z.string(),
+  codCharges: z.number(),
+  toPay: z.string(),
+  oda: z.string(),
   tat: z.number(),
-  billable_weight: z.number(),
-  risk_type_name: z.string().nullable(),
-  total_shipping_charges: z.number(),
-  courier_charge: z.number(),
-  other_additional_charges: AdditionalChargesSchema.nullable(),
+  warai_Charge: z.number(),
+  state_Tax: z.union([z.number(), z.string()]),
+  pickup_Charge: z.string(),
+  smsNotificationCharge: z.number(),
+  emailNotificationCharge: z.number(),
+  whatsappNotificationCharge: z.number(),
+  total: z.string(),
+  kycCurrency: z.string(),
+  courierImage: z.string().nullable(),
+  riskCharges: z.array(z.object({
+    typeId: z.number(),
+    name: z.string(),
+    chargeValue: z.string(),
+    isRisk: z.boolean(),
+  })),
 });
 
-export const CalculateRateResponseSchema = ApiResponseSchema(z.array(CalculatorRateItemSchema));
-
-// Tracking Response
-export const TrackingEventSchema = z.object({
-  scan_status: z.string(),
-  scan_datetime: z.string(),
-  scan_location: z.string().optional(),
-  scan_remarks: z.string().optional(),
+export const ServiceableCouriersDataSchema = z.object({
+  segment_type: z.string(),
+  calculatedRates: z.array(z.union([HyperlocalRateSchema, DomesticRateSchema])),
 });
 
-export const TrackingDataSchema = z.object({
-  order_detail: z.object({
-    courier_name: z.string().optional(),
-    tracking_type: z.string(),
-    tracking_id: z.string(),
-    invoice_id: z.string().optional(),
-    order_manifest_datetime: z.string().optional(),
-    current_tracking_datetime: z.string().optional(),
-    current_tracking_status: z.string().optional(),
+export const ServiceableCouriersResponseSchema = ApiResponseSchema(ServiceableCouriersDataSchema);
+
+// ==================== PLACE ORDER ====================
+
+export const PlaceOrderRequestSchema = z.object({
+  MasterCustomOrderId: z.string().min(1),
+  courierId: z.number().positive(),
+  invoiceType: z.string().optional(),
+  riskTypeId: z.string().optional(),
+});
+
+export type PlaceOrderRequest = z.infer<typeof PlaceOrderRequestSchema>;
+
+export const PlaceOrderDataSchema = z.object({
+  reference_number: z.union([z.string(), z.number()]),
+  awb_assigned: z.union([z.string(), z.number()]).nullable(),
+});
+
+export const PlaceOrderResponseSchema = ApiResponseSchema(PlaceOrderDataSchema);
+
+// ==================== CANCEL ORDER ====================
+
+export const CancelOrderRequestSchema = z.object({
+  CustomGlobalOrderId: z.string().min(1),
+});
+
+export type CancelOrderRequest = z.infer<typeof CancelOrderRequestSchema>;
+
+export const CancelOrderResponseSchema = ApiResponseSchema(z.array(z.unknown()));
+
+// ==================== TRACK ORDER ====================
+
+export const TrackOrderRequestSchema = z.object({
+  CustomGlobalOrderId: z.string().min(1),
+});
+
+export type TrackOrderRequest = z.infer<typeof TrackOrderRequestSchema>;
+
+export const TrackingCoordinateSchema = z.object({
+  latitude: z.string(),
+  longitude: z.string(),
+  mapLocationId: z.string(),
+  addressType: z.string(),
+});
+
+export const TrackingPartnerSchema = z.object({
+  name: z.string(),
+  vehicle: z.object({
+    number: z.string().nullable(),
+    type: z.string(),
   }),
-  scan_histories: z.array(TrackingEventSchema),
+  contact: z.object({
+    primary: z.object({
+      country_code: z.string(),
+      number: z.string(),
+    }),
+    secondary: z.object({
+      country_code: z.string(),
+      number: z.string(),
+    }),
+  }),
 });
 
-export const TrackingResponseSchema = ApiResponseSchema(TrackingDataSchema);
+export const TrackingCurrentStatusSchema = z.object({
+  tracking_status: z.string(),
+  partner_details: TrackingPartnerSchema.optional(),
+  location: z.object({
+    latitude: z.string().nullable(),
+    longitude: z.string().nullable(),
+  }),
+  timestamps: z.object({
+    pickup: z.string().nullable(),
+    order: z.object({
+      accepted: z.string().nullable(),
+      started: z.string().nullable(),
+      ended: z.string().nullable(),
+    }),
+  }),
+  fare_details: z.object({
+    currency: z.string(),
+    amount: z.string(),
+  }),
+});
+
+export const TrackingHistorySchema = z.object({
+  location: z.object({
+    latitude: z.string().nullable(),
+    longitude: z.string().nullable(),
+  }),
+  tag: z.string(),
+  order_status: z.string(),
+  checkpoint_time: z.string(),
+  message: z.string(),
+});
+
+export const TrackOrderDataSchema = z.object({
+  CustomGlobalOrderId: z.string(),
+  order_place_time: z.string(),
+  tracking_number: z.string(),
+  courier_name: z.string(),
+  courier_image: z.string(),
+  tag: z.string(),
+  order_status: z.string(),
+  latest_checkpoint_time: z.string(),
+  source_coordinate: TrackingCoordinateSchema,
+  drop_coordinate: TrackingCoordinateSchema,
+  tracking_current_status: TrackingCurrentStatusSchema,
+  tracking_histories: z.array(TrackingHistorySchema),
+});
+
+export const TrackOrderResponseSchema = ApiResponseSchema(TrackOrderDataSchema);
+
+// ==================== ORDER DETAIL ====================
+
+export const OrderDetailRequestSchema = z.object({
+  MasterCustomOrderId: z.string().min(1),
+});
+
+export type OrderDetailRequest = z.infer<typeof OrderDetailRequestSchema>;
+
+export const OrderDetailBoxSchema = z.object({
+  parameterName: z.string(),
+  parameterValue: z.string(),
+  parameterCategory: z.string(),
+});
+
+export const OrderDetailProductSchema = z.object({
+  numberOfProducts: z.string(),
+  detailsIdentifier: z.string(),
+  products: z.array(z.unknown()),
+  box_details: z.array(OrderDetailBoxSchema),
+  weight: z.object({
+    value: z.string(),
+    unit: z.string(),
+  }),
+});
+
+export const OrderDetailConsignorSchema = z.object({
+  companyName: z.string(),
+  companyEmailId: z.string().nullable(),
+  companyMobile: z.string(),
+  orderCountry: z.string(),
+  orderState: z.string(),
+  orderCity: z.string(),
+  orderPin: z.string(),
+  billingAddress: z.string(),
+  billingAddress2: z.string(),
+  landmark: z.string(),
+  consignorBusinessType: z.string(),
+});
+
+export const OrderDetailConsigneeSchema = z.object({
+  companyName: z.string(),
+  companyEmailId: z.string().nullable(),
+  companyMobile: z.string(),
+  orderCountry: z.string(),
+  orderState: z.string(),
+  orderCity: z.string(),
+  orderPin: z.string(),
+  billingAddress: z.string(),
+  billingAddress2: z.string(),
+  landmark: z.string(),
+  consigneeBusinessType: z.string(),
+});
+
+export const OrderDetailPickupSchema = z.object({
+  warehouseName: z.string(),
+  warehouseContactPerson: z.string(),
+  warehouseAddressLine1: z.string(),
+  warehouseAddressLine2: z.string(),
+  warehouseAddressLandMark: z.string(),
+  warehouseAddressPhone: z.string(),
+  warehousePin: z.string(),
+  warehouseCity: z.string(),
+  warehouseState: z.string(),
+  warehouseCountry: z.string(),
+});
+
+export const OrderDetailDataSchema = z.object({
+  segment_type: z.string(),
+  getOrderDetails: z.object({
+    MasterCustomOrderId: z.string(),
+    InvoiceNumber: z.string(),
+    MasterOrderCurrency: z.string(),
+    AwbNumber: z.string(),
+    created_at: z.string(),
+    updated_at: z.string(),
+    MasterCustomInvoiceId: z.string().nullable(),
+    PaymentMode: z.string(),
+    InvoiceStatusId: z.string(),
+    InvoiceStatus: z.string(),
+    status_id: z.string(),
+    status: z.string(),
+    products_name: z.string(),
+    product_details: z.array(OrderDetailProductSchema),
+    MasterOrderShippingZipCode: z.string(),
+    totalNoOfBoxes: z.number().nullable(),
+    consignorType: z.string(),
+    consignor: OrderDetailConsignorSchema,
+    consignee: OrderDetailConsigneeSchema,
+    consigneeBilling: OrderDetailConsigneeSchema,
+    pickupDetail: OrderDetailPickupSchema,
+    totalInvoiceAmount: z.string(),
+    InvoiceCurrency: z.string(),
+    weight: z.string(),
+    weightUnit: z.string(),
+    box_dimensions: z.array(z.object({
+      length: z.string(),
+      breadth: z.string(),
+      height: z.string(),
+      each_box_weight: z.string(),
+      no_of_box: z.string(),
+    })),
+    dimensions: z.array(z.string()),
+    orderDate: z.string(),
+    collectableAmount: z.string(),
+    PackageTypeId: z.string(),
+    PackageTypeName: z.string(),
+  }),
+});
+
+export const OrderDetailResponseSchema = ApiResponseSchema(OrderDetailDataSchema);
+
+// ==================== DOWNLOAD DOCUMENTS ====================
+
+export const DownloadDocumentRequestSchema = z.object({
+  CustomGlobalOrderId: z.string().min(1),
+  document_type: z.enum(['invoice', 'label', 'ewaybill', 'manifest']),
+});
+
+export type DownloadDocumentRequest = z.infer<typeof DownloadDocumentRequestSchema>;
+
+export const DownloadDocumentDataSchema = z.object({
+  AttachmentData: z.string(),
+  File_extention: z.string(),
+});
+
+export const DownloadDocumentResponseSchema = ApiResponseSchema(DownloadDocumentDataSchema);
 
 // ==================== RESPONSE TYPE EXPORTS ====================
+
 export type LoginResponse = z.infer<typeof LoginResponseSchema>;
+export type ProfileResponse = z.infer<typeof ProfileResponseSchema>;
 export type WalletBalanceResponse = z.infer<typeof WalletBalanceResponseSchema>;
-export type CourierListResponse = z.infer<typeof CourierListResponseSchema>;
-export type TransporterListResponse = z.infer<typeof TransporterListResponseSchema>;
-export type PaymentCategoryResponse = z.infer<typeof PaymentCategoryResponseSchema>;
-export type WarehouseAddResponse = z.infer<typeof WarehouseAddResponseSchema>;
-export type WarehouseListResponse = z.infer<typeof WarehouseListResponseSchema>;
-export type AddOrderResponse = z.infer<typeof AddOrderResponseSchema>;
-export type ManifestResponse = z.infer<typeof ManifestResponseSchema>;
-export type CancelResponse = z.infer<typeof CancelResponseSchema>;
-export type ShippingRatesResponse = z.infer<typeof ShippingRatesResponseSchema>;
-export type ShipmentDataResponse = z.infer<typeof ShipmentDataResponseSchema>;
-export type ShipmentAWBResponse = z.infer<typeof ShipmentAWBResponseSchema>;
-export type ShipmentFileResponse = z.infer<typeof ShipmentFileResponseSchema>;
-export type CalculateRateResponse = z.infer<typeof CalculateRateResponseSchema>;
-export type TrackingResponse = z.infer<typeof TrackingResponseSchema>;
-
-/**
- * Union type for all possible shipment data responses
- * Use this when the shipment data type is unknown at compile time
- */
-export type ShipmentDataAnyResponse = ShipmentAWBResponse | ShipmentFileResponse;
-
-// ==================== PRODUCT CATEGORIES ====================
-
-/**
- * Static list of product categories supported by Bigship API.
- * These categories are used in the product_category field when creating orders.
- *
- * @example
- * ```ts
- * import { PRODUCT_CATEGORIES } from '@agamya/bigship-sdk';
- *
- * // Get category name by ID
- * const category = PRODUCT_CATEGORIES.find(c => c.id === 4);
- * console.log(category.name); // "Electronics"
- *
- * // Use in order creation
- * await client.addSingleOrder({
- *   ...
- *   order_detail: {
- *     ...
- *     box_details: [{
- *       ...
- *       product_details: [{
- *         product_category: category.name,
- *         ...
- *       }]
- *     }]
- *   }
- * });
- * ```
- */
-export const PRODUCT_CATEGORIES = [
-  { id: 1, name: 'Accessories' },
-  { id: 2, name: 'FashionClothing' },
-  { id: 3, name: 'BookStationary' },
-  { id: 4, name: 'Electronics' },
-  { id: 5, name: 'FMCG' },
-  { id: 6, name: 'Footwear' },
-  { id: 7, name: 'Toys' },
-  { id: 8, name: 'SportsEquipment' },
-  { id: 9, name: 'Others' },
-  { id: 10, name: 'Wellness' },
-  { id: 11, name: 'Medicines' },
-] as const;
-
-export type ProductCategory = typeof PRODUCT_CATEGORIES[number];
+export type SaveWarehouseResponse = z.infer<typeof SaveWarehouseResponseSchema>;
+export type WarehouseListResponse = ApiResponse<{
+  warehouse: z.infer<typeof WarehouseListItemSchema>[];
+  total: number;
+}>;
+export type UpdateWarehouseResponse = z.infer<typeof UpdateWarehouseResponseSchema>;
+export type PackageTypeResponse = z.infer<typeof PackageTypeResponseSchema>;
+export type PaymentModeResponse = z.infer<typeof PaymentModeResponseSchema>;
+export type RiskTypeResponse = z.infer<typeof RiskTypeResponseSchema>;
+export type RateCalculatorResponse = z.infer<typeof RateCalculatorResponseSchema>;
+export type CreateOrderResponse = z.infer<typeof CreateOrderResponseSchema>;
+export type ServiceableCouriersResponse = z.infer<typeof ServiceableCouriersResponseSchema>;
+export type PlaceOrderResponse = z.infer<typeof PlaceOrderResponseSchema>;
+export type CancelOrderResponse = z.infer<typeof CancelOrderResponseSchema>;
+export type TrackOrderResponse = z.infer<typeof TrackOrderResponseSchema>;
+export type OrderDetailResponse = z.infer<typeof OrderDetailResponseSchema>;
+export type DownloadDocumentResponse = z.infer<typeof DownloadDocumentResponseSchema>;
 
 // ==================== API RESPONSE TYPES ====================
 
@@ -594,9 +773,9 @@ export type ProductCategory = typeof PRODUCT_CATEGORIES[number];
  * All Bigship API responses follow this structure
  */
 export interface ApiResponse<T = unknown> {
-  success: boolean;
+  status: boolean;
   message: string;
-  responseCode: number;
+  status_code: number;
   data: T | null;
 }
 
@@ -605,48 +784,15 @@ export interface ApiResponse<T = unknown> {
 /**
  * Type guard to check if an API response is successful
  * Narrows the type to ensure data is non-null
- *
- * @example
- * ```ts
- * const response = await client.addSingleOrder(orderData);
- * if (isSuccessResponse(response)) {
- *   console.log(response.data); // Order ID (string)
- * }
- * ```
  */
-export function isSuccessResponse<T>(response: ApiResponse<T>): response is ApiResponse<T> & { success: true; data: T } {
-  return response.success === true && response.data !== null && response.data !== undefined;
+export function isSuccessResponse<T>(response: ApiResponse<T>): response is ApiResponse<T> & { status: true; data: T } {
+  return response.status === true && response.data !== null && response.data !== undefined;
 }
 
 /**
  * Type guard to check if an API response failed
  * Narrows the type to ensure data is null.
- *
- * **Breaking change from v1.0.0:** Previously also matched `data: undefined`.
- * Now only matches `data: null` to align with the Zod schema and ApiResponse interface.
- * If your code relied on `undefined` matching, add an explicit `data === undefined` check.
- *
- * @example
- * ```ts
- * const response = await client.addSingleOrder(orderData);
- * if (isFailedResponse(response)) {
- *   console.log('Error:', response.message);
- * }
- * ```
  */
-export function isFailedResponse<T>(response: ApiResponse<T>): response is ApiResponse<T> & { success: false; data: null } {
-  return response.success === false && response.data === null;
-}
-
-/**
- * Shipment data type identifiers
- * @see Bigship API documentation
- */
-export enum ShipmentDataType {
-  /** Air Waybill - Contains AWB number and courier details */
-  AWB = 1,
-  /** Shipping label - Contains label download URL/data */
-  LABEL = 2,
-  /** Manifest document - Contains manifest download URL/data */
-  MANIFEST = 3,
+export function isFailedResponse<T>(response: ApiResponse<T>): response is ApiResponse<T> & { status: false; data: null } {
+  return response.status === false && response.data === null;
 }
