@@ -123,10 +123,6 @@ export const ProfileDataSchema = z.object({
 
 export const ProfileResponseSchema = ApiResponseSchema(ProfileDataSchema);
 
-// ==================== WALLET ====================
-
-export const WalletBalanceResponseSchema = ApiResponseSchema(z.string());
-
 // ==================== WAREHOUSE ====================
 
 export const SaveWarehouseRequestSchema = z.object({
@@ -747,7 +743,6 @@ export const DownloadDocumentResponseSchema = ApiResponseSchema(DownloadDocument
 
 export type LoginResponse = z.infer<typeof LoginResponseSchema>;
 export type ProfileResponse = z.infer<typeof ProfileResponseSchema>;
-export type WalletBalanceResponse = z.infer<typeof WalletBalanceResponseSchema>;
 export type SaveWarehouseResponse = z.infer<typeof SaveWarehouseResponseSchema>;
 export type WarehouseListResponse = ApiResponse<{
   warehouse: z.infer<typeof WarehouseListItemSchema>[];

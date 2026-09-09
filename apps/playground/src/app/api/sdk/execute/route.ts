@@ -24,9 +24,6 @@ const METHOD_MAP: Record<string, (c: BigshipClient, p: unknown[]) => Promise<unk
   // Profile
   getProfile:                  (c) => c.getProfile(),
 
-  // Wallet
-  getWalletBalance:           (c) => c.getWalletBalance(),
-
   // Warehouse
   saveWarehouse:              (c, p) => c.saveWarehouse(p[0] as any),
   getWarehouseList:           (c, p) => c.getWarehouseList(p[0] as any),

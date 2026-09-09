@@ -7,14 +7,13 @@ import { CodeSnippet } from '@/components/CodeSnippet';
 import { HooksLog } from '@/components/HooksLog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Play } from 'lucide-react';
 import type { HookEvent } from '@/lib/execute-stream';
 
-export default function CouriersPage() {
+export default function ReferenceDataPage() {
   const { executeMethod, isLoading } = usePlayground();
   const [response, setResponse] = useState<any>(null);
   const [error, setError] = useState<any>(null);
@@ -22,8 +21,7 @@ export default function CouriersPage() {
   const [duration, setDuration] = useState(0);
   const [hooks, setHooks] = useState<HookEvent[]>([]);
 
-  const [category, setCategory] = useState('b2c');
-  const [courierId, setCourierId] = useState('5');
+  const [segmentType, setSegmentType] = useState<'hyperlocal' | 'domestic_b2c' | 'domestic_b2b'>('domestic_b2c');
 
   const run = async (method: string, params: unknown[]) => {
     setResponse(null); setError(null);
@@ -35,51 +33,63 @@ export default function CouriersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold">Couriers</h2>
-        <p className="text-sm text-muted-foreground mt-1">List available couriers and their transporters.</p>
+        <h2 className="text-xl font-semibold">Reference Data</h2>
+        <p className="text-sm text-muted-foreground mt-1">Get package types, payment modes, and risk types.</p>
       </div>
 
-      <Tabs defaultValue="list">
+      <Tabs defaultValue="packageTypes">
         <TabsList>
-          <TabsTrigger value="list">getCourierList</TabsTrigger>
-          <TabsTrigger value="transporters">getCourierTransporterList</TabsTrigger>
+          <TabsTrigger value="packageTypes">getPackageTypes</TabsTrigger>
+          <TabsTrigger value="paymentModes">getPaymentModes</TabsTrigger>
+          <TabsTrigger value="riskTypes">getRiskTypes</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="list" className="space-y-4">
+        <TabsContent value="packageTypes" className="space-y-4">
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Package Types</CardTitle></CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Get available package types for hyperlocal shipments.</p>
+            </CardContent>
+          </Card>
+          <Button onClick={() => run('getPackageTypes', [])} disabled={isLoading} className="w-full" size="lg">
+            {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
+            Execute getPackageTypes
+          </Button>
+        </TabsContent>
+
+        <TabsContent value="paymentModes" className="space-y-4">
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-base">Parameters</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-1.5">
-                <Label>Shipment Category</Label>
-                <Select value={category} onValueChange={(v) => v && setCategory(v as any)}>
+                <Label>Segment Type</Label>
+                <Select value={segmentType} onValueChange={(v) => setSegmentType(v as any)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="b2c">B2C</SelectItem>
-                    <SelectItem value="b2b">B2B</SelectItem>
+                    <SelectItem value="hyperlocal">Hyperlocal</SelectItem>
+                    <SelectItem value="domestic_b2c">B2C</SelectItem>
+                    <SelectItem value="domestic_b2b">B2B</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </CardContent>
           </Card>
-          <Button onClick={() => run('getCourierList', [category])} disabled={isLoading} className="w-full" size="lg">
+          <Button onClick={() => run('getPaymentModes', [segmentType])} disabled={isLoading} className="w-full" size="lg">
             {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
-            Execute getCourierList
+            Execute getPaymentModes
           </Button>
         </TabsContent>
 
-        <TabsContent value="transporters" className="space-y-4">
+        <TabsContent value="riskTypes" className="space-y-4">
           <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-base">Parameters</CardTitle></CardHeader>
+            <CardHeader className="pb-3"><CardTitle className="text-base">Risk Types</CardTitle></CardHeader>
             <CardContent>
-              <div className="space-y-1.5">
-                <Label>Courier ID</Label>
-                <Input type="number" value={courierId} onChange={e => setCourierId(e.target.value)} placeholder="5" />
-              </div>
+              <p className="text-sm text-muted-foreground">Get available risk types (insurance options) for shipments.</p>
             </CardContent>
           </Card>
-          <Button onClick={() => run('getCourierTransporterList', [Number(courierId)])} disabled={isLoading} className="w-full" size="lg">
+          <Button onClick={() => run('getRiskTypes', [])} disabled={isLoading} className="w-full" size="lg">
             {isLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
-            Execute getCourierTransporterList
+            Execute getRiskTypes
           </Button>
         </TabsContent>
       </Tabs>

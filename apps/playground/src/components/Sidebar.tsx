@@ -4,9 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
-  Wallet,
-  Truck,
-  CreditCard,
+  User,
   Warehouse,
   Package,
   FileText,
@@ -17,21 +15,18 @@ import {
   Activity,
   AlertTriangle,
   Wrench,
-  Ship,
   Calculator,
-  Search,
+  CreditCard,
 } from 'lucide-react';
 
 const navItems = [
-  { href: '/playground/wallet', label: 'Wallet', icon: Wallet, group: 'Read' },
-  { href: '/playground/couriers', label: 'Couriers', icon: Truck, group: 'Read' },
-  { href: '/playground/payment', label: 'Payment', icon: CreditCard, group: 'Read' },
+  { href: '/playground/profile', label: 'Profile', icon: User, group: 'Read' },
   { href: '/playground/warehouse', label: 'Warehouse', icon: Warehouse, group: 'Read' },
   { href: '/playground/rates', label: 'Rates', icon: Calculator, group: 'Read' },
   { href: '/playground/tracking', label: 'Tracking', icon: MapPin, group: 'Read' },
   { href: '/playground/shipment', label: 'Shipment', icon: Package, group: 'Read' },
+  { href: '/playground/reference', label: 'Reference Data', icon: CreditCard, group: 'Read' },
   { href: '/playground/orders', label: 'Orders', icon: FileText, group: 'Write' },
-  { href: '/playground/manifest', label: 'Manifest', icon: Ship, group: 'Write' },
   { href: '/playground/cancel', label: 'Cancel', icon: X, group: 'Write' },
   { href: '/playground/convenience', label: 'Convenience', icon: Zap, group: 'Advanced' },
   { href: '/playground/workflow', label: 'Workflow', icon: GitBranch, group: 'Advanced' },

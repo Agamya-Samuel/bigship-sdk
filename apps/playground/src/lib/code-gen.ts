@@ -2,9 +2,6 @@ const METHODS_WITH_PARAMS: Record<string, { paramNames: string[]; returnsData: b
   // Profile
   getProfile:                  { paramNames: [], returnsData: true, needsTypeGuard: true },
 
-  // Wallet
-  getWalletBalance:           { paramNames: [], returnsData: true, needsTypeGuard: true },
-
   // Warehouse
   saveWarehouse:              { paramNames: ['payload'], returnsData: true, needsTypeGuard: true },
   getWarehouseList:           { paramNames: ['params'], returnsData: true, needsTypeGuard: true },

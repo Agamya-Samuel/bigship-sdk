@@ -149,17 +149,6 @@ describe('BigshipClient', () => {
     });
   });
 
-  describe('getWalletBalance', () => {
-    it('returns wallet balance string', async () => {
-      mockAxios.get.mockResolvedValueOnce(apiSuccess('5000.00'));
-      const client = new BigshipClient(getConfig());
-      const result = await client.getWalletBalance();
-      expect(result.status).toBe(true);
-      expect(result.data).toBe('5000.00');
-      expect(mockAxios.get).toHaveBeenCalledWith('api/outbound/wallet/balance', undefined);
-    });
-  });
-
   describe('saveWarehouse', () => {
     const validPayload = {
       segment_type: 'hyperlocal' as const,
@@ -512,12 +501,28 @@ describe('BigshipClient', () => {
   describe('request context duration', () => {
     it('hooks receive duration in context', async () => {
       const onResponse = vi.fn();
-      mockAxios.get.mockResolvedValueOnce(apiSuccess('100'));
+      mockAxios.get.mockResolvedValueOnce(apiSuccess({
+        firstName: 'Test',
+        lastName: 'User',
+        EmailID: 'test@test.com',
+        mobileNumber: '9876543210',
+        countryname: 'India',
+        IsEmailVerifed: '1',
+        is_outbound_service_enabled: '1',
+        api_master_client_account: {
+          access_key: 'key',
+          access_key_generated_date: '2025-01-01',
+          is_account_enabled: '1',
+          created_date: '2025-01-01T00:00:00Z',
+          updated_date: '2025-01-01T00:00:00Z',
+        },
+        userWallet: { Balance: '5000.00', kycCurrency: '₹' },
+      }));
       const client = new BigshipClient({
         ...getConfig(),
         onResponse,
       });
-      await client.getWalletBalance();
+      await client.getProfile();
       expect(onResponse).toHaveBeenCalledWith(
         expect.any(Object),
         expect.objectContaining({ duration: expect.any(Number) })
@@ -529,25 +534,25 @@ describe('BigshipClient', () => {
 
   describe('RequestOptions', () => {
     it('passes timeout to axios when provided', async () => {
-      mockAxios.get.mockResolvedValueOnce(apiSuccess('100'));
+      mockAxios.get.mockResolvedValueOnce(apiSuccess({ firstName: 'Test', lastName: 'User', EmailID: 'test@test.com', mobileNumber: '9876543210', countryname: 'India', IsEmailVerifed: '1', is_outbound_service_enabled: '1', api_master_client_account: { access_key: 'key', access_key_generated_date: '2025-01-01', is_account_enabled: '1', created_date: '2025-01-01T00:00:00Z', updated_date: '2025-01-01T00:00:00Z' }, userWallet: { Balance: '5000.00', kycCurrency: '₹' } }));
       const client = new BigshipClient(getConfig());
-      await client.getWalletBalance({ timeout: 5000 });
-      expect(mockAxios.get).toHaveBeenCalledWith('api/outbound/wallet/balance', { timeout: 5000 });
+      await client.getProfile({ timeout: 5000 });
+      expect(mockAxios.get).toHaveBeenCalledWith('api/outbound/profile', { timeout: 5000 });
     });
 
     it('passes signal to axios when provided', async () => {
-      mockAxios.get.mockResolvedValueOnce(apiSuccess('100'));
+      mockAxios.get.mockResolvedValueOnce(apiSuccess({ firstName: 'Test', lastName: 'User', EmailID: 'test@test.com', mobileNumber: '9876543210', countryname: 'India', IsEmailVerifed: '1', is_outbound_service_enabled: '1', api_master_client_account: { access_key: 'key', access_key_generated_date: '2025-01-01', is_account_enabled: '1', created_date: '2025-01-01T00:00:00Z', updated_date: '2025-01-01T00:00:00Z' }, userWallet: { Balance: '5000.00', kycCurrency: '₹' } }));
       const controller = new AbortController();
       const client = new BigshipClient(getConfig());
-      await client.getWalletBalance({ signal: controller.signal });
-      expect(mockAxios.get).toHaveBeenCalledWith('api/outbound/wallet/balance', { signal: controller.signal });
+      await client.getProfile({ signal: controller.signal });
+      expect(mockAxios.get).toHaveBeenCalledWith('api/outbound/profile', { signal: controller.signal });
     });
 
     it('passes undefined config when no options given', async () => {
-      mockAxios.get.mockResolvedValueOnce(apiSuccess('100'));
+      mockAxios.get.mockResolvedValueOnce(apiSuccess({ firstName: 'Test', lastName: 'User', EmailID: 'test@test.com', mobileNumber: '9876543210', countryname: 'India', IsEmailVerifed: '1', is_outbound_service_enabled: '1', api_master_client_account: { access_key: 'key', access_key_generated_date: '2025-01-01', is_account_enabled: '1', created_date: '2025-01-01T00:00:00Z', updated_date: '2025-01-01T00:00:00Z' }, userWallet: { Balance: '5000.00', kycCurrency: '₹' } }));
       const client = new BigshipClient(getConfig());
-      await client.getWalletBalance();
-      expect(mockAxios.get).toHaveBeenCalledWith('api/outbound/wallet/balance', undefined);
+      await client.getProfile();
+      expect(mockAxios.get).toHaveBeenCalledWith('api/outbound/profile', undefined);
     });
   });
 });

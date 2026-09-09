@@ -62,7 +62,6 @@ import {
   type DownloadDocumentRequest,
   type DownloadDocumentResponse,
   type ProfileResponse,
-  type WalletBalanceResponse,
   type RequestContext,
   type LoggerAdapter,
 } from './types';
@@ -281,18 +280,6 @@ export class BigshipClient {
     return this.executeApiCall('api/outbound/profile', 'GET',
       () => this.axios.get('api/outbound/profile', this.mergeAxiosConfig(options)),
       ProfileDataSchema, 'User profile fetched successfully');
-  }
-
-  // ==================== WALLET ====================
-
-  /**
-   * Get the current wallet balance.
-   * @throws {BigshipApiError} When API request fails
-   */
-  async getWalletBalance(options?: RequestOptions): Promise<WalletBalanceResponse> {
-    return this.executeApiCall('api/outbound/wallet/balance', 'GET',
-      () => this.axios.get('api/outbound/wallet/balance', this.mergeAxiosConfig(options)),
-      z.string(), 'Wallet balance retrieved successfully');
   }
 
   // ==================== WAREHOUSE ====================

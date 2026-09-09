@@ -477,18 +477,34 @@ describe('E2E: Error Recovery', () => {
           userWallet: { Balance: '15000.50', kycCurrency: '₹' },
         });
       }),
-      http.get(`${BASE}/api/outbound/wallet/balance`, () => {
+      http.get(`${BASE}/api/outbound/profile`, () => {
         walletCalls++;
         if (walletCalls === 1) {
           return HttpResponse.json({ status: false, message: 'Unauthorized', status_code: 401, data: null }, { status: 401 });
         }
-        return apiOk('9999');
+        return apiOk({
+          firstName: 'Test',
+          lastName: 'User',
+          EmailID: 'test@test.com',
+          mobileNumber: '9876543210',
+          countryname: 'India',
+          IsEmailVerifed: '1',
+          is_outbound_service_enabled: '1',
+          api_master_client_account: {
+            access_key: 'key',
+            access_key_generated_date: '2025-01-01',
+            is_account_enabled: '1',
+            created_date: '2025-01-01T00:00:00Z',
+            updated_date: '2025-01-01T00:00:00Z',
+          },
+          userWallet: { Balance: '9999.00', kycCurrency: '₹' },
+        });
       }),
     );
 
     const client = new BigshipClient(getConfig());
-    const balance = await client.getWalletBalance();
-    expect(balance.data).toBe('9999');
+    const profile = await client.getProfile();
+    expect(profile.data?.userWallet.Balance).toBe('9999.00');
     expect(loginCalls).toBeGreaterThanOrEqual(2);
   });
 
@@ -496,18 +512,34 @@ describe('E2E: Error Recovery', () => {
     let attempts = 0;
 
     server.use(
-      http.get(`${BASE}/api/outbound/wallet/balance`, () => {
+      http.get(`${BASE}/api/outbound/profile`, () => {
         attempts++;
         if (attempts === 1) {
           return HttpResponse.json({ status: false, message: 'Internal Server Error', status_code: 500, data: null }, { status: 500 });
         }
-        return apiOk('7777');
+        return apiOk({
+          firstName: 'Test',
+          lastName: 'User',
+          EmailID: 'test@test.com',
+          mobileNumber: '9876543210',
+          countryname: 'India',
+          IsEmailVerifed: '1',
+          is_outbound_service_enabled: '1',
+          api_master_client_account: {
+            access_key: 'key',
+            access_key_generated_date: '2025-01-01',
+            is_account_enabled: '1',
+            created_date: '2025-01-01T00:00:00Z',
+            updated_date: '2025-01-01T00:00:00Z',
+          },
+          userWallet: { Balance: '7777.00', kycCurrency: '₹' },
+        });
       }),
     );
 
     const client = new BigshipClient(getConfig({ maxRetries: 2 }));
-    const balance = await client.getWalletBalance();
-    expect(balance.data).toBe('7777');
+    const profile = await client.getProfile();
+    expect(profile.data?.userWallet.Balance).toBe('7777.00');
     expect(attempts).toBe(2);
   });
 
@@ -515,15 +547,15 @@ describe('E2E: Error Recovery', () => {
     let attempts = 0;
 
     server.use(
-      http.get(`${BASE}/api/outbound/wallet/balance`, () => {
+      http.get(`${BASE}/api/outbound/profile`, () => {
         attempts++;
-        return apiFail('Bad request', 400);
+        return HttpResponse.json({ status: false, message: 'Bad request', status_code: 400, data: null }, { status: 400 });
       }),
     );
 
     const client = new BigshipClient(getConfig({ maxRetries: 3 }));
     try {
-      await client.getWalletBalance();
+      await client.getProfile();
       expect.fail('should have thrown');
     } catch (err) {
       expect(err).toBeInstanceOf(BigshipApiError);
