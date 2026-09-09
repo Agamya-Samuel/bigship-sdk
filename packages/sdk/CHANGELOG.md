@@ -1,5 +1,212 @@
 # Changelog
 
+## [3.0.0](https://github.com/agamya-samuel/bigship-sdk/compare/v2.2.0...v3.0.0) (2026-09-09)
+
+### ⚠ BREAKING CHANGES
+
+This release migrates the SDK to the new **Bigship Unified Outbound API**. All endpoints, request/response formats, and authentication have changed.
+
+#### 1. New API Base Path
+
+All endpoints are now under `api/outbound/` prefix.
+
+**Before:**
+```
+POST /api/login/user
+GET  /api/courier/get/all
+POST /api/order/add/single
+```
+
+**After:**
+```
+POST api/outbound/login
+GET  api/outbound/profile
+POST api/outbound/create-order
+```
+
+#### 2. Response Format Changed
+
+**Before:**
+```json
+{ "success": true, "message": "ok", "responseCode": 200, "data": "..." }
+```
+
+**After:**
+```json
+{ "status": true, "message": "ok", "status_code": 200, "data": "..." }
+```
+
+#### 3. Authentication Field Changed
+
+**Before:**
+```ts
+{ "user_name": "...", "password": "...", "access_key": "..." }
+```
+
+**After:**
+```ts
+{ "username": "...", "password": "...", "access_key": "..." }
+```
+
+#### 4. Order Lifecycle Completely Redesigned
+
+**Before:**
+```ts
+const order = await client.addSingleOrder(payload);
+const rates = await client.getShippingRates(order.data);
+await client.manifestSingle({ system_order_id: order.data, courier_id: 5 });
+```
+
+**After:**
+```ts
+const order = await client.createOrder(payload); // Draft order
+const couriers = await client.getServiceableCouriers(order.data.CustomGlobalOrderId);
+await client.placeOrder({ MasterCustomOrderId: order.data.CustomGlobalOrderId, courierId: 25 });
+```
+
+#### 5. Removed Methods
+
+The following methods have been removed:
+- `addSingleOrder()` → Use `createOrder()` with `segment_type: 'domestic_b2c'`
+- `addHeavyOrder()` → Use `createOrder()` with `segment_type: 'domestic_b2b'`
+- `manifestSingle()` → Use `placeOrder()`
+- `manifestHeavy()` → Use `placeOrder()`
+- `getShippingRates()` → Use `getServiceableCouriers()`
+- `cancelShipments()` → Use `cancelOrder()`
+- `getAWB()` → Use `getOrderDetail()`
+- `getShipmentFile()` → Use `downloadDocument()`
+- `getShipmentData()` → Use `getOrderDetail()` or `downloadDocument()`
+- `trackShipment()` → Use `trackOrder()`
+- `manifestAndGetAWB()` → Use `workflow()` or manual flow
+- `getShipmentDetails()` → Use `getOrderDetail()`
+- `createAndFinalizeShipment()` → Use `workflow()` or manual flow
+- `login()` → Authentication is automatic
+- `getCourierList()` → No longer available
+- `getCourierTransporterList()` → No longer available
+- `getPaymentCategory()` → Use `getPaymentCategory()` (unchanged name, new endpoint)
+- `addWarehouse()` → Use `saveWarehouse()`
+- `getWarehouseList()` → Updated parameters
+
+#### 6. New Methods
+
+- `getProfile()` - Get authenticated user's profile
+- `saveWarehouse()` - Save warehouse with new schema
+- `updateWarehouse()` - Update existing warehouse
+- `getPackageTypes()` - Get package types for hyperlocal
+- `getPaymentModes(segmentType)` - Get payment modes by segment type
+- `getRiskTypes()` - Get risk types (insurance options)
+- `createOrder()` - Unified order creation (supports hyperlocal, domestic_b2b, domestic_b2c)
+- `getServiceableCouriers()` - Get couriers for a draft order
+- `placeOrder()` - Place/manifest an order
+- `cancelOrder()` - Cancel by CustomGlobalOrderId
+- `trackOrder()` - Track by CustomGlobalOrderId
+- `getOrderDetail()` - Get complete order details
+- `downloadDocument()` - Download invoice, label, ewaybill, or manifest
+
+#### 7. Order Types
+
+Orders now use `segment_type` to specify the type:
+- `'hyperlocal'` - Local delivery
+- `'domestic_b2b'` - Domestic B2B shipments
+- `'domestic_b2c'` - Domestic B2C shipments
+
+#### 8. ShipmentWorkflow Updated
+
+```ts
+// New workflow API
+const result = await client.workflow()
+  .create(order)           // Create draft order
+  .withCourier(25)         // Select courier
+  .place()                 // Place order
+  .finalize();             // Get order details
+```
+
+---
+
+### Migration Guide
+
+#### Client Initialization (unchanged)
+```ts
+const client = new BigshipClient({
+  baseURL: 'https://api.bigship.direct',
+  userName: 'your-email@example.com',
+  password: 'your-password',
+  accessKey: 'your-access-key',
+});
+```
+
+#### Creating a B2C Order
+```ts
+// v2
+const order = await client.addSingleOrder({
+  shipment_category: 'b2c',
+  warehouse_detail: { pickup_location_id: 123, return_location_id: 123 },
+  consignee_detail: { first_name: 'John', last_name: 'Doe', ... },
+  order_detail: { invoice_id: 'INV-001', ... },
+});
+
+// v3
+const order = await client.createOrder({
+  segment_type: 'domestic_b2c',
+  MasterOrderPickUpLocation: 123,
+  MasterOrderReturnLocation: 123,
+  MasterOrderDate: '2025-01-01 00:00:00',
+  MasterOrderPaymentMode: 1,
+  OrderInvoiceNo: 'INV-001',
+  MasterOrderInvoiceAmount: 1000,
+  MasterOrderShippingName: 'John Doe',
+  MasterOrderShippingMobileNo: '9876543210',
+  MasterOrderShippingAddress: '123 Main St',
+  MasterOrderShippingZipCode: '110001',
+  MasterOrderShippingCity: 'DELHI',
+  MasterOrderShippingState: 'DELHI',
+  MasterOrderShippingCountry: 'India',
+  totalNumOfBoxes: 1,
+  boxes: [{
+    weight_unit: 'kg',
+    dimension_unit: 'cm',
+    noOfBoxes: 1,
+    dimensions: [{ length: 20, breadth: 15, height: 10, weight: 1 }],
+    products: [{ productName: 'Widget', qty: '1', amount: '1000', totalAmount: 1000, collectableAmount: 0, categoryId: '1' }],
+  }],
+});
+```
+
+#### Placing an Order
+```ts
+// v2
+const rates = await client.getShippingRates(order.data, 'B2C');
+await client.manifestSingle({ system_order_id: order.data, courier_id: rates.data[0].courier_id });
+
+// v3
+const couriers = await client.getServiceableCouriers(order.data.CustomGlobalOrderId);
+await client.placeOrder({
+  MasterCustomOrderId: order.data.CustomGlobalOrderId,
+  courierId: couriers.data.calculatedRates[0].courierId,
+  riskTypeId: '2', // Owner Risk
+});
+```
+
+#### Tracking an Order
+```ts
+// v2
+const tracking = await client.trackShipment('AWB123', 'awb');
+
+// v3
+const tracking = await client.trackOrder('311276742'); // CustomGlobalOrderId
+```
+
+#### Canceling an Order
+```ts
+// v2
+await client.cancelShipments(['AWB123']);
+
+// v3
+await client.cancelOrder('311276742'); // CustomGlobalOrderId
+```
+
+---
+
 ## [2.2.0](https://github.com/agamya-samuel/bigship-sdk/compare/v2.1.1...v2.2.0) (2026-08-18)
 
 ### ⚠ Breaking Changes
