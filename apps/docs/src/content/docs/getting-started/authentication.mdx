@@ -13,13 +13,21 @@ The SDK requires three credentials from your Bigship.in account:
 | `password` | Your Bigship password |
 | `accessKey` | API access key from Bigship dashboard |
 
+## Base URL
+
+For the new Unified Outbound API (v3.0.0+):
+
+```
+https://api.bigship.direct
+```
+
 ## Creating a Client
 
 ```typescript
 import { BigshipClient } from '@agamya/bigship-sdk';
 
 const client = new BigshipClient({
-  baseURL: 'https://api.bigship.in',
+  baseURL: 'https://api.bigship.direct',
   userName: process.env.BIGSHIP_USER_NAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
@@ -42,7 +50,7 @@ You never need to manage tokens manually.
 ```typescript
 const client = new BigshipClient({
   // Required
-  baseURL: 'https://api.bigship.in',
+  baseURL: 'https://api.bigship.direct',
   userName: 'your-email@example.com',
   password: 'your-password',
   accessKey: 'your-access-key',

@@ -5,7 +5,7 @@ description: Complete step-by-step guide for B2C shipments — from wallet balan
 
 import { Steps } from '@astrojs/starlight/components';
 
-This guide walks through the full B2C (Business to Consumer) shipment lifecycle using the Bigship SDK.
+This guide walks through the full B2C (Business to Consumer) shipment lifecycle using the Bigship SDK v3.0.0+.
 
 ## Imports
 
@@ -14,7 +14,6 @@ import {
   BigshipClient,
   isSuccessResponse,
   isFailedResponse,
-  ShipmentDataType,
 } from '@agamya/bigship-sdk';
 ```
 
@@ -31,90 +30,75 @@ import {
    }
    ```
 
-2. **List Available Couriers**
-
-   Retrieve couriers available for B2C shipments.
-
-   ```typescript
-   const couriers = await client.getCourierList('b2c');
-   if (isSuccessResponse(couriers)) {
-     for (const c of couriers.data) {
-       console.log(`ID: ${c.courier_id} — ${c.courier_name} (${c.courier_type})`);
-     }
-   }
-   // → ID: 5  — Delhivery (Surface)
-   // → ID: 12 — DTDC      (Surface)
-   ```
-
-3. **Calculate Shipping Rates**
+2. **Calculate Shipping Rates**
 
    Estimate shipping costs before creating an order.
 
    ```typescript
    const rates = await client.calculateRate({
-     shipment_category: 'B2C',
-     payment_type: 'Prepaid',
-     pickup_pincode: '110001',
-     destination_pincode: '400001',
-     shipment_invoice_amount: 2500,
-     box_details: [{
-       each_box_dead_weight: 0.5,
-       each_box_length: 20,
-       each_box_width: 15,
-       each_box_height: 10,
-       box_count: 1,
+     segment_type: 'domestic_b2c',
+     sourcePincode: '110001',
+     destPincode: '400001',
+     invoiceValue: 2500,
+     paymentModeId: 1, // 1: Prepaid, 2: COD, 3: ToPay
+     riskTypeId: 2,    // 1: Third Party Insurance, 2: Owner Risk, 3: Carrier Risk
+     boxes: [{
+       box_length: 20,
+       box_width: 15,
+       box_height: 10,
+       box_dead_weight: 0.5,
+       no_of_box: 1,
      }],
    });
+
+   if (isSuccessResponse(rates)) {
+     const cheapest = rates.data.sort((a, b) => a.totalCharge - b.totalCharge)[0];
+     console.log(`Best rate: ${cheapest.courierName} — ₹${cheapest.totalCharge}`);
+   }
    ```
 
-4. **Create Order**
+3. **Create Order (Draft)**
 
-   Create a B2C order with warehouse, consignee, and order details.
+   Create a B2C order in draft mode.
 
    ```typescript
-   const order = await client.addSingleOrder({
-     shipment_category: 'b2c',
-     warehouse_detail: {
-       pickup_location_id: 123456,
-       return_location_id: 123456,
-     },
-     consignee_detail: {
-       first_name: 'Rahul',
-       last_name: 'Sharma',
-       contact_number_primary: '9876543210',
-       consignee_address: {
-         address_line1: '42 MG Road Koramangala',
-         address_line2: 'Near Forum Mall',
-         address_landmark: 'Opposite HDFC Bank',
-         pincode: '560034',
-       },
-     },
-     order_detail: {
-       invoice_date: new Date().toISOString(),
-       invoice_id: `INV-${Date.now()}`,
-       payment_type: 'Prepaid',
-       total_collectable_amount: 0,
-       shipment_invoice_amount: 2500,
-       box_details: [{
-         each_box_dead_weight: 0.5,
-         each_box_length: 20,
-         each_box_width: 15,
-         each_box_height: 10,
-         each_box_invoice_amount: 2500,
-         each_box_collectable_amount: 0,
-         box_count: 1,
-         product_details: [{
-           product_category: 'Electronics',
-           product_name: 'Wireless Earbuds',
-           product_quantity: 1,
-           each_product_invoice_amount: 2500,
-           each_product_collectable_amount: 0,
-         }],
+   const order = await client.createOrder({
+     segment_type: 'domestic_b2c',
+     MasterOrderPickUpLocation: 123456,  // Your warehouse ID
+     MasterOrderReturnLocation: 123456,  // Return warehouse ID
+     MasterOrderDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
+     MasterOrderPaymentMode: 1,           // 1: Prepaid, 2: COD, 3: ToPay
+     OrderInvoiceNo: `INV-${Date.now()}`, // Must be unique
+     MasterOrderInvoiceAmount: 2500,
+     MasterOrderShippingName: 'Rahul Sharma',
+     MasterOrderShippingMobileNo: '9876543210',
+     MasterOrderShippingEmail: 'rahul@example.com',
+     MasterOrderShippingAddress: '42 MG Road Koramangala',
+     MasterOrderShippingZipCode: '560034',
+     MasterOrderShippingCity: 'BANGALORE',
+     MasterOrderShippingState: 'KARNATAKA',
+     MasterOrderShippingCountry: 'India',
+     totalNumOfBoxes: 1,
+     boxes: [{
+       weight_unit: 'kg',
+       dimension_unit: 'cm',
+       noOfBoxes: 1,
+       dimensions: [{
+         length: 20,
+         breadth: 15,
+         height: 10,
+         weight: 0.5,
        }],
-       document_detail: {
-         invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
-       },
-     },
+       products: [{
+         productName: 'Wireless Earbuds',
+         hsn: '85182900', // Optional HSN code
+         qty: '1',
+         amount: '2500',
+         totalAmount: 2500,
+         collectableAmount: 0,
+         categoryId: '4', // Electronics
+       }],
+     }],
    });
 
    if (isFailedResponse(order)) {
@@ -122,73 +106,131 @@ import {
      process.exit(1);
    }
 
-   const orderId = order.data!;
-   console.log('Order created:', orderId);
+   const orderId = order.data!.CustomGlobalOrderId;
+   console.log('Draft order created:', orderId);
+   // → "311276742"
    ```
 
-5. **Manifest (Assign Courier)**
+4. **Get Serviceable Couriers**
 
-   Assign a courier to the order.
+   Retrieve available couriers and rates for the draft order.
 
    ```typescript
-   await client.manifestSingle({
-     system_order_id: orderId,
-     courier_id: 5, // Delhivery Surface
+   const couriers = await client.getServiceableCouriers(orderId);
+   if (isSuccessResponse(couriers)) {
+     for (const rate of couriers.data.calculatedRates) {
+       console.log(`Courier: ${rate.courierName} — ₹${rate.total} (${rate.tat} days)`);
+     }
+   }
+   ```
+
+5. **Place Order (Manifest)**
+
+   Place the order with a selected courier.
+
+   ```typescript
+   const courierId = couriers.data!.calculatedRates[0].courierId;
+   const placeResult = await client.placeOrder({
+     MasterCustomOrderId: orderId,
+     courierId: typeof courierId === 'string' ? parseInt(courierId, 10) : courierId,
+     riskTypeId: '2', // Owner Risk
    });
-   ```
 
-6. **Get AWB Number**
-
-   Retrieve the AWB (Air Waybill) number after manifestation.
-
-   ```typescript
-   const awbResp = await client.getShipmentData(ShipmentDataType.AWB, orderId);
-   if (isSuccessResponse(awbResp) && awbResp.data && typeof awbResp.data !== 'string') {
-     console.log('AWB:', awbResp.data.master_awb);     // "13090318586270"
-     console.log('Courier:', awbResp.data.courier_name); // "Delhivery"
+   if (isSuccessResponse(placeResult) && placeResult.data) {
+     console.log('AWB:', placeResult.data.awb_assigned);
    }
    ```
 
-7. **Get Shipping Label**
+6. **Track Shipment**
 
-   Download the shipping label as a base64 Data URI or URL.
-
-   ```typescript
-   const label = await client.getShipmentData(ShipmentDataType.LABEL, orderId);
-   if (isSuccessResponse(label) && typeof label.data === 'string') {
-     console.log('Label:', label.data.substring(0, 40) + '...');
-   }
-   ```
-
-8. **Track Shipment**
-
-   Track the shipment by AWB number.
+   Track the order using CustomGlobalOrderId.
 
    ```typescript
-   const tracking = await client.trackShipment('13090318586270', 'awb');
+   const tracking = await client.trackOrder(orderId);
    if (isSuccessResponse(tracking)) {
-     console.log('Status:', tracking.data);
+     console.log('Status:', tracking.data.order_status);
+     console.log('Tracking #: ', tracking.data.tracking_number);
+     console.log('Courier:', tracking.data.courier_name);
+   }
+   ```
+
+7. **Get Order Details**
+
+   Retrieve complete order information.
+
+   ```typescript
+   const details = await client.getOrderDetail(orderId);
+   if (isSuccessResponse(details)) {
+     const orderDetails = details.data.getOrderDetails;
+     console.log('Status:', orderDetails.status);
+     console.log('AWB:', orderDetails.AwbNumber);
+     console.log('Payment:', orderDetails.PaymentMode);
+   }
+   ```
+
+8. **Download Documents**
+
+   Download shipping labels, invoices, or manifests.
+
+   ```typescript
+   const label = await client.downloadDocument(orderId, 'label');
+   if (isSuccessResponse(label) && label.data) {
+     console.log('Label URL:', label.data.AttachmentData);
+     console.log('File type:', label.data.File_extention);
    }
    ```
 
 9. **Cancel if Needed**
 
-   Cancel one or more shipments by AWB number.
+   Cancel an order (only before rider is assigned).
 
    ```typescript
-   await client.cancelShipments(['13090318586270']);
+   const cancel = await client.cancelOrder(orderId);
+   console.log('Cancelled:', cancel.status);
    ```
 
 </Steps>
 
-## Convenience Method
+## Workflow Builder
 
-Use `getShipmentDetails` to fetch AWB, label, and manifest in a single call:
+For a cleaner API, use the workflow builder:
 
 ```typescript
-const details = await client.getShipmentDetails(orderId);
-console.log(details.awb);          // "13090318586270"
-console.log(details.courierName);  // "Delhivery"
-console.log(details.labelData);    // "data:application/pdf;base64,..."
-console.log(details.manifestData); // "data:application/pdf;base64,..."
+const result = await client.workflow()
+  .create({
+    segment_type: 'domestic_b2c',
+    MasterOrderPickUpLocation: 123456,
+    MasterOrderReturnLocation: 123456,
+    MasterOrderDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
+    MasterOrderPaymentMode: 1,
+    OrderInvoiceNo: `INV-${Date.now()}`,
+    MasterOrderInvoiceAmount: 2500,
+    MasterOrderShippingName: 'Rahul Sharma',
+    MasterOrderShippingMobileNo: '9876543210',
+    MasterOrderShippingAddress: '42 MG Road',
+    MasterOrderShippingZipCode: '560034',
+    MasterOrderShippingCity: 'BANGALORE',
+    MasterOrderShippingState: 'KARNATAKA',
+    MasterOrderShippingCountry: 'India',
+    totalNumOfBoxes: 1,
+    boxes: [{
+      weight_unit: 'kg',
+      dimension_unit: 'cm',
+      noOfBoxes: 1,
+      dimensions: [{ length: 20, breadth: 15, height: 10, weight: 0.5 }],
+      products: [{
+        productName: 'Wireless Earbuds',
+        qty: '1',
+        amount: '2500',
+        totalAmount: 2500,
+        collectableAmount: 0,
+        categoryId: '4',
+      }],
+    }],
+  })
+  .withServiceableCourier(0) // Auto-select first courier
+  .place()
+  .finalize();
+
+console.log('Order ID:', result.orderId);
 ```
