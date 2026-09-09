@@ -16,7 +16,7 @@ import {
 // ──────────────────────────────────────────────
 
 const client = new BigshipClient({
-  baseURL: 'https://api.bigship.in',
+  baseURL: 'https://api.bigship.direct',
   userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
@@ -28,23 +28,23 @@ const client = new BigshipClient({
 
 const fullConfig: BigshipConfig = {
   // ── Required ──
-  baseURL: 'https://api.bigship.in',            // Use sandbox URL for testing
-  userName: process.env.BIGSHIP_USERNAME!,       // Your Bigship account email
-  password: process.env.BIGSHIP_PASSWORD!,       // Your Bigship account password
-  accessKey: process.env.BIGSHIP_ACCESS_KEY!,    // API access key from Bigship dashboard
+  baseURL: 'https://api.bigship.direct',           // Production URL
+  userName: process.env.BIGSHIP_USERNAME!,          // Your Bigship account email
+  password: process.env.BIGSHIP_PASSWORD!,          // Your Bigship account password
+  accessKey: process.env.BIGSHIP_ACCESS_KEY!,       // API access key from Bigship dashboard
 
   // ── Timeouts & retries ──
-  timeout: 30000,                                // Request timeout in ms (default: 15000)
-  maxRetries: 5,                                 // Max retry attempts (default: 3)
-  retryDelay: 2000,                              // Base delay between retries in ms (default: 1000)
-  maxRetryDelay: 60000,                          // Upper bound for exponential backoff (default: 30000)
+  timeout: 30000,                                   // Request timeout in ms (default: 15000)
+  maxRetries: 5,                                    // Max retry attempts (default: 3)
+  retryDelay: 2000,                                 // Base delay between retries in ms (default: 1000)
+  maxRetryDelay: 60000,                             // Upper bound for exponential backoff (default: 30000)
   retryOnStatusCodes: [408, 429, 500, 502, 503, 504], // HTTP codes that trigger retry
 
   // ── Token management ──
-  tokenTtlMs: 15 * 60 * 1000,                   // Token cache TTL in ms (default: 55 min)
+  tokenTtlMs: 15 * 60 * 1000,                      // Token cache TTL in ms (default: 55 min)
 
   // ── Logging ──
-  enableDetailedLogging: true,                   // Log all requests/responses (default: false)
+  enableDetailedLogging: true,                      // Log all requests/responses (default: false)
 };
 
 const clientFull = new BigshipClient(fullConfig);
@@ -61,7 +61,7 @@ const myLogger: LoggerAdapter = {
 };
 
 const clientWithLogger = new BigshipClient({
-  baseURL: 'https://api.bigship.in',
+  baseURL: 'https://api.bigship.direct',
   userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
@@ -91,17 +91,18 @@ try {
 
 const rates = await client.calculateRate(
   {
-    shipment_category: 'B2C',
-    payment_type: 'Prepaid',
-    pickup_pincode: '110001',
-    destination_pincode: '400001',
-    shipment_invoice_amount: 1000,
-    box_details: [{
-      each_box_dead_weight: 1,
-      each_box_length: 10,
-      each_box_width: 10,
-      each_box_height: 10,
-      box_count: 1,
+    segment_type: 'domestic_b2c',
+    sourcePincode: '110001',
+    destPincode: '400001',
+    invoiceValue: 1000,
+    paymentModeId: 1, // 1: Prepaid, 2: COD, 3: ToPay
+    riskTypeId: 2,    // 1: Third Party Insurance, 2: Owner Risk, 3: Carrier Risk
+    boxes: [{
+      box_length: 10,
+      box_width: 10,
+      box_height: 10,
+      box_dead_weight: 1,
+      no_of_box: 1,
     }],
   },
   { timeout: 60000 }, // 60s for this specific call, overrides the 15s default

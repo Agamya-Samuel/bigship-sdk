@@ -10,12 +10,10 @@ import {
   BigshipClient,
   BigshipError,
   BigshipApiError,
-  BigshipDuplicateInvoiceError,
   BigshipValidationError,
   BigshipAuthError,
   BigshipNetworkError,
   isBigshipApiError,
-  isBigshipDuplicateInvoiceError,
   isBigshipValidationError,
   isBigshipAuthError,
   isBigshipNetworkError,
@@ -24,7 +22,7 @@ import {
 } from '@agamya/bigship-sdk';
 
 const client = new BigshipClient({
-  baseURL: 'https://api.bigship.in',
+  baseURL: 'https://api.bigship.direct',
   userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
@@ -51,53 +49,42 @@ if (isFailedResponse(response)) {
 // ──────────────────────────────────────────────
 
 try {
-  await client.addSingleOrder({
-    shipment_category: 'b2c',
-    warehouse_detail: { pickup_location_id: 1, return_location_id: 1 },
-    consignee_detail: {
-      first_name: 'Test',
-      last_name: 'User',
-      contact_number_primary: '9876543210',
-      consignee_address: { address_line1: '123 Main Street City', pincode: '110001' },
-    },
-    order_detail: {
-      invoice_date: new Date().toISOString(),
-      invoice_id: 'INV-001',
-      payment_type: 'Prepaid',
-      total_collectable_amount: 0,
-      shipment_invoice_amount: 1000,
-      box_details: [{
-        each_box_dead_weight: 1,
-        each_box_length: 10,
-        each_box_width: 10,
-        each_box_height: 10,
-        each_box_invoice_amount: 1000,
-        each_box_collectable_amount: 0,
-        box_count: 1,
-        product_details: [{
-          product_category: 'Electronics',
-          product_name: 'Phone',
-          product_quantity: 1,
-          each_product_invoice_amount: 1000,
-          each_product_collectable_amount: 0,
-        }],
+  await client.createOrder({
+    segment_type: 'domestic_b2c',
+    MasterOrderPickUpLocation: 1,
+    MasterOrderReturnLocation: 1,
+    MasterOrderDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
+    MasterOrderPaymentMode: 1,
+    OrderInvoiceNo: 'INV-001',
+    MasterOrderInvoiceAmount: 1000,
+    MasterOrderShippingName: 'Test User',
+    MasterOrderShippingMobileNo: '9876543210',
+    MasterOrderShippingAddress: '123 Main Street City',
+    MasterOrderShippingZipCode: '110001',
+    MasterOrderShippingCity: 'DELHI',
+    MasterOrderShippingState: 'DELHI',
+    MasterOrderShippingCountry: 'India',
+    totalNumOfBoxes: 1,
+    boxes: [{
+      weight_unit: 'kg',
+      dimension_unit: 'cm',
+      noOfBoxes: 1,
+      dimensions: [{ length: 10, width: 10, height: 10, weight: 1 }],
+      products: [{
+        productName: 'Phone',
+        qty: '1',
+        amount: '1000',
+        totalAmount: 1000,
+        collectableAmount: 0,
+        categoryId: '4',
       }],
-      document_detail: {
-        invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
-      },
-    },
+    }],
   });
 } catch (error) {
-  // ── Duplicate invoice (HTTP 409) ──
-  if (isBigshipDuplicateInvoiceError(error)) {
-    console.error('Duplicate invoice ID:', error.invoiceId);
-    console.error('Use a different invoice number');
-  }
-
   // ── Client-side validation failure (Zod) ──
-  else if (isBigshipValidationError(error)) {
+  if (isBigshipValidationError(error)) {
     console.error('Validation errors:', error.validationErrors);
-    // → { "order_detail.invoice_id": ["Required"], "consignee_detail.pincode": ["Invalid"] }
+    // → { "OrderInvoiceNo": ["Required"], "MasterOrderShippingZipCode": ["Invalid"] }
   }
 
   // ── Authentication failure (HTTP 401/403) ──

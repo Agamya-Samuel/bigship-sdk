@@ -17,7 +17,7 @@ Set retry and timeout options when creating the client.
 
 ```typescript
 const client = new BigshipClient({
-  baseURL: 'https://api.bigship.in',
+  baseURL: 'https://api.bigship.direct',
   userName: 'your-email@example.com',
   password: 'your-password',
   accessKey: 'your-access-key',
@@ -38,7 +38,7 @@ const client = new BigshipClient({
 Override the timeout for a single call.
 
 ```typescript
-await client.addSingleOrder(order, { timeout: 60000 });
+await client.createOrder(order, { timeout: 60000 });
 ```
 
 ## AbortController Support

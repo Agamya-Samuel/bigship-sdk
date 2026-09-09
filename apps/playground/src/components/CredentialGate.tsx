@@ -60,7 +60,7 @@ function CredentialForm({
   setCredentials: (creds: BigshipCredentials | null) => void;
 }) {
   const [form, setForm] = useState<BigshipCredentials>({
-    baseURL: 'https://api.bigship.in',
+    baseURL: 'https://api.bigship.direct',
     userName: '',
     password: '',
     accessKey: '',
@@ -83,7 +83,7 @@ function CredentialForm({
         body: JSON.stringify({
           requestId,
           credentials: form,
-          method: 'getWalletBalance',
+          method: 'getProfile',
           params: [],
         }),
       });
@@ -124,10 +124,10 @@ function CredentialForm({
           } else if (line === '' && eventType) {
             try {
               const parsed = JSON.parse(eventData);
-              if (eventType === 'error' || (eventType === 'result' && !parsed.success)) {
+              if (eventType === 'error' || (eventType === 'result' && !parsed.status)) {
                 validationError = parsed.error?.message || parsed.message || 'Authentication failed';
               }
-              if (eventType === 'result' && parsed.success) {
+              if (eventType === 'result' && parsed.status) {
                 validated = true;
               }
             } catch {
@@ -180,7 +180,7 @@ function CredentialForm({
                 id="baseURL"
                 value={form.baseURL}
                 onChange={(e) => update('baseURL', e.target.value)}
-                placeholder="https://api.bigship.in"
+                placeholder="https://api.bigship.direct"
                 required
               />
             </div>

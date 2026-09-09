@@ -51,7 +51,7 @@ Set Bigship credentials via environment variables:
 export BIGSHIP_USER_NAME=your-email@example.com
 export BIGSHIP_PASSWORD=your-password
 export BIGSHIP_ACCESS_KEY=your-access-key
-export BIGSHIP_BASE_URL=https://api.bigship.in
+export BIGSHIP_BASE_URL=https://api.bigship.direct
 ```
 
 Or copy `packages/sdk/.env.example` to `packages/sdk/.env` and fill in values.

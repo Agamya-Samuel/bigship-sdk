@@ -19,7 +19,7 @@ import {
 // ──────────────────────────────────────────────
 
 const loggingConfig: BigshipConfig = {
-  baseURL: 'https://api.bigship.in',
+  baseURL: 'https://api.bigship.direct',
   userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
@@ -63,7 +63,7 @@ const metrics = {
 };
 
 const metricsConfig: BigshipConfig = {
-  baseURL: 'https://api.bigship.in',
+  baseURL: 'https://api.bigship.direct',
   userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
@@ -113,7 +113,7 @@ const winstonAdapter: LoggerAdapter = {
 };
 
 const clientWithWinston = new BigshipClient({
-  baseURL: 'https://api.bigship.in',
+  baseURL: 'https://api.bigship.direct',
   userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,

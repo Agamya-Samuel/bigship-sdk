@@ -19,7 +19,7 @@ npm install @agamya/bigship-sdk
 import { BigshipClient } from '@agamya/bigship-sdk';
 
 const client = new BigshipClient({
-  baseURL: 'https://api.bigship.in',
+  baseURL: 'https://api.bigship.direct',
   userName: process.env.BIGSHIP_USER_NAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,

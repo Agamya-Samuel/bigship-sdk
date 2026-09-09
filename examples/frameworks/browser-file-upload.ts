@@ -45,7 +45,7 @@ async function handleFileUpload(input: HTMLInputElement) {
 
 async function createOrderWithFile(invoiceFile: File) {
   const client = new BigshipClient({
-    baseURL: 'https://api.bigship.in',
+    baseURL: 'https://api.bigship.direct',
     userName: 'user@example.com',
     password: 'password',
     accessKey: 'key',

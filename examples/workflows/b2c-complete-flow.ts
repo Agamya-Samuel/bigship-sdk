@@ -1,21 +1,20 @@
 /**
  * 02 — B2C Complete Flow (Step by Step)
  *
- * Full lifecycle: check balance → get couriers → calculate rates →
- * create order → manifest → get AWB → get label → track → cancel
+ * Full lifecycle: check balance → calculate rates → create order →
+ * get serviceable couriers → place order → track → get details → download label
  *
  * Run: npx tsx examples/workflows/b2c-complete-flow.ts
  */
 
 import {
   BigshipClient,
-  ShipmentDataType,
   isSuccessResponse,
   isFailedResponse,
 } from '@agamya/bigship-sdk';
 
 const client = new BigshipClient({
-  baseURL: 'https://api.bigship.in',
+  baseURL: 'https://api.bigship.direct',
   userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
@@ -30,103 +29,83 @@ console.log('Wallet balance:', balance.data);
 // → "5000.00"
 
 // ──────────────────────────────────────────────
-// Step 2: List available couriers for B2C
-// ──────────────────────────────────────────────
-
-const couriers = await client.getCourierList('b2c');
-if (isSuccessResponse(couriers)) {
-  for (const c of couriers.data) {
-    console.log(`  courier_id=${c.courier_id}  ${c.courier_name}  (${c.courier_type ?? 'N/A'})`);
-  }
-}
-// → courier_id=5   Delhivery  (Surface)
-// → courier_id=12  DTDC       (Surface)
-// → courier_id=18  Ekart      (Surface)
-
-// ──────────────────────────────────────────────
-// Step 3: Calculate shipping rates
+// Step 2: Calculate shipping rates (without creating an order)
 // ──────────────────────────────────────────────
 
 const rates = await client.calculateRate({
-  shipment_category: 'B2C',
-  payment_type: 'Prepaid',
-  pickup_pincode: '110001',       // Warehouse pincode (Delhi)
-  destination_pincode: '400001',  // Customer pincode (Mumbai)
-  shipment_invoice_amount: 2500,
-  box_details: [{
-    each_box_dead_weight: 0.5,    // kg
-    each_box_length: 20,          // cm
-    each_box_width: 15,
-    each_box_height: 10,
-    box_count: 1,
+  segment_type: 'domestic_b2c',
+  sourcePincode: '110001',       // Warehouse pincode (Delhi)
+  destPincode: '400001',         // Customer pincode (Mumbai)
+  invoiceValue: 2500,
+  paymentModeId: 1,              // 1: Prepaid, 2: COD, 3: ToPay
+  riskTypeId: 2,                 // 1: Third Party Insurance, 2: Owner Risk, 3: Carrier Risk
+  boxes: [{
+    box_length: 20,              // cm
+    box_width: 15,               // cm
+    box_height: 10,              // cm
+    box_dead_weight: 0.5,        // kg
+    no_of_box: 1,
   }],
 });
 
 if (isSuccessResponse(rates)) {
   const cheapest = rates.data
-    .sort((a, b) => a.total_shipping_charges - b.total_shipping_charges)[0];
-  console.log(`Best rate: ${cheapest.courier_name} — ₹${cheapest.total_shipping_charges}`);
+    .sort((a, b) => a.totalCharge - b.totalCharge)[0];
+  console.log(`Best rate: ${cheapest.courierName} — ₹${cheapest.totalCharge}`);
   // → "Best rate: Delhivery — ₹85"
 }
 
 // ──────────────────────────────────────────────
-// Step 4: Create B2C order
+// Step 3: Create B2C order (draft mode)
 // ──────────────────────────────────────────────
 
-const order = await client.addSingleOrder({
-  shipment_category: 'b2c',
+const order = await client.createOrder({
+  segment_type: 'domestic_b2c',
 
   // ── Warehouse (pickup location) ──
-  warehouse_detail: {
-    pickup_location_id: 123456,   // Your warehouse ID from Bigship dashboard
-    return_location_id: 123456,   // Where undelivered packages are returned
-  },
-
-  // ── Customer (consignee) ──
-  consignee_detail: {
-    first_name: 'Rahul',
-    last_name: 'Sharma',
-    contact_number_primary: '9876543210',
-    consignee_address: {
-      address_line1: '42 MG Road Koramangala',  // Min 10 chars, alphanumeric + ,#':/-()
-      address_line2: 'Near Forum Mall',
-      address_landmark: 'Opposite HDFC Bank',
-      pincode: '560034',                         // 6-digit Indian pincode
-    },
-  },
+  MasterOrderPickUpLocation: 123456,   // Your warehouse ID from Bigship dashboard
+  MasterOrderReturnLocation: 123456,  // Where undelivered packages are returned
 
   // ── Order details ──
-  order_detail: {
-    invoice_date: new Date().toISOString(),       // ISO 8601 datetime
-    invoice_id: `INV-${Date.now()}`,              // Must be unique per order
-    payment_type: 'Prepaid',                       // 'Prepaid' | 'COD'
-    total_collectable_amount: 0,                   // Must be 0 for Prepaid
-    shipment_invoice_amount: 2500,                 // Total order value in INR
+  MasterOrderDate: new Date().toISOString().replace('T', ' ').substring(0, 19), // UTC: Y-m-d H:i:s
+  MasterOrderPaymentMode: 1,           // 1: Prepaid, 2: COD, 3: ToPay
+  OrderInvoiceNo: `INV-${Date.now()}`, // Must be unique per order
+  MasterOrderInvoiceAmount: 2500,      // Total order value in INR
+  totalNumOfBoxes: 1,
 
-    // ── Box details ──
-    box_details: [{
-      each_box_dead_weight: 0.5,                  // Weight in kg
-      each_box_length: 20,                        // Length in cm
-      each_box_width: 15,                         // Width in cm
-      each_box_height: 10,                        // Height in cm
-      each_box_invoice_amount: 2500,              // Box invoice amount
-      each_box_collectable_amount: 0,             // 0 for Prepaid
-      box_count: 1,                               // B2C MUST be exactly 1
-      product_details: [{
-        product_category: 'Electronics',
-        product_name: 'Wireless Earbuds',
-        product_quantity: 1,
-        each_product_invoice_amount: 2500,
-        each_product_collectable_amount: 0,
-      }],
+  // ── Customer (consignee) ──
+  MasterOrderShippingName: 'Rahul Sharma',
+  MasterOrderShippingMobileNo: '9876543210',
+  MasterOrderShippingEmail: 'rahul@example.com',
+  MasterOrderShippingAddress: '42 MG Road Koramangala',
+  MasterOrderShippingAddress2: 'Near Forum Mall',
+  MasterOrderShippingLandmark: 'Opposite HDFC Bank',
+  MasterOrderShippingZipCode: '560034', // 6-digit Indian pincode
+  MasterOrderShippingCity: 'BANGALORE',
+  MasterOrderShippingState: 'KARNATAKA',
+  MasterOrderShippingCountry: 'India',
+
+  // ── Box details ──
+  boxes: [{
+    weight_unit: 'kg',
+    dimension_unit: 'cm',
+    noOfBoxes: 1,
+    dimensions: [{
+      length: 20,
+      width: 15,
+      height: 10,
+      weight: 0.5,
     }],
-
-    // ── Documents (REQUIRED) ──
-    document_detail: {
-      invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
-      // ewaybill_document_file: '...',           // Optional for B2C
-    },
-  },
+    products: [{
+      productName: 'Wireless Earbuds',
+      hsn: '85182900',           // Optional HSN code
+      qty: '1',
+      amount: '2500',
+      totalAmount: 2500,
+      collectableAmount: 0,
+      categoryId: '4',           // Electronics
+    }],
+  }],
 });
 
 if (isFailedResponse(order)) {
@@ -134,63 +113,75 @@ if (isFailedResponse(order)) {
   process.exit(1);
 }
 
-const orderId = order.data!;                      // system_order_id from Bigship
-console.log('Order created:', orderId);
-// → "1005202970"
+const orderId = order.data!.CustomGlobalOrderId;
+console.log('Order created (draft):', orderId);
+// → "311276742"
 
 // ──────────────────────────────────────────────
-// Step 5: Manifest (assigns courier to the order)
+// Step 4: Get serviceable couriers and rates for this order
 // ──────────────────────────────────────────────
 
-await client.manifestSingle({
-  system_order_id: orderId,
-  courier_id: 5,                                  // Delhivery Surface (from Step 2)
+const couriers = await client.getServiceableCouriers(orderId);
+if (isSuccessResponse(couriers) && couriers.data) {
+  for (const rate of couriers.data.calculatedRates) {
+    console.log(`  courier=${rate.courierName}  rate=₹${'total' in rate ? rate.total : rate.total_freight}`);
+  }
+}
+
+// ──────────────────────────────────────────────
+// Step 5: Place order (manifest with selected courier)
+// ──────────────────────────────────────────────
+
+const selectedCourierId = couriers.data?.calculatedRates[0]?.courierId ?? 5;
+const placeResult = await client.placeOrder({
+  MasterCustomOrderId: orderId,
+  courierId: typeof selectedCourierId === 'string' ? parseInt(selectedCourierId, 10) : selectedCourierId,
+  riskTypeId: '2', // Owner Risk
 });
-console.log('Manifested successfully');
 
-// ──────────────────────────────────────────────
-// Step 6: Get AWB (Air Waybill) number
-// ──────────────────────────────────────────────
-
-const awbResp = await client.getShipmentData(ShipmentDataType.AWB, orderId);
-if (isSuccessResponse(awbResp) && awbResp.data && typeof awbResp.data !== 'string') {
-  console.log('AWB Number:', awbResp.data.master_awb);   // "13090318586270"
-  console.log('Courier:', awbResp.data.courier_name);     // "Delhivery"
-  console.log('LR Number:', awbResp.data.lr_number);      // null or LR string
+if (isSuccessResponse(placeResult) && placeResult.data) {
+  console.log('Order placed successfully!');
+  console.log('AWB Number:', placeResult.data.awb_assigned);
+  console.log('Reference:', placeResult.data.reference_number);
 }
 
 // ──────────────────────────────────────────────
-// Step 7: Get shipping label (PDF data URI or URL)
+// Step 6: Track order
 // ──────────────────────────────────────────────
 
-const labelResp = await client.getShipmentData(ShipmentDataType.LABEL, orderId);
-if (isSuccessResponse(labelResp) && typeof labelResp.data === 'string') {
-  console.log('Label available:', labelResp.data.substring(0, 40) + '...');
-  // → "Label available: data:application/pdf;base64,JVBERi0x..."
-  // Save to file, embed in HTML, or send to printer
+const tracking = await client.trackOrder(orderId);
+if (isSuccessResponse(tracking) && tracking.data) {
+  console.log('Order status:', tracking.data.order_status);
+  console.log('Tracking number:', tracking.data.tracking_number);
+  console.log('Courier:', tracking.data.courier_name);
 }
 
 // ──────────────────────────────────────────────
-// Step 8: Get manifest document
+// Step 7: Get order details
 // ──────────────────────────────────────────────
 
-const manifestResp = await client.getShipmentData(ShipmentDataType.MANIFEST, orderId);
-if (isSuccessResponse(manifestResp) && typeof manifestResp.data === 'string') {
-  console.log('Manifest doc available:', manifestResp.data.substring(0, 40) + '...');
+const details = await client.getOrderDetail(orderId);
+if (isSuccessResponse(details) && details.data) {
+  const orderDetails = details.data.getOrderDetails;
+  console.log('Order status:', orderDetails.status);
+  console.log('AWB:', orderDetails.AwbNumber);
+  console.log('Payment mode:', orderDetails.PaymentMode);
+  console.log('Invoice amount:', orderDetails.totalInvoiceAmount);
 }
 
 // ──────────────────────────────────────────────
-// Step 9: Track shipment
+// Step 8: Download shipping label
 // ──────────────────────────────────────────────
 
-const tracking = await client.trackShipment('13090318586270', 'awb');
-if (isSuccessResponse(tracking)) {
-  console.log('Tracking data:', tracking.data);
+const label = await client.downloadDocument(orderId, 'label');
+if (isSuccessResponse(label) && label.data) {
+  console.log('Label URL:', label.data.AttachmentData);
+  console.log('File type:', label.data.File_extention);
 }
 
 // ──────────────────────────────────────────────
-// Step 10: Cancel if needed
+// Step 9: Cancel order (if needed, before rider is assigned)
 // ──────────────────────────────────────────────
 
-const cancel = await client.cancelShipments(['13090318586270']);
-console.log('Cancelled:', cancel.success);       // true
+const cancel = await client.cancelOrder(orderId);
+console.log('Cancelled:', cancel.status); // true
