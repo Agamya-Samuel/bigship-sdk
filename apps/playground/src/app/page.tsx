@@ -13,7 +13,7 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Package className="h-6 w-6" />
             <h1 className="text-xl font-bold">BigShip SDK Playground</h1>
-            <Badge variant="secondary">v2.1.1</Badge>
+            <Badge variant="secondary">v3.0.0</Badge>
           </div>
           <Link href="/playground">
             <Button>Open Playground</Button>
