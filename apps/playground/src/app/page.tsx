@@ -47,6 +47,24 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Video Demo */}
+        <section className="container mx-auto px-4 py-12">
+          <div className="max-w-4xl mx-auto">
+            <h3 className="text-2xl font-bold mb-6 text-center">See it in action</h3>
+            <video
+              controls
+              autoPlay
+              muted
+              playsInline
+              className="w-full rounded-lg shadow-lg"
+              poster="https://cdn-r2.agamya.dev/bigship/bigship-sdk-playground-demo.mp4"
+            >
+              <source src="https://cdn-r2.agamya.dev/bigship/bigship-sdk-playground-demo.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </section>
+
         {/* Features */}
         <section className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -88,6 +106,7 @@ export default function HomePage() {
             </Card>
           </div>
         </section>
+        
       </main>
 
       {/* Footer */}
