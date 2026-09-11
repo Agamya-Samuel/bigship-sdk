@@ -58,7 +58,7 @@ export default function HomePage() {
             <Package className="h-6 w-6 shrink-0" aria-hidden />
             <h1 className="text-base sm:text-xl font-bold truncate">BigShip Playground</h1>
             <Badge variant="secondary" className="hidden xs:inline-flex shrink-0">
-              v3.0.0
+              v4.0.0
             </Badge>
           </div>
           <nav className="flex items-center gap-2 shrink-0">
