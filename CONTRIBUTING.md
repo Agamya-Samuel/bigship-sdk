@@ -22,7 +22,9 @@ apps/docs/          Documentation site (Astro + Starlight)
 
 The monorepo root requires **Node ≥ 22.12.0** (`package.json` `engines.node`). This is the Astro 7 hard floor. Per-app floors are declared in each `apps/*/package.json` (`>=22.12.0` for docs, `>=20.9.0` for playground).
 
-The published SDK package itself (`packages/sdk`) declares `engines.node: ">=18.0.0"` — the SDK source runs on Node 18, but you can only develop/test it inside a monorepo with Node ≥ 22.12. CI tests the SDK on `[18, 20, 22]` to prove that promise.
+The published SDK package (`packages/sdk`) declares `engines.node: ">=20.12.0"` — Node 20.12 is the version that introduced `node:util.styleText`, which vitest 4 and rolldown (used by the SDK test runner) require. The previous floor was Node 18, which was past EOL as of April 2025; v4.0.0 bumped the floor and the CI matrix.
+
+The SDK CI matrix is `[20, 22]`, which proves the floor + forward compatibility.
 
 `.nvmrc` pins Node 22 for local development. If you use `nvm`, `nvm use` will switch to it.
 

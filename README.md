@@ -34,8 +34,8 @@ npm install @agamya/bigship-sdk
 
 Requires Node.js for two different audiences, depending on how you use the repo:
 
-**Published package** (`@agamya/bigship-sdk` on npm) — **Node ≥ 18.0.0**
-The SDK source targets ES2022 and has no runtime dependencies on Node 19+ features. CI matrix is `[18, 20, 22]` and proves the floor + forward compatibility.
+**Published package** (`@agamya/bigship-sdk` on npm) — **Node ≥ 20.12.0**
+The SDK source targets ES2022. CI matrix is `[20, 22]` and proves the floor + forward compatibility. Node 18 was the previous floor but is past EOL (April 2025); the SDK's test tooling (vitest 4, rolldown) requires Node ≥ 20.12 anyway, so the floor was bumped in v4.0.0.
 
 **Monorepo** (this repo, including `apps/docs` and `apps/playground`) — **Node ≥ 22.12.0**
 Astro 7 hard-requires Node 22.12+, so running `npm install` at the repo root requires it. Per-app floors are declared explicitly in each `apps/*/package.json` (`>=22.12.0` for docs, `>=20.9.0` for playground), matching Astro 7 and Next 16's minimums respectively.

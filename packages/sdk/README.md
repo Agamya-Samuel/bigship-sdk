@@ -15,7 +15,7 @@ TypeScript SDK for the [Bigship.direct](https://bigship.direct) **Unified Outbou
 npm install @agamya/bigship-sdk
 ```
 
-Requires Node.js ≥ 18.0.0 (CI-tested on Node 18, 20, 22). The published SDK targets ES2022 and has no runtime dependencies on Node 19+ features. If you're working inside the monorepo (e.g. running `apps/docs`), the repo root requires Node ≥ 22.12.0 because Astro 7 hard-requires it.
+Requires Node.js ≥ 20.12.0 (CI-tested on Node 20 and 22). The published SDK targets ES2022 and uses no runtime features beyond ES2022. If you're working inside the monorepo (e.g. running `apps/docs`), the repo root requires Node ≥ 22.12.0 because Astro 7 hard-requires it.
 
 ## Quick Start
 
