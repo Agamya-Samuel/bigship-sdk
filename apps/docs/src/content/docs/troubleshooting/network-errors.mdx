@@ -64,9 +64,9 @@ This is useful for implementing user-facing cancel buttons or enforcing strict S
 If you see `getaddrinfo ENOTFOUND` or similar DNS errors:
 
 1. Verify the `baseURL` is correct for your region.
-2. Check that your DNS resolver can resolve `*.bigship.in` domains:
+2. Check that your DNS resolver can resolve `*.bigship.direct` domains:
    ```bash
-   nslookup apiv2.bigship.in
+   nslookup apiv2.bigship.direct
    ```
 3. In containerized environments (Docker, Kubernetes), ensure DNS is configured correctly.
 4. If using a custom DNS server, verify it is reachable.

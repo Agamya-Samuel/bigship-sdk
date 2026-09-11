@@ -1,20 +1,20 @@
 # Bigship Domestic Outbound API Documents
 
-> **Source:** This document was generated from [Bigship Domestic Outbound API Documents](https://web.archive.org/web/20260408120641/https://bigship.in/api-document/Bigship-Domestic-Outbound-API-Documents.pdf).
+> **Source:** This document was generated from [Bigship Domestic Outbound API Documents](https://web.archive.org/web/20260408120641/https://bigship.direct/api-document/Bigship-Domestic-Outbound-API-Documents.pdf).
 
 # Points to Remember
 
 Here are the key points to remember:
-- Base URL: https://api.bigship.in/
+- Base URL: https://api.bigship.direct/
 - API Endpoint: api/login/user
 - Full URL Construction: Combine the Base URL and API Endpoint to form the Full URL.
 
 **Example:**
-- Full URL: https://api.bigship.in/api/login/user
+- Full URL: https://api.bigship.direct/api/login/user
 Whenever constructing the full URL, use the same pattern:
 Full URL = Base URL + API Endpoint
 API Support: If you have any doubts, please feel free to contact us at
-apisupport@bigship.in and CC your Sales POC.
+apisupport@bigship.direct and CC your Sales POC.
 API Rate Limiting:
 To ensure fair usage and optimal performance, our API has a rate limit of 100 requests per
 minute per IP address. If this limit is exceeded, additional requests will be denied until the
@@ -358,7 +358,7 @@ Response
     "address_city": "Dehradun",
     "address_state": "UTTARAKHAND",
     "address_country": "India",
-    "address_email_id": "testing@bigship.in",
+    "address_email_id": "testing@bigship.direct",
     "contact_number_primary": "9998887772"
   },
   "success": true,

@@ -4,9 +4,9 @@
 [![npm version](https://img.shields.io/npm/v/@agamya/bigship-sdk)](https://www.npmjs.com/package/@agamya/bigship-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-TypeScript SDK for the Bigship.in External Outbound API — shipping, orders, rates, tracking, and more.
+TypeScript SDK for the Bigship.direct External Outbound API — shipping, orders, rates, tracking, and more.
 
-> **Disclaimer:** Community project based on publicly available Bigship API documentation. Not officially affiliated with Bigship.in. Legal contact: [legal@agamya.dev](mailto:legal@agamya.dev).
+> **Disclaimer:** Community project based on publicly available Bigship API documentation. Not officially affiliated with Bigship.direct. Legal contact: [legal@agamya.dev](mailto:legal@agamya.dev).
 
 ## Features
 

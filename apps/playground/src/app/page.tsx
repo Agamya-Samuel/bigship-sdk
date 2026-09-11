@@ -92,8 +92,8 @@ export default function HomePage() {
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>
             <code>@agamya/bigship-sdk</code> — Community SDK for{' '}
-            <a href="https://bigship.in" className="underline" target="_blank" rel="noopener">
-              Bigship.in
+            <a href="https://bigship.direct" className="underline" target="_blank" rel="noopener">
+              Bigship.direct
             </a>{' '}
             API. Not officially affiliated.
           </p>

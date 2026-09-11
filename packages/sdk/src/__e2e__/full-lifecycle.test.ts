@@ -266,7 +266,7 @@ const handlers = [
         consignorType: 'Self',
         consignor: {
           companyName: 'Test Company',
-          companyEmailId: 'test@bigship.in',
+          companyEmailId: 'test@bigship.direct',
           companyMobile: '9876543210',
           orderCountry: 'India',
           orderState: 'DELHI',

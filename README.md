@@ -5,9 +5,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18-brightgreen)](https://nodejs.org)
 
-TypeScript SDK for the [Bigship.in](https://bigship.in) External Outbound API — shipping, orders, rates, tracking, and more.
+TypeScript SDK for the [Bigship.direct](https://bigship.direct) External Outbound API — shipping, orders, rates, tracking, and more.
 
-> **Disclaimer:** Community project based on publicly available Bigship API documentation. Not officially affiliated with Bigship.in.
+> **Disclaimer:** Community project based on publicly available Bigship API documentation. Not officially affiliated with Bigship.direct.
 
 ## Quick Start
 

@@ -49,7 +49,7 @@ Ensure the `baseURL` matches your Bigship account region:
 const client = new BigshipClient({
   clientId: process.env.BIGSHIP_CLIENT_ID,
   clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
-  baseURL: "https://apiv2.bigship.in", // India region
+  baseURL: "https://apiv2.bigship.direct", // India region
 });
 ```
 
@@ -72,5 +72,5 @@ try {
 }
 ```
 
-- Whitelist `*.bigship.in` domains in your firewall.
+- Whitelist `*.bigship.direct` domains in your firewall.
 - If behind a corporate proxy, see [Network Errors](/troubleshooting/network-errors#proxy-configuration).
