@@ -3,7 +3,7 @@
 [![CI](https://github.com/Agamya-Samuel/bigship-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/Agamya-Samuel/bigship-sdk/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@agamya/bigship-sdk)](https://www.npmjs.com/package/@agamya/bigship-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18-brightgreen)](https://nodejs.org)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20.12.0-brightgreen)](https://nodejs.org)
 
 A typed, batteries-included TypeScript SDK for the [Bigship.direct](https://bigship.direct) Unified Outbound API — warehouses, orders, rates, couriers, tracking, manifests, documents, and wallet, all behind one client.
 
