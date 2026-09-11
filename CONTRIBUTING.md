@@ -14,12 +14,18 @@ npm install
 packages/sdk/       The published @agamya/bigship-sdk package
 apps/playground/    Interactive playground (Next.js)
 apps/docs/          Documentation site (Astro + Starlight)
-docs/               Guide and API documentation source
-examples/           Runnable code examples
 tooling/            Build tooling (TypeDoc config, etc.)
 ```
 
 ## Common Commands
+
+### Node version
+
+The monorepo root requires **Node ≥ 22.12.0** (`package.json` `engines.node`). This is the Astro 7 hard floor. Per-app floors are declared in each `apps/*/package.json` (`>=22.12.0` for docs, `>=20.9.0` for playground).
+
+The published SDK package itself (`packages/sdk`) declares `engines.node: ">=18.0.0"` — the SDK source runs on Node 18, but you can only develop/test it inside a monorepo with Node ≥ 22.12. CI tests the SDK on `[18, 20, 22]` to prove that promise.
+
+`.nvmrc` pins Node 22 for local development. If you use `nvm`, `nvm use` will switch to it.
 
 ```bash
 # Build
@@ -61,12 +67,6 @@ npm run docs:generate       # Generate API reference from TypeDoc
 1. Human-authored content goes in `apps/docs/src/content/docs/`
 2. API reference is generated — do not edit `apps/docs/src/content/docs/api/` manually
 3. Run `npm run docs:generate` to regenerate API docs after SDK changes
-
-### Examples (`examples/`)
-
-1. Examples are organized by category: `node/`, `workflows/`, `frameworks/`
-2. All examples import from `@agamya/bigship-sdk` (the npm package specifier)
-3. CI validates that examples compile — keep imports correct
 
 ## Code Style
 
