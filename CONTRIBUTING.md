@@ -14,7 +14,6 @@ npm install
 packages/sdk/       The published @agamya/bigship-sdk package
 apps/playground/    Interactive playground (Next.js)
 apps/docs/          Documentation site (Astro + Starlight)
-tooling/            Build tooling (TypeDoc config, etc.)
 ```
 
 ## Common Commands

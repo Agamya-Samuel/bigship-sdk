@@ -14,6 +14,6 @@
     "test": "npm test -w packages/sdk",
     "test:integration": "npm run test:integration -w packages/sdk",
     "typecheck": "npx tsc --noEmit -p packages/sdk/tsconfig.json",
-    "docs:generate": "typedoc --options tooling/typedoc/typedoc.json && rm -f apps/docs/src/content/docs/api/README.md && rm -rf apps/docs/src/content/docs/api/_media && node tooling/typedoc/fix-frontmatter.js"
+    "docs:generate": "typedoc --options packages/sdk/typedoc.json && rm -f apps/docs/src/content/docs/api/README.md && rm -rf apps/docs/src/content/docs/api/_media && node packages/sdk/scripts/typedoc-fix-frontmatter.js"
   }
 }

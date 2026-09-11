@@ -258,8 +258,7 @@ const client = new BigshipClient({
 bigship-sdk/
 ├── packages/sdk/        @agamya/bigship-sdk (npm package)
 ├── apps/playground/     Interactive playground (Next.js)
-├── apps/docs/           Documentation site (Astro + Starlight)
-└── tooling/             Build tooling (TypeDoc config, etc.)
+└── apps/docs/           Documentation site (Astro + Starlight)
 ```
 
 ## Documentation
