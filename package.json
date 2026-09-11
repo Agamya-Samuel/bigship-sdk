@@ -4,6 +4,9 @@
     "packages/*",
     "apps/*"
   ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "build": "npm run build -w packages/sdk && npm run build -w apps/playground",
     "build:sdk": "npm run build -w packages/sdk",
