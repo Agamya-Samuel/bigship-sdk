@@ -114,7 +114,11 @@ Orders now use `segment_type` to specify the type:
 
 ```ts
 // New workflow API
-const result = await client.workflow()
+import { BigshipClient, ShipmentWorkflow } from '@agamya/bigship-sdk';
+
+const client = new BigshipClient({ /* config */ });
+
+const result = await new ShipmentWorkflow(client)
   .create(order)           // Create draft order
   .withCourier(25)         // Select courier
   .place()                 // Place order
