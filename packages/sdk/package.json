@@ -1,7 +1,7 @@
 {
   "name": "@agamya/bigship-sdk",
   "version": "3.0.0",
-  "description": "TypeScript SDK for Bigship.direct External Outbound API (shipping, orders, rates, tracking, etc.)",
+  "description": "TypeScript SDK for the Bigship.direct Unified Outbound API — warehouses, orders, rates, couriers, tracking, manifests, and documents.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {

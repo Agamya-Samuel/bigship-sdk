@@ -2,13 +2,13 @@
  * Integration tests — hit the real Bigship Unified Outbound API.
  *
  * Required env vars:
- *   BIGSHIP_USER_NAME, BIGSHIP_PASSWORD, BIGSHIP_ACCESS_KEY, BIGSHIP_BASE_URL
+ *   BIGSHIP_USERNAME, BIGSHIP_PASSWORD, BIGSHIP_ACCESS_KEY, BIGSHIP_BASE_URL
  *
  * Optional:
  *   BIGSHIP_TEST_WRITE=true  — enable write tests (add order, place, cancel)
  *
  * Usage:
- *   BIGSHIP_USER_NAME=x BIGSHIP_PASSWORD=y BIGSHIP_ACCESS_KEY=z BIGSHIP_BASE_URL=https://api.bigship.direct \
+ *   BIGSHIP_USERNAME=x BIGSHIP_PASSWORD=y BIGSHIP_ACCESS_KEY=z BIGSHIP_BASE_URL=https://api.bigship.direct \
  *     npx vitest run --config vitest.config.integration.ts
  *
  * Or create a .env file (see .env.example) and run:
@@ -29,7 +29,7 @@ loadEnv({ path: resolve(__dirname, '../../.env') });
 
 // ========== Gate: skip if env vars missing ==========
 const env = {
-  userName: process.env.BIGSHIP_USER_NAME,
+  userName: process.env.BIGSHIP_USERNAME,
   password: process.env.BIGSHIP_PASSWORD,
   accessKey: process.env.BIGSHIP_ACCESS_KEY,
   baseURL: process.env.BIGSHIP_BASE_URL || 'https://api.bigship.direct',
@@ -39,7 +39,7 @@ const env = {
 const hasCredentials = !!(env.userName && env.password && env.accessKey);
 
 // Debug: log env vars
-console.log('DEBUG: BIGSHIP_USER_NAME:', process.env.BIGSHIP_USER_NAME ? 'SET' : 'NOT SET');
+console.log('DEBUG: BIGSHIP_USERNAME:', process.env.BIGSHIP_USERNAME ? 'SET' : 'NOT SET');
 console.log('DEBUG: BIGSHIP_BASE_URL:', process.env.BIGSHIP_BASE_URL);
 console.log('DEBUG: hasCredentials:', hasCredentials);
 
@@ -141,14 +141,14 @@ describe('Integration: Authentication', () => {
     }));
 
     await client.getProfile();
-    await client.getWalletBalance();
+    await client.getPackageTypes();
 
     expect(responses).toHaveLength(2);
   });
 });
 
 describe('Integration: Profile', () => {
-  itIfCreds('getProfile returns user profile', async () => {
+  itIfCreds('getProfile returns user profile and wallet balance', async () => {
     const client = new BigshipClient(getConfig());
     const result = await client.getProfile();
     expect(result.status).toBe(true);
@@ -156,18 +156,7 @@ describe('Integration: Profile', () => {
     expect(result.data.firstName).toBeTruthy();
     expect(result.data.EmailID).toBeTruthy();
     expect(result.data.userWallet).toBeDefined();
-  });
-});
-
-describe('Integration: Wallet', () => {
-  itIfCreds('getWalletBalance returns numeric string', async () => {
-    const client = new BigshipClient(getConfig());
-    const result = await client.getWalletBalance();
-    expect(result.status).toBe(true);
-    expect(result.data).toBeTruthy();
-    const balance = parseFloat(result.data!);
-    expect(balance).not.toBeNaN();
-    expect(balance).toBeGreaterThanOrEqual(0);
+    expect(result.data.userWallet.Balance).toBeTruthy();
   });
 });
 
@@ -313,13 +302,13 @@ describe('Integration: Lifecycle Hooks', () => {
     }));
 
     await client.getProfile();
-    await client.getWalletBalance();
+    await client.getPackageTypes();
 
     expect(hookData).toHaveLength(2);
     expect(hookData[0].endpoint).toBe('api/outbound/profile');
     expect(hookData[0].method).toBe('GET');
     expect(hookData[0].duration).toBeGreaterThanOrEqual(0);
-    expect(hookData[1].endpoint).toBe('api/outbound/wallet/balance');
+    expect(hookData[1].endpoint).toBe('api/outbound/hyperlocal/get-packages-list');
   });
 
   itIfCreds('onBeforeRequest can inject custom headers', async () => {
