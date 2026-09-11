@@ -15,7 +15,7 @@
     "@agamya/bigship-sdk": "*",
     "@astrojs/starlight": "^0.41.7",
     "astro": "^7.2.2",
-    "sharp": "^0.33.0",
+    "sharp": "^0.35.4",
     "typedoc": "^0.28.0",
     "typedoc-plugin-markdown": "^4.6.0"
   }
