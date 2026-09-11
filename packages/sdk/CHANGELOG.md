@@ -1,5 +1,21 @@
 # Changelog
 
+## [4.0.0](https://github.com/agamya-samuel/bigship-sdk/compare/v3.0.0...v4.0.0) (2026-09-11)
+
+### ⚠ BREAKING CHANGES
+
+- **Minimum supported Node.js is now 20.12.0** (was 18.0.0). Node 18 reached end-of-life on 2025-04-30 and no longer receives security updates.
+- The SDK's test runner (vitest 4) transitively depends on rolldown, which imports `node:util.styleText`. `styleText` was added in Node 20.12 / 21.7 and is unavailable on Node 18. Keeping the floor at 18 would require either pinning vitest to an EOL version or carrying a workaround override; both options were judged worse than bumping the floor.
+- npm 10+ will refuse to install `@agamya/bigship-sdk@4.x` on Node 18. npm 9 will warn. Users on Node 18 should upgrade to Node 20 LTS or later.
+
+### Changes
+
+- `engines.node` in `packages/sdk/package.json`: `>=18.0.0` → `>=20.12.0`
+- SDK CI matrix in `.github/workflows/ci.yml`: `[18, 20, 22]` → `[20, 22]`. The matrix now proves the floor instead of testing a runtime the SDK no longer supports.
+- Test dependencies restored to current versions: `vitest@^4.1.10`, `@vitest/coverage-v8@^4.1.10`. (3.0.0 shipped these; a workaround had temporarily pinned them to `^3.2.7` to keep Node 18 alive.)
+- Removed the `overrides` block from the root `package.json` that had been forcing `vite` to `^7` to avoid rolldown hoisting at the root.
+- No API changes. No migration required for consumers on Node 20.12+ other than ensuring their Node version meets the new floor.
+
 ## [3.0.0](https://github.com/agamya-samuel/bigship-sdk/compare/v2.2.0...v3.0.0) (2026-09-09)
 
 ### ⚠ BREAKING CHANGES
