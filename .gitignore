@@ -7,6 +7,9 @@ dist/
 .astro/
 *.tsbuildinfo
 
+# Generated API reference (run `npm run docs:generate` to regenerate)
+apps/docs/src/content/docs/api/
+
 # Environment files
 .env
 .env.local
