@@ -41,6 +41,9 @@ export default function HomePage() {
             <a href="https://github.com/agamya-samuel/bigship-sdk" target="_blank" rel="noopener">
               <Button size="lg" variant="outline">GitHub</Button>
             </a>
+            <a href="https://www.npmjs.com/package/@agamya/bigship-sdk" target="_blank" rel="noopener">
+              <Button size="lg" variant="outline">NPM</Button>
+            </a>
           </div>
         </section>
 
