@@ -10,27 +10,27 @@ import { BigshipClient, isSuccessResponse } from '@agamya/bigship-sdk';
 
 const client = new BigshipClient({
   baseURL: process.env.BIGSHIP_BASE_URL!,
-  userName: process.env.BIGSHIP_USER_NAME!,
+  userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
 });
 
-// Check wallet balance
-const balance = await client.getWalletBalance();
-if (isSuccessResponse(balance)) {
-  console.log('Balance:', balance.data); // → "5000.00"
+// Check profile + wallet balance
+const profile = await client.getProfile();
+if (isSuccessResponse(profile)) {
+  console.log('Wallet balance:', profile.data?.userWallet?.Balance);
 }
 ```
 
 ## What Happens Internally
 
-When you call `getWalletBalance()`:
+When you call `getProfile()`:
 
 1. **Authenticate** — SDK checks for a cached token; if missing/expired, calls login endpoint
-2. **Make request** — Sends `GET /api/Wallet/balance/get` with auth header
+2. **Make request** — Sends `GET /api/outbound/profile` with auth header
 3. **Validate response** — Parses and validates the response with Zod
 4. **Dispatch hooks** — Fires `onResponse` or `onError` hooks
-5. **Return** — Returns typed `ApiResponse<{ balance: string }>`
+5. **Return** — Returns typed `ApiResponse<ProfileData>`
 
 ## Response Shape
 
@@ -38,9 +38,10 @@ All methods return `ApiResponse<T>`:
 
 ```typescript
 interface ApiResponse<T> {
-  status: 'success' | 'error';
+  status: boolean;
+  message: string;
+  status_code: number;
   data: T | null;
-  message?: string;
 }
 ```
 
@@ -49,10 +50,10 @@ Use type guards to safely access data:
 ```typescript
 import { isSuccessResponse, isFailedResponse } from '@agamya/bigship-sdk';
 
-const result = await client.getCourierList('b2c');
+const result = await client.getProfile();
 
 if (isSuccessResponse(result)) {
-  console.log(result.data); // Typed as Courier[]
+  console.log(result.data); // Typed as ProfileData
 } else if (isFailedResponse(result)) {
   console.error(result.message);
 }

@@ -24,7 +24,8 @@ data:image/jpeg;base64,<base64-data>
 ### Invoice (always required)
 
 ```typescript
-const order = await client.addSingleOrder({
+const order = await client.createOrder({
+  segment_type: 'domestic_b2c',
   // ...other fields
   invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQK...',
 });
@@ -33,7 +34,8 @@ const order = await client.addSingleOrder({
 ### E-Waybill (B2B only)
 
 ```typescript
-const order = await client.addHeavyOrder({
+const order = await client.createOrder({
+  segment_type: 'domestic_b2b',
   // ...other fields
   invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQK...',
   ewaybill_number: '123456789012',
@@ -52,9 +54,10 @@ const file = fileInput.files[0];
 const dataUri = await BigshipUtils.fileToBase64DataURI(file);
 // "data:application/pdf;base64,..."
 
-await client.addSingleOrder({
-  invoice_document_file: dataUri,
+await client.createOrder({
   // ...other fields
+  segment_type: 'domestic_b2c',
+  invoice_document_file: dataUri,
 });
 ```
 

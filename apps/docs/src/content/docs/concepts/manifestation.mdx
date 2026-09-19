@@ -9,53 +9,73 @@ description: How manifestation assigns a courier to an order and generates track
 
 | Method | Type | Description |
 |--------|------|-------------|
-| `manifestSingle` | B2C | Assign a courier to a single-box consumer order |
-| `manifestHeavy` | B2B | Assign a courier to a multi-box business order |
+| `placeOrder` | B2C/B2B | Assign a courier to an order |
 
 ### B2C Manifestation
 
 ```typescript
-const result = await client.manifestSingle({ order_id: 'ORD-123' });
+const result = await client.placeOrder({
+  MasterCustomOrderId: '311276742',
+  courierId: 5,
+  riskTypeId: '2',
+});
 // After this, AWB is generated for the order
 ```
 
 ### B2B Manifestation
 
 ```typescript
-const result = await client.manifestHeavy({ order_id: 'ORD-456' });
-// After this, LRN is generated for the order
+const result = await client.placeOrder({
+  MasterCustomOrderId: '311276742',
+  courierId: 25,
+  riskTypeId: '2',
+});
+// After this, AWB/LRN is generated for the order
 ```
 
 ## What Happens After Manifestation
 
 1. A courier is assigned to the order
-2. An **AWB** (B2C) or **LRN** (B2B) is generated
-3. Shipping labels become available via `getShipmentFile`
-4. The shipment becomes trackable via `trackShipment`
+2. An **AWB** (B2C/B2B) is generated
+3. Shipping labels become available via `downloadDocument`
+4. The shipment becomes trackable via `trackOrder`
 
-## Convenience: manifestAndGetAWB
+## Convenience: ShipmentWorkflow
 
-For B2C flows, the SDK provides a convenience method that manifests the order and returns the AWB in a single call:
+For B2C flows, the SDK provides a workflow builder that creates, manifests, and retrieves documents in a fluent API:
 
 ```typescript
-const awb = await client.manifestAndGetAWB('ORD-123');
-console.log(awb.data); // AWB number
+const result = await new ShipmentWorkflow(client)
+  .create(orderPayload)
+  .withCourier(5)
+  .place()
+  .finalize();
+
+console.log(result.orderId);
+console.log(result.orderDetail?.getOrderDetails.AwbNumber);
 ```
 
-This is equivalent to calling `manifestSingle` followed by `getAWB`, but saves a round-trip.
+This is equivalent to calling `createOrder` → `getServiceableCouriers` → `placeOrder` → `getOrderDetail`, but saves you from managing intermediate IDs.
 
 ## Full Flow Example
 
 ```typescript
 // 1. Create the order
-const order = await client.addSingleOrder({ /* ... */ });
+const order = await client.createOrder({
+  segment_type: 'domestic_b2c',
+  // ...payload
+});
 
-// 2. Manifest it
-const manifest = await client.manifestSingle({ order_id: order.data.order_id });
+// 2. Place it (manifest)
+const place = await client.placeOrder({
+  MasterCustomOrderId: order.data!.CustomGlobalOrderId,
+  courierId: 5,
+  riskTypeId: '2',
+});
 
-// 3. Get the AWB
-const awb = await client.getAWB({ order_id: order.data.order_id });
+// 3. Get the order details
+const details = await client.getOrderDetail(order.data!.CustomGlobalOrderId);
 
 // 4. Get the shipping label
-const label = await client.getShipmentFile({ awb: awb.data });
+const label = await client.downloadDocument(order.data!.CustomGlobalOrderId, 'label');
 ```

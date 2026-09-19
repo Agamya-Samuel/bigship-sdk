@@ -3,7 +3,7 @@ title: Tracking
 description: Track shipments by AWB or LRN
 ---
 
-Track shipments using the `trackShipment` method. B2C shipments are tracked by AWB, while B2B shipments are tracked by LRN.
+Track shipments using the `trackOrder` method. Pass the order ID to retrieve tracking status.
 
 ## Imports
 
@@ -14,33 +14,13 @@ import {
 } from '@agamya/bigship-sdk';
 ```
 
-## Track by AWB (B2C)
+## Track by Order ID
 
 ```typescript
-const tracking = await client.trackShipment('13090318586270', 'awb');
+const tracking = await client.trackOrder('311276742');
 if (isSuccessResponse(tracking)) {
-  console.log('Status:', tracking.data);
+  console.log('Status:', tracking.data.order_status);
+  console.log('Tracking #: ', tracking.data.tracking_number);
+  console.log('Courier:', tracking.data.courier_name);
 }
 ```
-
-## Track by LRN (B2B)
-
-B2B shipments use LRN (Lorry Receipt Number) instead of AWB.
-
-```typescript
-const tracking = await client.trackShipment('LR-6554921441', 'lrn');
-if (isSuccessResponse(tracking)) {
-  console.log('Status:', tracking.data);
-}
-```
-
-## Method Signature
-
-```typescript
-trackShipment(id: string, type: 'awb' | 'lrn'): Promise<ApiResponse<TrackingData>>
-```
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | `string` | AWB number or LRN |
-| `type` | `'awb'` or `'lrn'` | Identifier type |

@@ -15,142 +15,124 @@ import {
 } from '@agamya/bigship-sdk';
 ```
 
-## B2C Orders — `addSingleOrder`
+## B2C Orders — `createOrder`
 
-Use `addSingleOrder` for Business to Consumer shipments. B2C orders must have exactly `box_count: 1`.
+Use `createOrder({ segment_type: 'domestic_b2c' })` for Business to Consumer shipments. B2C orders must have `totalNumOfBoxes: 1`.
 
 ```typescript
-const order = await client.addSingleOrder({
-  shipment_category: 'b2c',
-  warehouse_detail: {
-    pickup_location_id: 123456,
-    return_location_id: 123456,
-  },
-  consignee_detail: {
-    first_name: 'Rahul',
-    last_name: 'Sharma',
-    contact_number_primary: '9876543210',
-    consignee_address: {
-      address_line1: '42 MG Road Koramangala',
-      address_line2: 'Near Forum Mall',
-      address_landmark: 'Opposite HDFC Bank',
-      pincode: '560034',
-    },
-  },
-  order_detail: {
-    invoice_date: new Date().toISOString(),
-    invoice_id: `INV-${Date.now()}`,
-    payment_type: 'Prepaid',
-    total_collectable_amount: 0,
-    shipment_invoice_amount: 2500,
-    box_details: [{
-      each_box_dead_weight: 0.5,
-      each_box_length: 20,
-      each_box_width: 15,
-      each_box_height: 10,
-      each_box_invoice_amount: 2500,
-      each_box_collectable_amount: 0,
-      box_count: 1,
-      product_details: [{
-        product_category: 'Electronics',
-        product_name: 'Wireless Earbuds',
-        product_quantity: 1,
-        each_product_invoice_amount: 2500,
-        each_product_collectable_amount: 0,
-      }],
+const order = await client.createOrder({
+  segment_type: 'domestic_b2c',
+  MasterOrderPickUpLocation: 123456,
+  MasterOrderReturnLocation: 123456,
+  MasterOrderDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
+  MasterOrderPaymentMode: 1,
+  OrderInvoiceNo: `INV-${Date.now()}`,
+  MasterOrderInvoiceAmount: 2500,
+  MasterOrderShippingName: 'Rahul Sharma',
+  MasterOrderShippingMobileNo: '9876543210',
+  MasterOrderShippingEmail: 'rahul@example.com',
+  MasterOrderShippingAddress: '42 MG Road Koramangala',
+  MasterOrderShippingZipCode: '560034',
+  MasterOrderShippingCity: 'BANGALORE',
+  MasterOrderShippingState: 'KARNATAKA',
+  MasterOrderShippingCountry: 'India',
+  totalNumOfBoxes: 1,
+  boxes: [{
+    weight_unit: 'kg',
+    dimension_unit: 'cm',
+    noOfBoxes: 1,
+    dimensions: [{
+      length: 20,
+      breadth: 15,
+      height: 10,
+      weight: 0.5,
     }],
-    document_detail: {
-      invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
-    },
-  },
+    products: [{
+      productName: 'Wireless Earbuds',
+      hsn: '85182900', // Optional HSN code
+      qty: '1',
+      amount: '2500',
+      totalAmount: 2500,
+      collectableAmount: 0,
+      categoryId: '4', // Electronics
+    }],
+  }],
+  invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
 });
-
-if (isFailedResponse(order)) {
-  console.error('Failed:', order.message);
-} else {
-  console.log('Order ID:', order.data);
-}
 ```
 
-## B2B Orders — `addHeavyOrder`
+## B2B Orders — `createOrder`
 
-Use `addHeavyOrder` for Business to Business shipments. B2B orders require `ewaybill_number` and `ewaybill_document_file`, and can have multiple boxes.
+Use `createOrder({ segment_type: 'domestic_b2b' })` for Business to Business shipments. B2B orders require `ewaybill_number` and `ewaybill_document_file`, and can have multiple boxes.
 
 ```typescript
-const order = await client.addHeavyOrder({
-  shipment_category: 'b2b',
-  warehouse_detail: {
-    pickup_location_id: 123456,
-    return_location_id: 123456,
-  },
-  consignee_detail: {
-    first_name: 'Priya',
-    last_name: 'Patel',
-    company_name: 'TechCorp India Pvt Ltd',
-    contact_number_primary: '9123456789',
-    consignee_address: {
-      address_line1: 'Tower B 5th Floor DLF Cyber City',
-      pincode: '122002',
-    },
-  },
-  order_detail: {
-    invoice_date: new Date().toISOString(),
-    invoice_id: `B2B-${Date.now()}`,
-    payment_type: 'Prepaid',
-    total_collectable_amount: 0,
-    shipment_invoice_amount: 50000,
-    ewaybill_number: '281012345678',
-    box_details: [
-      {
-        each_box_dead_weight: 5,
-        each_box_length: 40,
-        each_box_width: 30,
-        each_box_height: 25,
-        each_box_invoice_amount: 25000,
-        each_box_collectable_amount: 0,
-        box_count: 1,
-        product_details: [{
-          product_category: 'Electronics',
-          product_name: 'Server Motherboard',
-          product_quantity: 1,
-          each_product_invoice_amount: 25000,
-          each_product_collectable_amount: 0,
-        }],
-      },
-      {
-        each_box_dead_weight: 3,
-        each_box_length: 30,
-        each_box_width: 20,
-        each_box_height: 15,
-        each_box_invoice_amount: 25000,
-        each_box_collectable_amount: 0,
-        box_count: 1,
-        product_details: [{
-          product_category: 'Electronics',
-          product_name: 'Network Switch',
-          product_quantity: 2,
-          each_product_invoice_amount: 12500,
-          each_product_collectable_amount: 0,
-        }],
-      },
-    ],
-    document_detail: {
-      invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
-      ewaybill_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
-    },
-  },
+const order = await client.createOrder({
+  segment_type: 'domestic_b2b',
+  MasterOrderPickUpLocation: 123456,
+  MasterOrderReturnLocation: 123456,
+  MasterOrderDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
+  MasterOrderPaymentMode: 1,
+  OrderInvoiceNo: `B2B-${Date.now()}`,
+  MasterOrderInvoiceAmount: 50000,
+  MasterOrderShippingName: 'Priya Patel',
+  MasterOrderShippingMobileNo: '9123456789',
+  MasterOrderShippingEmail: 'priya@techcorp.com',
+  MasterOrderShippingAddress: 'Tower B 5th Floor DLF Cyber City',
+  MasterOrderShippingZipCode: '122002',
+  MasterOrderShippingCity: 'DELHI',
+  MasterOrderShippingState: 'DELHI',
+  MasterOrderShippingCountry: 'India',
+  totalNumOfBoxes: 2,
+  ewaybill_number: '281012345678',
+  ewaybill_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
+  boxes: [{
+    weight_unit: 'kg',
+    dimension_unit: 'cm',
+    noOfBoxes: 1,
+    dimensions: [{ length: 40, breadth: 30, height: 25, weight: 5 }],
+    products: [{
+      productName: 'Server Motherboard',
+      qty: '1',
+      amount: '25000',
+      totalAmount: 25000,
+      collectableAmount: 0,
+      categoryId: '4',
+    }],
+  }, {
+    weight_unit: 'kg',
+    dimension_unit: 'cm',
+    noOfBoxes: 1,
+    dimensions: [{ length: 30, breadth: 20, height: 15, weight: 3 }],
+    products: [{
+      productName: 'Network Switch',
+      qty: '2',
+      amount: '12500',
+      totalAmount: 25000,
+      collectableAmount: 0,
+      categoryId: '4',
+    }],
+  }],
+  invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
 });
 ```
 
 ## Required Fields
 
-Both order types require three top-level sections:
+Both order types require top-level fields:
 
-| Section | Description |
+| Field | Description |
 |---------|-------------|
-| `warehouse_detail` | Pickup and return location IDs |
-| `consignee_detail` | Recipient name, phone, and address |
-| `order_detail` | Invoice info, payment type, box details, and documents |
+| `MasterOrderPickUpLocation` | Pickup location ID |
+| `MasterOrderReturnLocation` | Return location ID |
+| `MasterOrderShippingName` | Recipient name |
+| `MasterOrderShippingMobileNo` | Recipient phone |
+| `MasterOrderShippingAddress` | Recipient address |
+| `MasterOrderShippingZipCode` | Recipient pincode |
+| `MasterOrderShippingCity` | Recipient city |
+| `MasterOrderShippingState` | Recipient state |
+| `MasterOrderShippingCountry` | Recipient country |
+| `boxes` | Box dimensions and products |
+| `invoice_document_file` | Base64 invoice Data URI |
 
 ## `invoice_id` Must Be Unique
 
@@ -166,26 +148,44 @@ invoice_id: 'INV-001'
 
 ## Payment Types
 
-| Type | `payment_type` | `total_collectable_amount` | `each_box_collectable_amount` |
-|------|----------------|---------------------------|-------------------------------|
-| Prepaid | `'Prepaid'` | `0` | `0` |
-| COD | `'COD'` | Amount to collect | Amount to collect per box |
+| Type | `MasterOrderPaymentMode` | `collectableAmount` (per product) |
+|------|---------------------------|-----------------------------------|
+| Prepaid | `1` | `0` |
+| COD | `2` | Amount to collect |
 
 ### COD Example
 
 ```typescript
-const order = await client.addSingleOrder({
-  // ...
-  order_detail: {
-    // ...
-    payment_type: 'COD',
-    total_collectable_amount: 2500,
-    shipment_invoice_amount: 2500,
-    box_details: [{
-      // ...
-      each_box_collectable_amount: 2500,
-      // ...
+const order = await client.createOrder({
+  segment_type: 'domestic_b2c',
+  MasterOrderPickUpLocation: 123456,
+  MasterOrderReturnLocation: 123456,
+  MasterOrderDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
+  MasterOrderPaymentMode: 2, // COD
+  OrderInvoiceNo: `INV-${Date.now()}`,
+  MasterOrderInvoiceAmount: 2500,
+  MasterOrderShippingName: 'Rahul Sharma',
+  MasterOrderShippingMobileNo: '9876543210',
+  MasterOrderShippingAddress: '42 MG Road Koramangala',
+  MasterOrderShippingZipCode: '560034',
+  MasterOrderShippingCity: 'BANGALORE',
+  MasterOrderShippingState: 'KARNATAKA',
+  MasterOrderShippingCountry: 'India',
+  totalNumOfBoxes: 1,
+  boxes: [{
+    weight_unit: 'kg',
+    dimension_unit: 'cm',
+    noOfBoxes: 1,
+    dimensions: [{ length: 20, breadth: 15, height: 10, weight: 0.5 }],
+    products: [{
+      productName: 'Wireless Earbuds',
+      qty: '1',
+      amount: '2500',
+      totalAmount: 2500,
+      collectableAmount: 2500,
+      categoryId: '4',
     }],
-  },
+  }],
+  invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
 });
 ```

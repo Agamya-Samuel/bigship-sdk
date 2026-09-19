@@ -3,17 +3,25 @@ title: COD and Prepaid
 description: Understanding Cash on Delivery (COD) and Prepaid payment types in the Bigship SDK
 ---
 
-The Bigship SDK supports two payment types for shipments: **COD** (Cash on Delivery) and **Prepaid**. The payment type affects the `total_collectable_amount` field.
+The Bigship SDK supports two payment types for shipments: **COD** (Cash on Delivery) and **Prepaid**. The payment type affects the `collectableAmount` field in each product.
 
 ## Prepaid
 
 For prepaid orders, the customer has already paid. The collectable amount must be `0`.
 
 ```typescript
-await client.addSingleOrder({
-  payment_type: 'Prepaid',
-  total_collectable_amount: 0,
+await client.createOrder({
+  segment_type: 'domestic_b2c',
+  MasterOrderPaymentMode: 1, // Prepaid
   // ...other fields
+  totalNumOfBoxes: 1,
+  boxes: [{
+    // ...
+    products: [{
+      // ...
+      collectableAmount: 0,
+    }],
+  }],
 });
 ```
 
@@ -22,35 +30,50 @@ await client.addSingleOrder({
 For COD orders, the courier collects payment from the customer at delivery. The collectable amount must be greater than `0`.
 
 ```typescript
-await client.addSingleOrder({
-  payment_type: 'COD',
-  total_collectable_amount: 499,
+await client.createOrder({
+  segment_type: 'domestic_b2c',
+  MasterOrderPaymentMode: 2, // COD
   // ...other fields
+  totalNumOfBoxes: 1,
+  boxes: [{
+    // ...
+    products: [{
+      // ...
+      collectableAmount: 499,
+    }],
+  }],
 });
 ```
 
 ## Rules
 
-| Payment Type | `payment_type` | `total_collectable_amount` |
-|-------------|----------------|---------------------------|
-| Prepaid | `'Prepaid'` | Must be `0` |
-| COD | `'COD'` | Must be `> 0` |
+| Payment Type | `MasterOrderPaymentMode` | `collectableAmount` (per product) |
+|-------------|---------------------------|-----------------------------------|
+| Prepaid | `1` | Must be `0` |
+| COD | `2` | Must be `> 0` |
 
 ## Utility: calculateCollectableAmount
 
 The SDK provides a helper to calculate the correct collectable amount:
 
 ```typescript
-const amount = BigshipUtils.calculateCollectableAmount({
-  totalAmount: 999,
-  prepaidAmount: 500,
-});
+const amount = BigshipUtils.calculateCollectableAmount(
+  999, // totalAmount
+  500  // prepaidAmount
+);
 // 499
 
-await client.addSingleOrder({
-  payment_type: 'COD',
-  total_collectable_amount: amount,
+await client.createOrder({
+  segment_type: 'domestic_b2c',
+  MasterOrderPaymentMode: 2, // COD
   // ...other fields
+  boxes: [{
+    // ...
+    products: [{
+      // ...
+      collectableAmount: amount,
+    }],
+  }],
 });
 ```
 

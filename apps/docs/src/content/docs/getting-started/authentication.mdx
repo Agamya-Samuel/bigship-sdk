@@ -15,7 +15,7 @@ The SDK requires three credentials from your Bigship.direct account:
 
 ## Base URL
 
-For the new Unified Outbound API (v3.0.0+):
+For the Unified Outbound API (v4.0.0+):
 
 ```
 https://api.bigship.direct
@@ -28,7 +28,7 @@ import { BigshipClient } from '@agamya/bigship-sdk';
 
 const client = new BigshipClient({
   baseURL: 'https://api.bigship.direct',
-  userName: process.env.BIGSHIP_USER_NAME!,
+  userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
 });

@@ -5,7 +5,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Bigship SDK',
-      description: 'TypeScript SDK for the Bigship.direct External Outbound API',
+      description: 'TypeScript SDK for the Bigship.direct Unified Outbound API',
       social: [
         {
           icon: 'github',

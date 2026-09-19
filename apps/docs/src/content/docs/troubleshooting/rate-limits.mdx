@@ -14,7 +14,7 @@ The Bigship API returns HTTP 429 when you exceed the rate limit. The SDK surface
 Use the `isRateLimitError()` helper to identify rate limit responses:
 
 ```ts
-import { isRateLimitError } from "bigship-sdk";
+import { isRateLimitError } from "@agamya/bigship-sdk";
 
 try {
   await client.createOrder(orderPayload);
@@ -31,8 +31,9 @@ By default, the SDK retries on status codes `502`, `503`, and `504` but **not** 
 
 ```ts
 const client = new BigshipClient({
-  clientId: process.env.BIGSHIP_CLIENT_ID,
-  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  userName: process.env.BIGSHIP_USERNAME,
+  password: process.env.BIGSHIP_PASSWORD,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY,
   retryOnStatusCodes: [429, 502, 503, 504],
 });
 ```
@@ -43,12 +44,13 @@ For most production workloads, adding 429 to the retry list is recommended:
 
 ```ts
 const client = new BigshipClient({
-  clientId: process.env.BIGSHIP_CLIENT_ID,
-  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  userName: process.env.BIGSHIP_USERNAME,
+  password: process.env.BIGSHIP_PASSWORD,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY,
   retryOnStatusCodes: [429, 502, 503, 504],
   maxRetries: 3,
-  retryDelayMs: 1000,
-  retryBackoffMultiplier: 2,
+  retryDelay: 1000,
+  maxRetryDelay: 30000,
 });
 ```
 
@@ -59,19 +61,20 @@ Configure exponential backoff to space out retries:
 | Option                  | Default | Description                                      |
 | ----------------------- | ------- | ------------------------------------------------ |
 | `maxRetries`            | `3`     | Maximum number of retry attempts                 |
-| `retryDelayMs`          | `1000`  | Initial delay before the first retry (ms)        |
-| `retryBackoffMultiplier`| `2`     | Multiplier applied to delay after each retry     |
+| `retryDelay`            | `1000`  | Initial delay before the first retry (ms)        |
+| `maxRetryDelay`         | `30000` | Max delay cap applied with full jitter (ms)      |
 
 With the defaults, retry delays are: 1s → 2s → 4s.
 
 ```ts
 const client = new BigshipClient({
-  clientId: process.env.BIGSHIP_CLIENT_ID,
-  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  userName: process.env.BIGSHIP_USERNAME,
+  password: process.env.BIGSHIP_PASSWORD,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY,
   retryOnStatusCodes: [429, 502, 503, 504],
   maxRetries: 5,
-  retryDelayMs: 500,
-  retryBackoffMultiplier: 2,
+  retryDelay: 500,
+  maxRetryDelay: 30000,
 });
-// Delays: 500ms → 1s → 2s → 4s → 8s
+// Delays use full jitter up to 30s
 ```

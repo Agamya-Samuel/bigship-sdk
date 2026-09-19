@@ -9,15 +9,17 @@ Every method in the Bigship SDK returns an `ApiResponse<T>` object. The SDK prov
 
 ```typescript
 interface ApiResponse<T> {
-  status: 'success' | 'failure';
+  status: boolean;
+  message: string;
+  status_code: number;
   data: T | null;
-  message: string | null;
 }
 ```
 
-- `status` indicates whether the API call succeeded
+- `status` indicates whether the API call succeeded (`true` / `false`)
 - `data` contains the typed payload on success, or `null` on failure
-- `message` contains an error message on failure, or `null` on success
+- `message` contains an error message on failure
+- `status_code` contains the HTTP status code
 
 ## Type Guards
 
@@ -25,19 +27,19 @@ The SDK exports two type guard functions:
 
 | Guard | Narrows to | When |
 |-------|-----------|------|
-| `isSuccessResponse<T>(res)` | `ApiResponse<T> & { status: 'success'; data: T }` | `status === 'success'` |
-| `isFailedResponse(res)` | `ApiResponse<null> & { status: 'failure'; data: null }` | `status === 'failure'` |
+| `isSuccessResponse<T>(res)` | `ApiResponse<T> & { status: true; data: T }` | `status === true` |
+| `isFailedResponse(res)` | `ApiResponse<null> & { status: false; data: null }` | `status === false` |
 
 ## Usage with isSuccessResponse
 
 ```typescript
 import { isSuccessResponse, isFailedResponse } from '@agamya/bigship-sdk';
 
-const response = await client.getWalletBalance();
+const response = await client.getProfile();
 
 if (isSuccessResponse(response)) {
   // response.data is guaranteed to be non-null
-  console.log('Balance:', response.data.balance);
+  console.log('Profile:', response.data);
 }
 
 if (isFailedResponse(response)) {
@@ -49,14 +51,14 @@ if (isFailedResponse(response)) {
 ## Usage with Early Return
 
 ```typescript
-const response = await client.addSingleOrder({ /* ... */ });
+const response = await client.createOrder({ /* ... */ });
 
 if (isFailedResponse(response)) {
   throw new Error(response.message ?? 'Order creation failed');
 }
 
 // response.data is typed and non-null from here
-console.log('Order ID:', response.data.order_id);
+console.log('Order ID:', response.data?.CustomGlobalOrderId);
 ```
 
 ## Without Type Guards
@@ -64,10 +66,10 @@ console.log('Order ID:', response.data.order_id);
 Without type guards, you must null-check `data` manually:
 
 ```typescript
-const response = await client.getAWB({ order_id: 'ORD-123' });
+const response = await client.getOrderDetail('311276742');
 
 if (response.data) {
-  console.log('AWB:', response.data); // still needs narrowing
+  console.log('AWB:', response.data.getOrderDetails.AwbNumber);
 }
 ```
 

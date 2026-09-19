@@ -11,131 +11,71 @@ After creating an order, you need to manifest it (assign a courier) and then ret
 import {
   BigshipClient,
   isSuccessResponse,
-  ShipmentDataType,
 } from '@agamya/bigship-sdk';
 ```
 
 ## Manifest — Assign Courier
 
-### B2C: `manifestSingle`
+Use `placeOrder` to assign a courier and manifest the order.
 
 ```typescript
-await client.manifestSingle({
-  system_order_id: orderId,
-  courier_id: 5, // Delhivery Surface
+await client.placeOrder({
+  MasterCustomOrderId: orderId,
+  courierId: 5, // Delhivery Surface
+  riskTypeId: '2', // Owner Risk
 });
 ```
 
-### B2B: `manifestHeavy`
+## Get Order Detail — `getOrderDetail`
+
+Retrieve full AWB, label, and status details for a manifested order.
 
 ```typescript
-await client.manifestHeavy({
-  system_order_id: orderId,
-  courier_id: 25,
-});
-```
-
-## Get AWB Number — `getAWB`
-
-Retrieve the AWB (Air Waybill) number for a manifested order.
-
-```typescript
-const awb = await client.getAWB(orderId);
-if (isSuccessResponse(awb) && awb.data && typeof awb.data !== 'string') {
-  console.log('AWB:', awb.data.master_awb);     // "13090318586270"
-  console.log('Courier:', awb.data.courier_name); // "Delhivery"
+const details = await client.getOrderDetail(orderId);
+if (isSuccessResponse(details) && details.data) {
+  console.log('AWB:', details.data.getOrderDetails.AwbNumber);
+  console.log('Courier:', details.data.getOrderDetails.CourierName);
+  console.log('Status:', details.data.getOrderDetails.Status);
 }
 ```
 
-## Get Shipment Data — `getShipmentData`
+## Download Documents — `downloadDocument`
 
-Retrieve AWB, label, or manifest document by specifying a `ShipmentDataType`.
+Retrieve labels, invoices, e-waybills, or manifests by document type.
 
 ```typescript
-// Get AWB data
-const awbResp = await client.getShipmentData(ShipmentDataType.AWB, orderId);
-
 // Get label (base64 Data URI or URL)
-const label = await client.getShipmentData(ShipmentDataType.LABEL, orderId);
-if (isSuccessResponse(label) && typeof label.data === 'string') {
-  console.log('Label:', label.data.substring(0, 40) + '...');
+const label = await client.downloadDocument(orderId, 'label');
+if (isSuccessResponse(label) && label.data) {
+  console.log('Label:', label.data.AttachmentData);
 }
 
 // Get manifest document
-const manifest = await client.getShipmentData(ShipmentDataType.MANIFEST, orderId);
-if (isSuccessResponse(manifest) && typeof manifest.data === 'string') {
+const manifest = await client.downloadDocument(orderId, 'manifest');
+if (isSuccessResponse(manifest) && manifest.data) {
   console.log('Manifest document available');
 }
 ```
 
-### `ShipmentDataType` Values
+### Document Types
 
 | Value | Description | Return type |
 |-------|-------------|-------------|
-| `ShipmentDataType.AWB` | AWB number and courier info | Object with `master_awb`, `courier_name` |
-| `ShipmentDataType.LABEL` | Shipping label | Base64 Data URI string or URL |
-| `ShipmentDataType.MANIFEST` | Manifest document | Base64 Data URI string or URL |
-
-## Get Shipment File — `getShipmentFile`
-
-Retrieve a shipment file (label or manifest) as a base64 string.
-
-```typescript
-const labelFile = await client.getShipmentFile('label', orderId);
-if (isSuccessResponse(labelFile) && typeof labelFile.data === 'string') {
-  console.log('Label file available');
-}
-```
-
-## Get All Shipment Details — `getShipmentDetails`
-
-Fetch AWB, label, and manifest in a single convenience call.
-
-```typescript
-const details = await client.getShipmentDetails(orderId);
-console.log(details.awb);          // "13090318586270"
-console.log(details.courierName);  // "Delhivery"
-console.log(details.labelData);    // "data:application/pdf;base64,..."
-console.log(details.manifestData); // "data:application/pdf;base64,..."
-```
-
-## Manifest + AWB in One Call — `manifestAndGetAWB`
-
-Manifest and retrieve the AWB number in a single call.
-
-```typescript
-const { awb, courierName } = await client.manifestAndGetAWB(orderId, 5);
-console.log(`AWB: ${awb}, Courier: ${courierName}`);
-```
-
-## All-in-One — `createAndFinalizeShipment`
-
-Create order, manifest, and get all documents with automatic AWB polling.
-
-```typescript
-const result = await client.createAndFinalizeShipment({
-  order: orderPayload,
-  courierId: 5,
-  awbPollMaxAttempts: 5,  // Poll up to 5 times (default: 5)
-  awbPollDelay: 3000,     // Wait 3s between polls (default: 2000)
-});
-
-console.log(result.orderId);
-console.log(result.awb);
-console.log(result.courierName);
-console.log(result.labelData);
-console.log(result.manifestData);
-```
+| `'invoice'` | Invoice document | Object with `AttachmentData` |
+| `'label'` | Shipping label | Object with `AttachmentData` |
+| `'ewaybill'` | E-waybill | Object with `AttachmentData` |
+| `'manifest'` | Manifest document | Object with `AttachmentData` |
 
 ## Workflow Builder — Fluent API
 
 ```typescript
-const result = await client.workflow()
+import { BigshipClient, ShipmentWorkflow } from '@agamya/bigship-sdk';
+
+const result = await new ShipmentWorkflow(client)
   .create(orderPayload)   // Create order
   .withCourier(5)         // Select courier
-  .manifest()             // Manifest
+  .place()                // Manifest
   .finalize();            // Get AWB + label + manifest
 
-console.log(result.awb);
-console.log(result.courierName);
+console.log(result.orderId);
 ```

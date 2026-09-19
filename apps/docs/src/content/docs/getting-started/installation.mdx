@@ -11,7 +11,7 @@ npm install @agamya/bigship-sdk
 
 ## Requirements
 
-- **Node.js** >= 18 (CI tests Node 20 and 22)
+- **Node.js** >= 20.12.0 (CI tests Node 20 and 22)
 - **TypeScript** >= 5.0 (optional but recommended)
 
 ## TypeScript Configuration
@@ -23,7 +23,7 @@ The SDK is written in TypeScript with `strict: true`. No special `tsconfig.json`
 Set your Bigship credentials:
 
 ```bash
-export BIGSHIP_USER_NAME=your-email@example.com
+export BIGSHIP_USERNAME=your-email@example.com
 export BIGSHIP_PASSWORD=your-password
 export BIGSHIP_ACCESS_KEY=your-access-key
 export BIGSHIP_BASE_URL=https://api.bigship.direct
@@ -37,7 +37,7 @@ import { BigshipClient } from '@agamya/bigship-sdk';
 
 const client = new BigshipClient({
   baseURL: process.env.BIGSHIP_BASE_URL!,
-  userName: process.env.BIGSHIP_USER_NAME!,
+  userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
 });

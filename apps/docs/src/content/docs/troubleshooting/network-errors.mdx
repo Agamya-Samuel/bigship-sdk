@@ -10,7 +10,7 @@ description: Troubleshoot BigshipNetworkError, configure timeouts, cancel reques
 A `BigshipNetworkError` with `statusCode: -1` indicates the request never reached the server — a connection-level failure:
 
 ```ts
-import { BigshipNetworkError } from "bigship-sdk";
+import { BigshipNetworkError } from "@agamya/bigship-sdk";
 
 try {
   await client.createOrder(orderPayload);
@@ -30,8 +30,9 @@ The default request timeout is 30 seconds. Adjust it via the `timeout` option:
 
 ```ts
 const client = new BigshipClient({
-  clientId: process.env.BIGSHIP_CLIENT_ID,
-  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  userName: process.env.BIGSHIP_USERNAME,
+  password: process.env.BIGSHIP_PASSWORD,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY,
   timeout: 60000, // 60 seconds
 });
 ```
@@ -100,8 +101,9 @@ import { ProxyAgent } from "undici";
 const proxyAgent = new ProxyAgent("http://proxy.example.com:8080");
 
 const client = new BigshipClient({
-  clientId: process.env.BIGSHIP_CLIENT_ID,
-  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  userName: process.env.BIGSHIP_USERNAME,
+  password: process.env.BIGSHIP_PASSWORD,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY,
   dispatcher: proxyAgent,
 });
 ```

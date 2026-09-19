@@ -9,11 +9,11 @@ Bigship classifies shipments into two categories: **B2C** (Business-to-Consumer)
 
 | Aspect | B2C | B2B |
 |--------|-----|-----|
-| **Order method** | `addSingleOrder` | `addHeavyOrder` |
-| **Manifest method** | `manifestSingle` | `manifestHeavy` |
-| **Shipment category** | `shipment_category: 'b2c'` | `shipment_category: 'b2b'` |
-| **Box count** | Must be `1` | Can be `> 1` |
-| **Tracking identifier** | AWB (Air Waybill) | LRN (Lorry Receipt Number) |
+| **Order method** | `createOrder({ segment_type: 'domestic_b2c' })` | `createOrder({ segment_type: 'domestic_b2b' })` |
+| **Manifest method** | `placeOrder` | `placeOrder` |
+| **Segment type** | `segment_type: 'domestic_b2c'` | `segment_type: 'domestic_b2b'` |
+| **Box count** | `totalNumOfBoxes` must be `1` | `totalNumOfBoxes` can be `> 1` |
+| **Tracking identifier** | `trackOrder(orderId)` | `trackOrder(orderId)` |
 | **E-Waybill** | Not required | Required (`ewaybill_number` + `ewaybill_document_file`) |
 
 ## B2C Shipments
@@ -21,20 +21,37 @@ Bigship classifies shipments into two categories: **B2C** (Business-to-Consumer)
 B2C shipments are standard last-mile deliveries to individual consumers. They are simpler — a single box per order, no e-waybill, and tracking via AWB.
 
 ```typescript
-const order = await client.addSingleOrder({
-  shipment_category: 'b2c',
-  consignee_name: 'John Doe',
-  consignee_address: '123 Main St',
-  consignee_city: 'Mumbai',
-  consignee_state: 'Maharashtra',
-  consignee_pincode: '400001',
-  consignee_phone: '9876543210',
-  product_name: 'T-Shirt',
-  payment_type: 'Prepaid',
-  total_collectable_amount: 0,
-  box_count: 1,
+const order = await client.createOrder({
+  segment_type: 'domestic_b2c',
+  MasterOrderPickUpLocation: 123456,
+  MasterOrderReturnLocation: 123456,
+  MasterOrderDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
+  MasterOrderPaymentMode: 1,
+  OrderInvoiceNo: `INV-${Date.now()}`,
+  MasterOrderInvoiceAmount: 2500,
+  MasterOrderShippingName: 'John Doe',
+  MasterOrderShippingMobileNo: '9876543210',
+  MasterOrderShippingAddress: '123 Main St',
+  MasterOrderShippingZipCode: '400001',
+  MasterOrderShippingCity: 'Mumbai',
+  MasterOrderShippingState: 'Maharashtra',
+  MasterOrderShippingCountry: 'India',
+  totalNumOfBoxes: 1,
+  boxes: [{
+    weight_unit: 'kg',
+    dimension_unit: 'cm',
+    noOfBoxes: 1,
+    dimensions: [{ length: 20, breadth: 15, height: 10, weight: 0.5 }],
+    products: [{
+      productName: 'T-Shirt',
+      qty: '1',
+      amount: '500',
+      totalAmount: 500,
+      collectableAmount: 0,
+      categoryId: '4',
+    }],
+  }],
   invoice_document_file: 'data:application/pdf;base64,...',
-  // ...other fields
 });
 ```
 
@@ -43,22 +60,39 @@ const order = await client.addSingleOrder({
 B2B shipments are heavy or bulk deliveries between businesses. They support multiple boxes and require an e-waybill.
 
 ```typescript
-const order = await client.addHeavyOrder({
-  shipment_category: 'b2b',
-  consignee_name: 'Acme Corp',
-  consignee_address: '456 Industrial Area',
-  consignee_city: 'Delhi',
-  consignee_state: 'Delhi',
-  consignee_pincode: '110001',
-  consignee_phone: '9876543210',
-  product_name: 'Electronics',
-  payment_type: 'Prepaid',
-  total_collectable_amount: 0,
-  box_count: 5,
+const order = await client.createOrder({
+  segment_type: 'domestic_b2b',
+  MasterOrderPickUpLocation: 123456,
+  MasterOrderReturnLocation: 123456,
+  MasterOrderDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
+  MasterOrderPaymentMode: 1,
+  OrderInvoiceNo: `B2B-${Date.now()}`,
+  MasterOrderInvoiceAmount: 50000,
+  MasterOrderShippingName: 'Acme Corp',
+  MasterOrderShippingMobileNo: '9876543210',
+  MasterOrderShippingAddress: '456 Industrial Area',
+  MasterOrderShippingZipCode: '110001',
+  MasterOrderShippingCity: 'Delhi',
+  MasterOrderShippingState: 'Delhi',
+  MasterOrderShippingCountry: 'India',
+  totalNumOfBoxes: 5,
   ewaybill_number: '123456789012',
   ewaybill_document_file: 'data:application/pdf;base64,...',
+  boxes: [{
+    weight_unit: 'kg',
+    dimension_unit: 'cm',
+    noOfBoxes: 5,
+    dimensions: [{ length: 40, breadth: 30, height: 25, weight: 10 }],
+    products: [{
+      productName: 'Electronics',
+      qty: '10',
+      amount: '5000',
+      totalAmount: 50000,
+      collectableAmount: 0,
+      categoryId: '4',
+    }],
+  }],
   invoice_document_file: 'data:application/pdf;base64,...',
-  // ...other fields
 });
 ```
 

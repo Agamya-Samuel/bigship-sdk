@@ -7,15 +7,16 @@ description: Troubleshoot common authentication problems including invalid crede
 
 ## Invalid Credentials → `BigshipAuthError` (HTTP 401)
 
-If you receive a `BigshipAuthError` with HTTP status 401, your `clientId` or `clientSecret` is incorrect.
+If you receive a `BigshipAuthError` with HTTP status 401, your `userName`, `password`, or `accessKey` is incorrect.
 
 ```ts
-import { BigshipClient, BigshipAuthError } from "bigship-sdk";
+import { BigshipClient, BigshipAuthError } from "@agamya/bigship-sdk";
 
 try {
   const client = new BigshipClient({
-    clientId: process.env.BIGSHIP_CLIENT_ID,
-    clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+    userName: process.env.BIGSHIP_USERNAME,
+    password: process.env.BIGSHIP_PASSWORD,
+    accessKey: process.env.BIGSHIP_ACCESS_KEY,
   });
 } catch (err) {
   if (err instanceof BigshipAuthError) {
@@ -33,8 +34,9 @@ The SDK auto-refreshes tokens before expiry. If you still hit auth errors under 
 
 ```ts
 const client = new BigshipClient({
-  clientId: process.env.BIGSHIP_CLIENT_ID,
-  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
+  userName: process.env.BIGSHIP_USERNAME,
+  password: process.env.BIGSHIP_PASSWORD,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY,
   tokenTtlMs: 50 * 60 * 1000, // 50 minutes (default is 55 minutes)
 });
 ```
@@ -47,9 +49,10 @@ Ensure the `baseURL` matches your Bigship account region:
 
 ```ts
 const client = new BigshipClient({
-  clientId: process.env.BIGSHIP_CLIENT_ID,
-  clientSecret: process.env.BIGSHIP_CLIENT_SECRET,
-  baseURL: "https://apiv2.bigship.direct", // India region
+  userName: process.env.BIGSHIP_USERNAME,
+  password: process.env.BIGSHIP_PASSWORD,
+  accessKey: process.env.BIGSHIP_ACCESS_KEY,
+  baseURL: "https://api.bigship.direct", // default base URL
 });
 ```
 
@@ -60,7 +63,7 @@ Check your account settings for the correct regional endpoint.
 If requests fail before reaching the server, you may receive a `BigshipNetworkError`:
 
 ```ts
-import { BigshipNetworkError } from "bigship-sdk";
+import { BigshipNetworkError } from "@agamya/bigship-sdk";
 
 try {
   await client.createOrder(orderPayload);

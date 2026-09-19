@@ -14,22 +14,22 @@ import {
 } from '@agamya/bigship-sdk';
 ```
 
-## Add Warehouse — `addWarehouse`
+## Save Warehouse — `saveWarehouse`
 
 Register a new warehouse for shipment pickups.
 
 ```typescript
-const warehouse = await client.addWarehouse({
-  warehouse_name: 'Mumbai Warehouse',
-  contact_person: 'Amit Kumar',
-  contact_number: '9876543210',
-  address: {
-    address_line1: '12 Industrial Area Phase 2',
-    address_line2: 'Andheri East',
-    pincode: '400069',
-    city: 'Mumbai',
-    state: 'Maharashtra',
-  },
+const warehouse = await client.saveWarehouse({
+  warehouseName: 'Mumbai Warehouse',
+  warehouseContactPerson: 'Amit Kumar',
+  warehouseAddressPhone: '9876543210',
+  warehouseCountry: 'India',
+  warehouseState: 'Maharashtra',
+  warehouseCity: 'Mumbai',
+  warehousePinCode: '400069',
+  warehouseAddressLine1: '12 Industrial Area Phase 2',
+  warehouseAddressLine2: 'Andheri East',
+  warehouseAddressLandMark: '',
 });
 
 if (isSuccessResponse(warehouse)) {
@@ -42,10 +42,10 @@ if (isSuccessResponse(warehouse)) {
 Retrieve your warehouses with pagination.
 
 ```typescript
-const warehouses = await client.getWarehouseList(1, 10);
-if (isSuccessResponse(warehouses)) {
-  for (const w of warehouses.data) {
-    console.log(`ID: ${w.pickup_location_id} — ${w.warehouse_name}`);
+const warehouses = await client.getWarehouseList({ page: 1, size: 10 });
+if (isSuccessResponse(warehouses) && warehouses.data) {
+  for (const w of warehouses.data.warehouse) {
+    console.log(`ID: ${w.warehouseId} — ${w.warehouseName}`);
   }
 }
 ```
@@ -56,18 +56,18 @@ if (isSuccessResponse(warehouses)) {
 |-----------|------|-------------|
 | `page` | `number` | Page number (1-indexed) |
 | `size` | `number` | Number of results per page |
+| `filter_type` | `'warehouse_name' | 'warehouse_phone' | 'warehouse_pin' | 'warehouse_contact_person'` | Optional filter type |
+| `filter_value` | `string` | Filter value |
 
 ## Using Warehouses in Orders
 
-The `pickup_location_id` and `return_location_id` in order payloads correspond to warehouse IDs returned by `addWarehouse` or `getWarehouseList`.
+The `MasterOrderPickUpLocation` and `MasterOrderReturnLocation` in order payloads correspond to warehouse IDs returned by `saveWarehouse` or `getWarehouseList`.
 
 ```typescript
-const order = await client.addSingleOrder({
+const order = await client.createOrder({
   // ...
-  warehouse_detail: {
-    pickup_location_id: 123456,  // from addWarehouse or getWarehouseList
-    return_location_id: 123456,
-  },
+  MasterOrderPickUpLocation: 123456,  // from saveWarehouse or getWarehouseList
+  MasterOrderReturnLocation: 123456,
   // ...
 });
 ```

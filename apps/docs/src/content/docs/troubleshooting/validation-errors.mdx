@@ -10,15 +10,15 @@ description: Troubleshoot request validation issues including missing fields, in
 The SDK validates requests client-side before sending. A `BigshipValidationError` includes field-level error details:
 
 ```ts
-import { BigshipValidationError } from "bigship-sdk";
+import { BigshipValidationError } from "@agamya/bigship-sdk";
 
 try {
   await client.createOrder(orderPayload);
 } catch (err) {
   if (err instanceof BigshipValidationError) {
     console.error("Validation failed:");
-    for (const fieldError of err.errors) {
-      console.error(`  ${fieldError.field}: ${fieldError.message}`);
+    for (const [field, messages] of Object.entries(err.validationErrors)) {
+      console.error(`  ${field}: ${messages.join(", ")}`);
     }
   }
 }
@@ -29,16 +29,16 @@ try {
 B2B shipments require `invoice_document_file` and `ewaybill_number`. Omitting either triggers a validation error:
 
 ```ts
-// ❌ Missing invoice_document_file for B2B
+// ❌ Missing fields for B2B
 await client.createOrder({
-  order_type: "B2B",
+  segment_type: "domestic_b2b",
   // invoice_document_file: "...", // required for B2B
   // ewaybill_number: "...",       // required for B2B
   // ...other fields
 });
 ```
 
-Ensure both fields are present for B2B orders.
+Ensure required fields are present for B2B orders.
 
 ## Invalid Pincode Format
 
@@ -58,7 +58,7 @@ pincode: "110001"
 Reusing an `invoice_id` within the same account triggers `BigshipDuplicateInvoiceError`:
 
 ```ts
-import { BigshipDuplicateInvoiceError } from "bigship-sdk";
+import { BigshipDuplicateInvoiceError } from "@agamya/bigship-sdk";
 
 try {
   await client.createOrder(orderPayload);
@@ -72,44 +72,54 @@ try {
 
 Generate unique invoice IDs (e.g., using `uuid` or a timestamp-based scheme).
 
-## B2C `box_count` Must Be 1
+## B2C `totalNumOfBoxes` Must Be 1
 
-For B2C orders, `box_count` is restricted to `1`:
+For B2C orders, `totalNumOfBoxes` is restricted to `1`:
 
 ```ts
 // ❌ Invalid for B2C
 await client.createOrder({
-  order_type: "B2C",
-  box_count: 3,
+  segment_type: "domestic_b2c",
+  totalNumOfBoxes: 3,
   // ...
 });
 
 // ✅ Valid for B2C
 await client.createOrder({
-  order_type: "B2C",
-  box_count: 1,
+  segment_type: "domestic_b2c",
+  totalNumOfBoxes: 1,
   // ...
 });
 ```
 
-## Prepaid Orders: `total_collectable_amount` Must Be 0
+## Prepaid Orders: `collectableAmount` Must Be 0
 
-For prepaid orders, `total_collectable_amount` must be `0`:
+For prepaid orders, `collectableAmount` must be `0`:
 
 ```ts
 // ❌ Invalid for prepaid
 await client.createOrder({
-  payment_type: "Prepaid",
-  total_collectable_amount: 500,
-  // ...
+  segment_type: "domestic_b2c",
+  MasterOrderPaymentMode: 1, // Prepaid
+  boxes: [{
+    products: [{
+      collectableAmount: 500,
+      // ...
+    }],
+  }],
 });
 
 // ✅ Valid for prepaid
 await client.createOrder({
-  payment_type: "Prepaid",
-  total_collectable_amount: 0,
-  // ...
+  segment_type: "domestic_b2c",
+  MasterOrderPaymentMode: 1, // Prepaid
+  boxes: [{
+    products: [{
+      collectableAmount: 0,
+      // ...
+    }],
+  }],
 });
 ```
 
-For COD orders, set `total_collectable_amount` to the amount to collect from the customer.
+For COD orders, set `collectableAmount` to the amount to collect from the customer.

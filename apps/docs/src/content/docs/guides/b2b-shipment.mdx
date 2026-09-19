@@ -8,14 +8,14 @@ B2B (Business to Business) shipments differ from B2C in several key ways. This g
 ## B2C vs B2B Comparison
 
 | | B2C | B2B |
-|---|---|---|
-| Order method | `addSingleOrder` | `addHeavyOrder` |
-| Manifest method | `manifestSingle` | `manifestHeavy` |
-| `shipment_category` | `'b2c'` | `'b2b'` |
+||---|---|
+| Order method | `createOrder({ segment_type: 'domestic_b2c' })` | `createOrder({ segment_type: 'domestic_b2b' })` |
+| Manifest method | `placeOrder` | `placeOrder` |
+| `segment_type` | `'domestic_b2c'` | `'domestic_b2b'` |
 | `ewaybill_number` | Optional | **Required** |
 | `ewaybill_document_file` | Optional | **Required** |
-| `box_count` | Must be `1` | Can be `> 1` |
-| Track by | AWB | LRN (Lorry Receipt Number) |
+| `totalNumOfBoxes` | Must be `1` | Can be `> 1` |
+| Track by | `trackOrder(orderId)` | `trackOrder(orderId)` |
 
 ## Imports
 
@@ -32,116 +32,94 @@ import {
 
 ### Create B2B Order
 
-B2B orders require `addHeavyOrder`, an e-waybill number, and the e-waybill document. They can also have multiple boxes.
+B2B orders require `segment_type: 'domestic_b2b'`, an e-waybill number, and the e-waybill document. They can also have multiple boxes.
 
 ```typescript
-const order = await client.addHeavyOrder({
-  shipment_category: 'b2b',
-  warehouse_detail: {
-    pickup_location_id: 123456,
-    return_location_id: 123456,
-  },
-  consignee_detail: {
-    first_name: 'Priya',
-    last_name: 'Patel',
-    company_name: 'TechCorp India Pvt Ltd',
-    contact_number_primary: '9123456789',
-    consignee_address: {
-      address_line1: 'Tower B 5th Floor DLF Cyber City',
-      pincode: '122002',
-    },
-  },
-  order_detail: {
-    invoice_date: new Date().toISOString(),
-    invoice_id: `B2B-${Date.now()}`,
-    payment_type: 'Prepaid',
-    total_collectable_amount: 0,
-    shipment_invoice_amount: 50000,
-    ewaybill_number: '281012345678', // REQUIRED for B2B
-    box_details: [
-      {
-        each_box_dead_weight: 5,
-        each_box_length: 40,
-        each_box_width: 30,
-        each_box_height: 25,
-        each_box_invoice_amount: 25000,
-        each_box_collectable_amount: 0,
-        box_count: 1,
-        product_details: [{
-          product_category: 'Electronics',
-          product_name: 'Server Motherboard',
-          product_quantity: 1,
-          each_product_invoice_amount: 25000,
-          each_product_collectable_amount: 0,
-          hsn: '84733099',
-        }],
-      },
-      {
-        each_box_dead_weight: 3,
-        each_box_length: 30,
-        each_box_width: 20,
-        each_box_height: 15,
-        each_box_invoice_amount: 25000,
-        each_box_collectable_amount: 0,
-        box_count: 1,
-        product_details: [{
-          product_category: 'Electronics',
-          product_name: 'Network Switch',
-          product_quantity: 2,
-          each_product_invoice_amount: 12500,
-          each_product_collectable_amount: 0,
-        }],
-      },
-    ],
-    document_detail: {
-      invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
-      ewaybill_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...', // REQUIRED
-    },
-  },
+const order = await client.createOrder({
+  segment_type: 'domestic_b2b',
+  MasterOrderPickUpLocation: 123456,
+  MasterOrderReturnLocation: 123456,
+  MasterOrderDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
+  MasterOrderPaymentMode: 1,
+  OrderInvoiceNo: `B2B-${Date.now()}`,
+  MasterOrderInvoiceAmount: 50000,
+  totalNumOfBoxes: 2,
+  ewaybill_number: '281012345678',
+  ewaybill_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
+  MasterOrderShippingName: 'Priya Patel',
+  MasterOrderShippingMobileNo: '9123456789',
+  MasterOrderShippingEmail: 'priya@techcorp.com',
+  MasterOrderShippingAddress: 'Tower B 5th Floor DLF Cyber City',
+  MasterOrderShippingZipCode: '122002',
+  MasterOrderShippingCity: 'DELHI',
+  MasterOrderShippingState: 'DELHI',
+  MasterOrderShippingCountry: 'India',
+  boxes: [{
+    weight_unit: 'kg',
+    dimension_unit: 'cm',
+    noOfBoxes: 1,
+    dimensions: [{ length: 40, breadth: 30, height: 25, weight: 5 }],
+    products: [{
+      productName: 'Server Motherboard',
+      qty: '1',
+      amount: '25000',
+      totalAmount: 25000,
+      collectableAmount: 0,
+      categoryId: '4',
+    }],
+  }, {
+    weight_unit: 'kg',
+    dimension_unit: 'cm',
+    noOfBoxes: 1,
+    dimensions: [{ length: 30, breadth: 20, height: 15, weight: 3 }],
+    products: [{
+      productName: 'Network Switch',
+      qty: '2',
+      amount: '12500',
+      totalAmount: 25000,
+      collectableAmount: 0,
+      categoryId: '4',
+    }],
+  }],
+  invoice_document_file: 'data:application/pdf;base64,JVBERi0xLjQKJ...',
 });
-
-if (isFailedResponse(order)) {
-  console.error('Failed:', order.message);
-  process.exit(1);
-}
-
-const orderId = order.data!;
 ```
 
 ### Manifest B2B Order
 
-Use `manifestHeavy` instead of `manifestSingle`.
+Use `placeOrder` to manifest the order with a courier.
 
 ```typescript
-await client.manifestHeavy({
-  system_order_id: orderId,
-  courier_id: 25,
+await client.placeOrder({
+  MasterCustomOrderId: orderId,
+  courierId: 25,
+  riskTypeId: '2', // Owner Risk
 });
 ```
 
 ### Get AWB and Label
 
-The AWB and label retrieval is the same as B2C.
+Retrieve AWB and label using `getOrderDetail` and `downloadDocument`.
 
 ```typescript
-const awbResp = await client.getShipmentData(ShipmentDataType.AWB, orderId);
-if (isSuccessResponse(awbResp) && awbResp.data && typeof awbResp.data !== 'string') {
-  console.log('AWB:', awbResp.data.master_awb);
-  console.log('Courier:', awbResp.data.courier_name);
+const details = await client.getOrderDetail(orderId);
+if (isSuccessResponse(details) && details.data) {
+  console.log('AWB:', details.data.getOrderDetails.AwbNumber);
+  console.log('Courier:', details.data.getOrderDetails.CourierName);
 }
 
-const label = await client.getShipmentData(ShipmentDataType.LABEL, orderId);
-if (isSuccessResponse(label) && typeof label.data === 'string') {
-  console.log('Label available');
+const label = await client.downloadDocument(orderId, 'label');
+if (isSuccessResponse(label) && label.data) {
+  console.log('Label URL:', label.data.AttachmentData);
 }
 ```
 
-### Track by LRN
+### Track by Order ID
 
-B2B shipments are tracked by LRN (Lorry Receipt Number) instead of AWB.
+B2B shipments are tracked by `trackOrder(orderId)`.
 
 ```typescript
-const tracking = await client.trackShipment('LR-6554921441', 'lrn');
+const tracking = await client.trackOrder(orderId);
 if (isSuccessResponse(tracking)) {
   console.log('Status:', tracking.data);
 }
@@ -150,24 +128,18 @@ if (isSuccessResponse(tracking)) {
 ### Cancel B2B Shipment
 
 ```typescript
-await client.cancelShipments(['13090318586270']);
+await client.cancelOrder(orderId);
 ```
 
 ## Convenience: All-in-One
 
-Use `createAndFinalizeShipment` to create, manifest, and get all documents in a single call:
+Use `ShipmentWorkflow.execute()` to create, manifest, and get documents in a single call:
 
 ```typescript
-const result = await client.createAndFinalizeShipment({
+const result = await ShipmentWorkflow.execute(client, {
   order: b2bOrderPayload,
   courierId: 25,
-  awbPollMaxAttempts: 5,
-  awbPollDelay: 3000,
 });
 
 console.log(result.orderId);
-console.log(result.awb);
-console.log(result.courierName);
-console.log(result.labelData);
-console.log(result.manifestData);
 ```

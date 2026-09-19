@@ -27,7 +27,7 @@ import { BigshipClient, isFailedResponse } from '@agamya/bigship-sdk';
 
 const client = new BigshipClient({
   baseURL: process.env.BIGSHIP_BASE_URL!,
-  userName: process.env.BIGSHIP_USER_NAME!,
+  userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
 });
@@ -35,22 +35,25 @@ const client = new BigshipClient({
 export async function POST(request: NextRequest) {
   const body = await request.json();
 
-  const order = await client.addSingleOrder({
-    shipment_category: 'b2c',
-    warehouse_detail: {
-      pickup_location_id: body.pickup_location_id,
-      return_location_id: body.pickup_location_id,
-    },
-    consignee_detail: body.consignee_detail,
-    order_detail: {
-      invoice_date: new Date().toISOString(),
-      invoice_id: `INV-${Date.now()}`,
-      payment_type: body.payment_type,
-      total_collectable_amount: body.total_collectable_amount,
-      shipment_invoice_amount: body.shipment_invoice_amount,
-      box_details: body.box_details,
-      document_detail: body.document_detail,
-    },
+  const order = await client.createOrder({
+    segment_type: 'domestic_b2c',
+    MasterOrderPickUpLocation: body.pickup_location_id,
+    MasterOrderReturnLocation: body.pickup_location_id,
+    MasterOrderDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
+    MasterOrderPaymentMode: body.payment_type === 'COD' ? 2 : 1,
+    OrderInvoiceNo: `INV-${Date.now()}`,
+    MasterOrderInvoiceAmount: body.shipment_invoice_amount,
+    MasterOrderShippingName: body.consignee_detail.name,
+    MasterOrderShippingMobileNo: body.consignee_detail.phone,
+    MasterOrderShippingEmail: body.consignee_detail.email,
+    MasterOrderShippingAddress: body.consignee_detail.address,
+    MasterOrderShippingZipCode: body.consignee_detail.pincode,
+    MasterOrderShippingCity: body.consignee_detail.city,
+    MasterOrderShippingState: body.consignee_detail.state,
+    MasterOrderShippingCountry: 'India',
+    totalNumOfBoxes: body.box_details?.length || 1,
+    boxes: body.box_details || [],
+    invoice_document_file: body.document_detail?.invoice_document_file,
   });
 
   if (isFailedResponse(order)) {
@@ -70,7 +73,7 @@ import { BigshipClient, isFailedResponse } from '@agamya/bigship-sdk';
 
 const client = new BigshipClient({
   baseURL: process.env.BIGSHIP_BASE_URL!,
-  userName: process.env.BIGSHIP_USER_NAME!,
+  userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
 });
@@ -80,7 +83,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const tracking = await client.trackShipment(id, 'awb');
+  const tracking = await client.trackOrder(id);
 
   if (isFailedResponse(tracking)) {
     return NextResponse.json({ error: tracking.message }, { status: 404 });
@@ -100,13 +103,13 @@ import { BigshipClient, isFailedResponse } from '@agamya/bigship-sdk';
 
 const client = new BigshipClient({
   baseURL: process.env.BIGSHIP_BASE_URL!,
-  userName: process.env.BIGSHIP_USER_NAME!,
+  userName: process.env.BIGSHIP_USERNAME!,
   password: process.env.BIGSHIP_PASSWORD!,
   accessKey: process.env.BIGSHIP_ACCESS_KEY!,
 });
 
-export async function trackByAwb(awb: string) {
-  const tracking = await client.trackShipment(awb, 'awb');
+export async function trackByAwb(orderId: string) {
+  const tracking = await client.trackOrder(orderId);
 
   if (isFailedResponse(tracking)) {
     return { error: tracking.message };
@@ -126,12 +129,12 @@ import { useState } from 'react';
 import { trackByAwb } from '@/app/actions/tracking';
 
 export function TrackingForm() {
-  const [awb, setAwb] = useState('');
+  const [orderId, setOrderId] = useState('');
   const [result, setResult] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const response = await trackByAwb(awb);
+    const response = await trackByAwb(orderId);
     if (response.error) {
       setResult(`Error: ${response.error}`);
     } else {
@@ -141,7 +144,7 @@ export function TrackingForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input value={awb} onChange={(e) => setAwb(e.target.value)} placeholder="Enter AWB" />
+      <input value={orderId} onChange={(e) => setOrderId(e.target.value)} placeholder="Enter Order ID" />
       <button type="submit">Track</button>
       {result && <pre>{result}</pre>}
     </form>

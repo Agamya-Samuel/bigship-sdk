@@ -70,11 +70,10 @@ All methods return `Promise<ApiResponse<T>>` with `{ status, message, status_cod
 
 ## Documentation
 
-The full guide (config, error hierarchy, hooks, workflow builder deep-dive, troubleshooting) lives in the repo:
+- [**Docs**](https://bigship-sdk.pages.dev) — full API docs, guides, troubleshooting.
+- [**Playground**](https://bigship-sdk.vercel.app) — interactive playground in your browser.
 
-- [**Repo README**](https://github.com/Agamya-Samuel/bigship-sdk#readme) — installation, configuration, API surface
-- [**CHANGELOG**](./CHANGELOG.md) — release notes and migration guide (v1 → v2 → v3)
-- **External docs sites** — see the repo README for the playground and docs-site URLs. Both are external deployments not under this repo's CI; if a link is unreachable, `cd apps/docs && npm run dev` runs the site locally.
+> Both hosted URLs are external deployments managed outside this repo; if either link is unreachable, `cd apps/docs && npm run dev` runs the site locally.
 
 ## Workflow Builder
 

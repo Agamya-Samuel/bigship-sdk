@@ -5,7 +5,7 @@ description: Complete step-by-step guide for B2C shipments — from wallet balan
 
 import { Steps } from '@astrojs/starlight/components';
 
-This guide walks through the full B2C (Business to Consumer) shipment lifecycle using the Bigship SDK v3.0.0+.
+This guide walks through the full B2C (Business to Consumer) shipment lifecycle using the Bigship SDK v4.0.0+.
 
 ## Imports
 
@@ -24,9 +24,9 @@ import {
    Verify your wallet has sufficient funds before creating shipments.
 
    ```typescript
-   const balance = await client.getWalletBalance();
-   if (isSuccessResponse(balance)) {
-     console.log('Balance:', balance.data); // → "5000.00"
+   const profile = await client.getProfile();
+   if (isSuccessResponse(profile)) {
+     console.log('Balance:', profile.data?.userWallet?.Balance);
    }
    ```
 
@@ -196,7 +196,7 @@ import {
 For a cleaner API, use the workflow builder:
 
 ```typescript
-const result = await client.workflow()
+const result = await new ShipmentWorkflow(client)
   .create({
     segment_type: 'domestic_b2c',
     MasterOrderPickUpLocation: 123456,

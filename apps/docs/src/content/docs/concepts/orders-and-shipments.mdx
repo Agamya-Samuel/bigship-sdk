@@ -13,18 +13,41 @@ An **order** is the data submission stage. You provide shipment details — cons
 
 | Method | Type | Description |
 |--------|------|-------------|
-| `addSingleOrder` | B2C | Submit a single-box consumer order |
-| `addHeavyOrder` | B2B | Submit a multi-box business order |
+| `createOrder({ segment_type: 'domestic_b2c' })` | B2C | Submit a single-box consumer order |
+| `createOrder({ segment_type: 'domestic_b2b' })` | B2B | Submit a multi-box business order |
 
 ```typescript
-const order = await client.addSingleOrder({
-  consignee_name: 'Jane Doe',
-  product_name: 'Laptop',
-  payment_type: 'Prepaid',
-  total_collectable_amount: 0,
-  box_count: 1,
+const order = await client.createOrder({
+  segment_type: 'domestic_b2c',
+  MasterOrderPickUpLocation: 123456,
+  MasterOrderReturnLocation: 123456,
+  MasterOrderDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
+  MasterOrderPaymentMode: 1,
+  OrderInvoiceNo: `INV-${Date.now()}`,
+  MasterOrderInvoiceAmount: 2500,
+  MasterOrderShippingName: 'Jane Doe',
+  MasterOrderShippingMobileNo: '9876543210',
+  MasterOrderShippingAddress: '123 Main St',
+  MasterOrderShippingZipCode: '400001',
+  MasterOrderShippingCity: 'Mumbai',
+  MasterOrderShippingState: 'Maharashtra',
+  MasterOrderShippingCountry: 'India',
+  totalNumOfBoxes: 1,
+  boxes: [{
+    weight_unit: 'kg',
+    dimension_unit: 'cm',
+    noOfBoxes: 1,
+    dimensions: [{ length: 20, breadth: 15, height: 10, weight: 0.5 }],
+    products: [{
+      productName: 'Laptop',
+      qty: '1',
+      amount: '2500',
+      totalAmount: 2500,
+      collectableAmount: 0,
+      categoryId: '4',
+    }],
+  }],
   invoice_document_file: 'data:application/pdf;base64,...',
-  // ...other fields
 });
 ```
 
@@ -36,27 +59,30 @@ A **shipment** is the physical movement stage. After an order is manifested, a c
 
 | Method | Description |
 |--------|-------------|
-| `manifestSingle` | Assign courier to a B2C order |
-| `manifestHeavy` | Assign courier to a B2B order |
-| `getAWB` | Retrieve the AWB number |
-| `getShipmentFile` | Retrieve shipping label or other documents |
+| `placeOrder` | Assign courier to an order (manifest) |
+| `getOrderDetail` | Retrieve full order details including AWB |
+| `downloadDocument` | Retrieve shipping label or other documents |
 
 ```typescript
-// Manifest the order to create a shipment
-const manifest = await client.manifestSingle({ order_id: 'ORD-123' });
+// Place the order to create a shipment
+const place = await client.placeOrder({
+  MasterCustomOrderId: '311276742',
+  courierId: 5,
+  riskTypeId: '2',
+});
 
-// Now retrieve the AWB
-const awb = await client.getAWB({ order_id: 'ORD-123' });
+// Now retrieve the order details
+const details = await client.getOrderDetail('311276742');
 
 // Get the shipping label
-const label = await client.getShipmentFile({ awb: awb.data });
+const label = await client.downloadDocument('311276742', 'label');
 ```
 
 ## Lifecycle
 
 ```
-Order Created ──→ Manifested ──→ Shipment Active ──→ Delivered
-(addSingleOrder)  (manifestSingle)  (AWB assigned)    (tracked)
+Order Created ──→ Placed ──→ Shipment Active ──→ Delivered
+(createOrder)    (placeOrder)  (AWB assigned)    (tracked)
 ```
 
-An order **becomes** a shipment after manifestation. Until then, it exists only as a data record with no courier assignment or tracking number.
+An order **becomes** a shipment after manifestation (`placeOrder`). Until then, it exists only as a data record with no courier assignment or tracking number.

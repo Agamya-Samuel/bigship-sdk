@@ -31,7 +31,7 @@ import {
 } from '@agamya/bigship-sdk';
 
 try {
-  await client.addSingleOrder(orderData);
+  await client.createOrder(orderData);
 } catch (error) {
   if (isBigshipDuplicateInvoiceError(error)) {
     console.error('Duplicate invoice:', error.invoiceId);
@@ -65,7 +65,7 @@ Error instances provide convenience methods for common status checks.
 
 ```typescript
 try {
-  await client.addSingleOrder(orderData);
+  await client.createOrder(orderData);
 } catch (error) {
   if (isBigshipApiError(error)) {
     if (error.isRateLimitError()) {
@@ -86,7 +86,7 @@ Not all errors throw exceptions. The SDK returns `ApiResponse<T>` for all method
 ```typescript
 import { isFailedResponse } from '@agamya/bigship-sdk';
 
-const order = await client.addSingleOrder(orderData);
+const order = await client.createOrder(orderData);
 if (isFailedResponse(order)) {
   console.error('Order failed:', order.message);
 }
@@ -96,7 +96,7 @@ if (isFailedResponse(order)) {
 
 ```typescript
 try {
-  await client.addSingleOrder(orderData);
+  await client.createOrder(orderData);
 } catch (error) {
   if (isBigshipDuplicateInvoiceError(error)) {
     console.error(`Invoice ${error.invoiceId} already exists`);
@@ -109,7 +109,7 @@ try {
 
 ```typescript
 try {
-  await client.addSingleOrder(orderData);
+  await client.createOrder(orderData);
 } catch (error) {
   if (isBigshipValidationError(error)) {
     for (const [field, messages] of Object.entries(error.validationErrors)) {
@@ -123,7 +123,7 @@ try {
 
 ```typescript
 try {
-  await client.addSingleOrder(orderData);
+  await client.createOrder(orderData);
 } catch (error) {
   if (isBigshipNetworkError(error)) {
     console.error('Network error — check connectivity or timeout settings');
