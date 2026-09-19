@@ -15,6 +15,13 @@ const ExecuteRequestSchema = z.object({
     userName: z.string().min(1),
     password: z.string().min(1),
     accessKey: z.string().min(1),
+    timeout: z.number().optional(),
+    enableDetailedLogging: z.boolean().optional(),
+    maxRetries: z.number().optional(),
+    retryDelay: z.number().optional(),
+    maxRetryDelay: z.number().optional(),
+    retryOnStatusCodes: z.array(z.number()).optional(),
+    tokenTtlMs: z.number().optional(),
   }),
   method: z.string().min(1),
   params: z.array(z.unknown()).default([]),
@@ -106,9 +113,26 @@ export async function POST(req: NextRequest) {
 
   const hooks: HookEvent[] = [];
 
+  const {
+    timeout,
+    enableDetailedLogging,
+    maxRetries,
+    retryDelay,
+    maxRetryDelay,
+    retryOnStatusCodes,
+    tokenTtlMs,
+    ...credentialFields
+  } = credentials;
+
   const client = new BigshipClient({
-    ...credentials,
-    enableDetailedLogging: false,
+    ...credentialFields,
+    timeout,
+    enableDetailedLogging: enableDetailedLogging ?? false,
+    maxRetries,
+    retryDelay,
+    maxRetryDelay,
+    retryOnStatusCodes,
+    tokenTtlMs,
     onBeforeRequest: (config) => {
       hooks.push({
         type: 'beforeRequest',

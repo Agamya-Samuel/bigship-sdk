@@ -8,6 +8,13 @@ export interface BigshipCredentials {
   userName: string;
   password: string;
   accessKey: string;
+  timeout?: number;
+  enableDetailedLogging?: boolean;
+  maxRetries?: number;
+  retryDelay?: number;
+  maxRetryDelay?: number;
+  retryOnStatusCodes?: number[];
+  tokenTtlMs?: number;
 }
 
 export interface HistoryEntry {

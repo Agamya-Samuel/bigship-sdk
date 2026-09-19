@@ -84,6 +84,13 @@ export interface ExecuteRequest {
     userName: string;
     password: string;
     accessKey: string;
+    timeout?: number;
+    enableDetailedLogging?: boolean;
+    maxRetries?: number;
+    retryDelay?: number;
+    maxRetryDelay?: number;
+    retryOnStatusCodes?: number[];
+    tokenTtlMs?: number;
   };
   method: string;
   params: unknown[];

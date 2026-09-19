@@ -4,7 +4,7 @@ const clientCache = new Map<string, { client: BigshipClient; createdAt: number }
 const CLIENT_TTL = 10 * 60 * 1000;
 
 function hashCredentials(creds: BigshipConfig): string {
-  return `${creds.baseURL}::${creds.userName}::${creds.password}::${creds.accessKey}`;
+  return `${creds.baseURL}::${creds.userName}::${creds.password}::${creds.accessKey}::${creds.timeout ?? ''}::${creds.maxRetries ?? ''}::${creds.retryDelay ?? ''}::${creds.maxRetryDelay ?? ''}::${creds.tokenTtlMs ?? ''}::${creds.retryOnStatusCodes?.join(',') ?? ''}`;
 }
 
 export function getOrCreateClient(creds: BigshipConfig): BigshipClient {
@@ -19,7 +19,7 @@ export function getOrCreateClient(creds: BigshipConfig): BigshipClient {
 
   const client = new BigshipClient({
     ...creds,
-    enableDetailedLogging: false,
+    enableDetailedLogging: creds.enableDetailedLogging ?? false,
   });
   clientCache.set(key, { client, createdAt: Date.now() });
   return client;

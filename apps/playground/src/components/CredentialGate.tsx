@@ -10,8 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
-import { Loader2, Lock, LogOut } from 'lucide-react';
+import { Loader2, Lock, LogOut, ChevronDown } from 'lucide-react';
 
 export function CredentialGate({ children }: { children: React.ReactNode }) {
   const { credentials, setCredentials, clearCredentials, hydrated } = usePlayground();
@@ -67,6 +68,23 @@ function CredentialForm({
   });
   const [error, setError] = useState<string | null>(null);
   const [validating, setValidating] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+
+  const update = <K extends keyof BigshipCredentials>(key: K, value: BigshipCredentials[K]) => {
+    setForm(prev => ({ ...prev, [key]: value }));
+    setError(null);
+  };
+
+  const parseStatusCodes = (raw: string): number[] | undefined => {
+    const trimmed = raw.trim();
+    if (!trimmed) return undefined;
+    return trimmed.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !Number.isNaN(n));
+  };
+
+  const formatStatusCodes = (codes?: number[]): string => {
+    if (!codes || codes.length === 0) return '';
+    return codes.join(', ');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,11 +173,6 @@ function CredentialForm({
     }
   };
 
-  const update = (key: keyof BigshipCredentials, value: string) => {
-    setForm(prev => ({ ...prev, [key]: value }));
-    setError(null);
-  };
-
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
       <Card className="w-full max-w-md">
@@ -214,6 +227,97 @@ function CredentialForm({
                 required
               />
             </div>
+
+            <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+              <Button type="button" variant="outline" className="w-full" onClick={() => setAdvancedOpen(!advancedOpen)}>
+                Advanced Configuration
+                <ChevronDown className={cn('h-4 w-4 ml-auto transition-transform', advancedOpen && 'rotate-180')} />
+              </Button>
+              <CollapsibleContent>
+                <div className="grid grid-cols-2 gap-3 pt-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="timeout">Timeout (ms)</Label>
+                    <Input
+                      id="timeout"
+                      type="number"
+                      min={1000}
+                      step={1000}
+                      value={form.timeout ?? ''}
+                      onChange={(e) => update('timeout', e.target.value ? Number(e.target.value) : undefined)}
+                      placeholder="15000"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="maxRetries">Max Retries</Label>
+                    <Input
+                      id="maxRetries"
+                      type="number"
+                      min={0}
+                      value={form.maxRetries ?? ''}
+                      onChange={(e) => update('maxRetries', e.target.value ? Number(e.target.value) : undefined)}
+                      placeholder="3"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="retryDelay">Retry Delay (ms)</Label>
+                    <Input
+                      id="retryDelay"
+                      type="number"
+                      min={0}
+                      step={100}
+                      value={form.retryDelay ?? ''}
+                      onChange={(e) => update('retryDelay', e.target.value ? Number(e.target.value) : undefined)}
+                      placeholder="1000"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="maxRetryDelay">Max Retry Delay (ms)</Label>
+                    <Input
+                      id="maxRetryDelay"
+                      type="number"
+                      min={0}
+                      step={1000}
+                      value={form.maxRetryDelay ?? ''}
+                      onChange={(e) => update('maxRetryDelay', e.target.value ? Number(e.target.value) : undefined)}
+                      placeholder="30000"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="tokenTtlMs">Token TTL (ms)</Label>
+                    <Input
+                      id="tokenTtlMs"
+                      type="number"
+                      min={60000}
+                      step={60000}
+                      value={form.tokenTtlMs ?? ''}
+                      onChange={(e) => update('tokenTtlMs', e.target.value ? Number(e.target.value) : undefined)}
+                      placeholder="3300000"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="retryOnStatusCodes">Retry Status Codes</Label>
+                    <Input
+                      id="retryOnStatusCodes"
+                      value={formatStatusCodes(form.retryOnStatusCodes)}
+                      onChange={(e) => update('retryOnStatusCodes', parseStatusCodes(e.target.value))}
+                      placeholder="408, 429, 500, 502, 503, 504"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 pt-5">
+                    <input
+                      id="enableDetailedLogging"
+                      type="checkbox"
+                      checked={form.enableDetailedLogging ?? false}
+                      onChange={(e) => update('enableDetailedLogging', e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <Label htmlFor="enableDetailedLogging" className="text-sm font-normal">
+                      Enable detailed logging
+                    </Label>
+                  </div>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
             {error && (
               <Alert variant="destructive">
