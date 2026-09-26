@@ -262,7 +262,7 @@ export default function HomePage() {
                   className="w-full aspect-video"
                 >
                   <source
-                    src="https://cdn-r2.agamya.dev/bigship/bigship-sdk-playground-demo.mp4"
+                    src="https://cdn-r2.agamya.dev/bigship/bigship-sdk-playground-demo_converted.webm"
                     type="video/mp4"
                   />
                   Your browser does not support the video tag.
