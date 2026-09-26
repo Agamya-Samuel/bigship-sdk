@@ -9,6 +9,12 @@ A typed, batteries-included TypeScript SDK for the [Bigship.direct](https://bigs
 
 > **Disclaimer:** Community project based on publicly available Bigship API documentation. Not officially affiliated with Bigship.direct.
 
+## Demo in action
+
+[![Bigship AI Agent demo](assets/bigship-ai-agent-demo.gif)](https://cdn-r2.agamya.dev/bigship/bigship-sdk-playground-demo_converted.webm)
+
+> Click the animation to watch the full video. GitHub doesn't render inline `<video>` embeds for external URLs, so this is an animated preview. 
+
 ## Table of Contents
 
 - [Install](#install)
